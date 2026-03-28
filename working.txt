@@ -1,0 +1,216 @@
+Quantum Circuit Simulator - Working
+
+Project structure
+- Backend lives in api/main.py
+- Frontend lives in frontend/
+- Communication between them happens through a WebSocket at ws://localhost:8000/ws
+
+Overall flow
+1. The user opens the Next.js frontend.
+2. The frontend renders the circuit builder, histograms, and comparison table.
+3. The user selects Circuit A or Circuit B.
+4. The user adds gates from the gate palette onto qubit wires.
+5. The circuit is stored in Zustand state.
+6. When the user clicks Run, the frontend serializes the circuit into JSON.
+7. The JSON is sent to the backend over WebSocket.
+8. The backend converts that JSON into a Qiskit QuantumCircuit.
+9. Qiskit Aer simulates the circuit.
+10. The backend sends the simulation result back through the WebSocket.
+11. The frontend stores the result and updates the histograms and comparison metrics.
+
+Frontend working
+
+App shell
+- frontend/app/page.tsx builds the page layout.
+- It shows:
+  - page header
+  - circuit builder
+  - histogram for Algorithm A
+  - histogram for Algorithm B
+  - comparison metrics table
+  - footer
+
+State management
+- frontend/store/useCircuitStore.ts stores:
+  - active circuit key: A or B
+  - circuits for A and B
+  - simulation results for A and B
+  - WebSocket status
+  - error state
+  - running/loading state
+- It also exposes actions for:
+  - setting qubit count
+  - adding gates
+  - updating/removing gates
+  - clearing a circuit
+  - setting results
+  - loading mock data
+
+Gate system
+- frontend/lib/gates.ts is the single source of truth for supported gates.
+- Supported gates are:
+  - H, X, Y, Z
+  - S, SDG, T, TDG
+  - RX, RY, RZ
+  - CNOT, CZ, SWAP
+  - M, I
+- The same file defines:
+  - categories
+  - colors
+  - which gates are two-qubit
+  - which gates are parametric
+  - default theta values
+  - helpers for formatting and parsing theta
+
+Gate palette
+- frontend/components/GatePalette.tsx displays gates grouped by category.
+- The user can select one gate at a time.
+- For parametric gates RX, RY, RZ:
+  - a theta input panel appears
+  - the user can type a value or choose presets like pi/2
+- For two-qubit gates CNOT, CZ, SWAP:
+  - control/target selectors appear
+- The palette also shows which gate is currently selected.
+
+Circuit builder
+- frontend/components/CircuitBuilder.tsx renders the circuit canvas as an SVG.
+- Each horizontal line represents a qubit wire.
+- Gates are placed in columns over time.
+- Clicking on an empty valid position places the currently selected gate.
+- Clicking on a placed gate removes it.
+- The builder supports:
+  - single-qubit gates
+  - CNOT with control dot and target symbol
+  - CZ with connected control points
+  - SWAP with cross markers
+  - measurement symbol
+  - ghost preview before placement
+  - live column count expansion as the circuit grows
+- The builder also shows:
+  - WebSocket status
+  - loading/running state
+  - qubit count selector
+  - reconnect button
+  - live summary cards
+
+Circuit JSON editor
+- frontend/components/CircuitJsonEditor.tsx allows direct JSON editing of the active circuit.
+- It accepts:
+  - full circuit object
+  - gates-only object
+  - array of gates
+  - single gate object
+- It supports two actions:
+  - Replace: clears current circuit and loads JSON
+  - Append: keeps current circuit and adds new gates after it
+- It validates:
+  - JSON syntax
+  - gate types
+  - target/control fields
+  - theta values
+- It also supports:
+  - dirty-state tracking
+  - copy to clipboard
+  - reset to live store state
+  - Ctrl/Cmd + Enter shortcut for replace
+
+Circuit serialization
+- frontend/lib/circuit.ts contains helpers for circuit processing.
+- It is responsible for:
+  - serializing the current circuit into backend JSON
+  - calculating gate count
+  - calculating circuit depth
+  - converting counts into histogram probability series
+
+WebSocket working
+- frontend/hooks/useWebSocket.ts manages the socket connection.
+- It provides:
+  - automatic connect on mount
+  - reconnect with exponential backoff
+  - manual reconnect
+  - loading state
+  - error state
+  - simulateCircuit(payload)
+- simulateCircuit:
+  - queues a pending request
+  - sends circuit JSON
+  - waits for a "result" message
+  - resolves the promise with the payload
+
+Histogram working
+- frontend/components/Histogram.tsx visualizes measurement probabilities with Recharts.
+- It converts raw counts into probabilities.
+- X-axis shows computational basis states.
+- Y-axis shows probability percentage.
+- Circuit A and Circuit B use different accent colors.
+- If no result exists, an empty state message is shown.
+
+Comparison working
+- frontend/components/ComparisonTable.tsx compares Circuit A and Circuit B.
+- It shows:
+  - gate count
+  - circuit depth
+  - measured states
+  - statevector length
+- It calculates per-row winners and an overall winner badge.
+
+Mock data
+- The store contains mock circuits so the UI can be tested without relying on backend simulation.
+- Load Mock fills Circuit A and Circuit B with sample circuits.
+
+Backend working
+
+WebSocket endpoint
+- api/main.py defines a FastAPI app with a WebSocket endpoint at /ws.
+- When the frontend connects:
+  - the backend accepts the socket
+  - waits for incoming circuit JSON
+
+Simulation pipeline
+- The backend reads:
+  - number of qubits
+  - list of gates
+- It creates a Qiskit QuantumCircuit with classical bits for measurement.
+- For each gate, it applies the corresponding Qiskit operation.
+- Supported backend gate operations include:
+  - H, X, Y, Z
+  - CNOT
+  - M
+  - S, SDG, T, TDG
+  - RX, RY, RZ
+  - CZ
+  - SWAP
+- After building the circuit:
+  - qc.save_statevector() is called
+  - AerSimulator runs the circuit with 1024 shots
+
+Backend response
+- The backend first sends a status message:
+  - type: status
+  - message: Circuit received
+- Then it sends the result:
+  - type: result
+  - payload:
+    - counts
+    - statevector
+    - depth
+    - gate_count
+
+Statevector handling
+- The backend serializes complex amplitudes into objects with:
+  - real
+  - imag
+- For circuits with more than 8 qubits, statevector is returned as None to avoid large payloads.
+
+Important behavior notes
+- The current frontend builder uses a custom SVG renderer, not React Flow.
+- The project supports two circuits for comparison mode.
+- The frontend is designed for real-time interaction through WebSocket, not normal REST requests.
+- The backend is the execution engine and the frontend is the visual editor and analysis layer.
+
+How to run
+- Backend:
+  - run FastAPI app from api/main.py using uvicorn
+- Frontend:
+  - run Next.js app from frontend/
+- Both must be running for live simulation to work.

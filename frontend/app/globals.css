@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-background: #02060f;
+  --color-panel: #060d1a;
+  --color-text: #c8dff2;
+  --color-muted: #28405a;
+  --color-primary: #00d4ff;
+  --color-secondary: #a259ff;
+  --color-success: #00e5a0;
+  --color-danger: #ff3860;
+  --shadow-panel: 0 0 0 1px rgba(0, 212, 255, 0.06), 0 24px 64px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+html,
+body {
+  font-family: 'Syne', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ambient nebula glow — lives on the html element so it's truly global */
+html {
+  background-image: radial-gradient(ellipse 70% 45% at 8% -5%, rgba(0, 212, 255, 0.05) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 92% 105%, rgba(162, 89, 255, 0.05) 0%, transparent 65%);
+  background-attachment: fixed;
+  min-height: 100dvh;
+}
+
+/* ── Mono font for all data & code ── */
+pre,
+code,
+kbd,
+.mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.35);
+}
+
+/* ── Selection ── */
+::selection {
+  background: rgba(0, 212, 255, 0.18);
+  color: var(--color-text);
+}
+
+/* ── Animated gradient border utility ── */
+@keyframes border-shimmer {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.75);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── ReactFlow override — keep canvas dark ── */
+.react-flow__renderer {
+  background: var(--color-background) !important;
+}
+.react-flow__minimap {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.react-flow__controls {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--color-panel);
+}
+.react-flow__controls-button {
+  background: var(--color-panel) !important;
+  border: none !important;
+  color: var(--color-muted) !important;
+}
+.react-flow__controls-button:hover {
+  background: rgba(0, 212, 255, 0.08) !important;
+  color: var(--color-primary) !important;
+}
+.react-flow__edge-path {
+  stroke: rgba(0, 212, 255, 0.25) !important;
+  stroke-width: 1.5 !important;
+}
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: rgba(0, 212, 255, 0.7) !important;
+}
