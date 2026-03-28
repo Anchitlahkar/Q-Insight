@@ -24,7 +24,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { GATE_MAP, GateType, isTwoQubitGate } from "@/lib/gates";
+import { GATE_MAP, GateType, isParametricGate, isTwoQubitGate } from "@/lib/gates";
 import { CircuitKey, GateOperation } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
@@ -63,6 +63,9 @@ const TYPE_ALIASES: Record<string, GateType> = {
   rx:      "RX",
   ry:      "RY",
   rz:      "RZ",
+  crx:     "CRX",
+  cry:     "CRY",
+  crz:     "CRZ",
 };
 
 function normalizeGateType(raw: unknown): GateType | null {
@@ -170,7 +173,7 @@ function parseCircuitJson(text: string): ParseResult {
       return { ok: false, message: `Gate ${idx} (${gtype}): two-qubit gates require a "control" field` };
     }
 
-    // theta (optional, validated for rotation gates)
+    // theta (required for parametric gates)
     let theta: number | undefined;
     if ("theta" in g) {
       const t = g["theta"];
@@ -178,6 +181,8 @@ function parseCircuitJson(text: string): ParseResult {
         return { ok: false, message: `Gate ${idx} (${gtype}): "theta" must be a finite number in radians` };
       }
       theta = t;
+    } else if (isParametricGate(gtype)) {
+      return { ok: false, message: `Gate ${idx} (${gtype}): parametric gates require a "theta" field` };
     }
 
     gates.push({ type: gtype, target, control, theta });

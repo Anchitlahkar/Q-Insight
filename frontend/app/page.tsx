@@ -1,3 +1,4 @@
+import AlgorithmSelector from "@/components/AlgorithmSelector";
 import CircuitBuilder from "@/components/CircuitBuilder";
 import Histogram from "@/components/Histogram";
 import ComparisonTable from "@/components/ComparisonTable";
@@ -73,6 +74,8 @@ export default function HomePage() {
         </header>
 
         {/* ── Main builder ── */}
+        <AlgorithmSelector />
+
         <CircuitBuilder />
 
         {/* ── Histograms ── */}

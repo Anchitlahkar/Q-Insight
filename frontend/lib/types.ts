@@ -1,10 +1,12 @@
-﻿export type { GateType } from "./gates";
+import type { GateType } from "./gates";
+
+export type { GateType } from "./gates";
 
 export type CircuitKey = "A" | "B";
 
 export interface GateOperation {
   id: string;
-  type: import("./gates").GateType;
+  type: GateType;
   target: number;
   control?: number;
   theta?: number;
@@ -26,7 +28,7 @@ export interface SimulationResult {
 export type SocketStatus = "connecting" | "connected" | "running" | "disconnected" | "error";
 
 export interface SerializedGate {
-  type: string;
+  type: GateType;
   target: number;
   control?: number;
   theta?: number;
@@ -37,3 +39,20 @@ export interface SerializedCircuit {
   gates: SerializedGate[];
 }
 
+export interface AlgorithmDefinition {
+  name: string;
+  qubits: number;
+  gates: SerializedGate[];
+  description?: string;
+  executionMode?: "load" | "backend";
+  backendAlgorithm?: string;
+  backendParams?: Record<string, unknown>;
+}
+
+export interface AlgorithmExecutionRequest {
+  mode: "algorithm";
+  algorithm: string;
+  params?: Record<string, unknown>;
+}
+
+export type SimulationRequest = SerializedCircuit | AlgorithmExecutionRequest;

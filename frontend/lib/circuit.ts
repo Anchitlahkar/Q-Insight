@@ -1,8 +1,12 @@
-﻿import { Circuit, GateOperation, SerializedCircuit } from "@/lib/types";
+import { isTwoQubitGate } from "@/lib/gates";
+import { Circuit, GateOperation, SerializedCircuit } from "@/lib/types";
 
 export interface ComparisonMetrics {
   gateCount: number;
   depth: number;
+  twoQubitGateCount: number;
+  twoQubitLayerDepth: number;
+  efficiencyScore: number;
 }
 
 const touchesQubit = (gate: GateOperation, qubit: number) => gate.target === qubit || gate.control === qubit;
@@ -23,6 +27,8 @@ export const serializeCircuit = (circuit: Circuit): SerializedCircuit => ({
 export const calculateMetrics = (circuit: Circuit): ComparisonMetrics => {
   const sortedGates = circuit.gates.slice().sort((left, right) => left.position.x - right.position.x);
   const laneDepths = new Array(circuit.qubits).fill(0);
+  let twoQubitGateCount = 0;
+  let twoQubitLayerDepth = 0;
 
   for (const gate of sortedGates) {
     const touched = [gate.target, ...(gate.control !== undefined ? [gate.control] : [])];
@@ -30,11 +36,22 @@ export const calculateMetrics = (circuit: Circuit): ComparisonMetrics => {
     touched.forEach((qubit) => {
       laneDepths[qubit] = depth;
     });
+
+    if (isTwoQubitGate(gate.type)) {
+      twoQubitGateCount += 1;
+      twoQubitLayerDepth = Math.max(twoQubitLayerDepth, depth);
+    }
   }
 
+  const gateCount = circuit.gates.length;
+  const depth = laneDepths.length ? Math.max(...laneDepths) : 0;
+
   return {
-    gateCount: circuit.gates.length,
-    depth: laneDepths.length ? Math.max(...laneDepths) : 0
+    gateCount,
+    depth,
+    twoQubitGateCount,
+    twoQubitLayerDepth,
+    efficiencyScore: Number((depth * 0.6 + gateCount * 0.4).toFixed(2))
   };
 };
 
@@ -63,4 +80,3 @@ export const getOccupiedColumns = (circuit: Circuit) => {
 };
 
 export const gateTouchesQubit = touchesQubit;
-

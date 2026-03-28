@@ -1,0 +1,230 @@
+[
+  {
+    "name": "Quantum Fourier Transform (4 qubits)",
+    "qubits": 4,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "CRZ", "control": 1, "target": 0, "theta": 1.57079632679 },
+      { "type": "CRZ", "control": 2, "target": 0, "theta": 0.78539816339 },
+      { "type": "CRZ", "control": 3, "target": 0, "theta": 0.39269908169 },
+
+      { "type": "H", "target": 1 },
+      { "type": "CRZ", "control": 2, "target": 1, "theta": 1.57079632679 },
+      { "type": "CRZ", "control": 3, "target": 1, "theta": 0.78539816339 },
+
+      { "type": "H", "target": 2 },
+      { "type": "CRZ", "control": 3, "target": 2, "theta": 1.57079632679 },
+
+      { "type": "H", "target": 3 },
+
+      { "type": "SWAP", "control": 0, "target": 3 },
+      { "type": "SWAP", "control": 1, "target": 2 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 }
+    ]
+  },
+
+  {
+    "name": "Grover (3 qubits)",
+    "qubits": 3,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "CZ", "control": 0, "target": 2 },
+      { "type": "CZ", "control": 1, "target": 2 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+
+      { "type": "H", "target": 2 },
+      { "type": "CZ", "control": 0, "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 }
+    ]
+  },
+
+  {
+    "name": "Deutsch–Jozsa",
+    "qubits": 4,
+    "gates": [
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "CNOT", "control": 0, "target": 3 },
+      { "type": "CNOT", "control": 1, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 }
+    ]
+  },
+
+  {
+    "name": "Bernstein–Vazirani",
+    "qubits": 5,
+    "gates": [
+      { "type": "X", "target": 4 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+      { "type": "H", "target": 4 },
+
+      { "type": "CNOT", "control": 0, "target": 4 },
+      { "type": "CNOT", "control": 2, "target": 4 },
+      { "type": "CNOT", "control": 3, "target": 4 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 }
+    ]
+  },
+
+  {
+    "name": "Simon's Algorithm",
+    "qubits": 4,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+
+      { "type": "CNOT", "control": 0, "target": 2 },
+      { "type": "CNOT", "control": 1, "target": 3 },
+      { "type": "CNOT", "control": 0, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 }
+    ]
+  },
+
+  {
+    "name": "Phase Estimation (4 qubits)",
+    "qubits": 4,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "CRZ", "control": 0, "target": 3, "theta": 3.14159265359 },
+      { "type": "CRZ", "control": 1, "target": 3, "theta": 6.28318530718 },
+      { "type": "CRZ", "control": 2, "target": 3, "theta": 12.56637061436 },
+
+      { "type": "H", "target": 2 },
+      { "type": "CRZ", "control": 2, "target": 1, "theta": -1.57079632679 },
+      { "type": "H", "target": 1 },
+      { "type": "CRZ", "control": 2, "target": 0, "theta": -0.78539816339 },
+      { "type": "CRZ", "control": 1, "target": 0, "theta": -1.57079632679 },
+      { "type": "H", "target": 0 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 }
+    ]
+  },
+
+  {
+    "name": "Shor (Order Finding Core)",
+    "qubits": 5,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "X", "target": 3 },
+
+      { "type": "CNOT", "control": 0, "target": 3 },
+      { "type": "CNOT", "control": 1, "target": 4 },
+      { "type": "CNOT", "control": 2, "target": 3 },
+
+      { "type": "CRZ", "control": 1, "target": 0, "theta": 1.57079632679 },
+      { "type": "CRZ", "control": 2, "target": 0, "theta": 0.78539816339 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 }
+    ]
+  },
+
+  {
+    "name": "VQE Ansatz (Hardware Efficient)",
+    "qubits": 3,
+    "gates": [
+      { "type": "RY", "target": 0, "theta": 0.5 },
+      { "type": "RY", "target": 1, "theta": 0.7 },
+      { "type": "RY", "target": 2, "theta": 1.2 },
+
+      { "type": "CNOT", "control": 0, "target": 1 },
+      { "type": "CNOT", "control": 1, "target": 2 },
+
+      { "type": "RZ", "target": 0, "theta": 0.3 },
+      { "type": "RZ", "target": 1, "theta": 0.8 },
+      { "type": "RZ", "target": 2, "theta": 0.4 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 }
+    ]
+  },
+
+  {
+    "name": "QAOA (p=1 layer)",
+    "qubits": 3,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "CZ", "control": 0, "target": 1 },
+      { "type": "CZ", "control": 1, "target": 2 },
+
+      { "type": "RX", "target": 0, "theta": 1.0 },
+      { "type": "RX", "target": 1, "theta": 1.0 },
+      { "type": "RX", "target": 2, "theta": 1.0 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 }
+    ]
+  }
+]

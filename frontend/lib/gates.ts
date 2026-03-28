@@ -12,7 +12,7 @@ export type GateType =
   // Rotation (parametric)
   | "RX" | "RY" | "RZ"
   // Multi-qubit
-  | "CNOT" | "CZ" | "SWAP"
+  | "CNOT" | "CZ" | "SWAP" | "CRX" | "CRY" | "CRZ"
   // Utility
   | "M" | "I";
 
@@ -173,6 +173,36 @@ export const GATES: GateDefinition[] = [
     category: "Multi",
     color: "#f4a261",
     isTwoQubit: true,
+  },
+  {
+    type: "CRX",
+    label: "CRx",
+    description: "Controlled X-rotation",
+    category: "Multi",
+    color: "#FFD166",
+    hasParameter: true,
+    isTwoQubit: true,
+    defaultTheta: Math.PI / 2,
+  },
+  {
+    type: "CRY",
+    label: "CRy",
+    description: "Controlled Y-rotation",
+    category: "Multi",
+    color: "#FFD166",
+    hasParameter: true,
+    isTwoQubit: true,
+    defaultTheta: Math.PI / 2,
+  },
+  {
+    type: "CRZ",
+    label: "CRz",
+    description: "Controlled Z-rotation",
+    category: "Multi",
+    color: "#FFD166",
+    hasParameter: true,
+    isTwoQubit: true,
+    defaultTheta: Math.PI / 2,
   },
 
   // ── Utility ───────────────────────────────────────────────────────────────

@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { SerializedCircuit, SimulationResult, SocketStatus } from "@/lib/types";
+import { useCallback, useEffect, useState } from "react";
+import { SimulationRequest, SimulationResult, SocketStatus } from "@/lib/types";
+import { useCircuitStore } from "@/store/useCircuitStore";
 
 type ResultEnvelope = {
   type: "result";
@@ -24,118 +25,183 @@ type PendingRequest = {
   reject: (reason?: unknown) => void;
 };
 
-export const useWebSocket = (url: string) => {
-  const socketRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<number | null>(null);
-  const shouldReconnectRef = useRef(true);
-  const skipReconnectRef = useRef(false);
-  const pendingRequestsRef = useRef<PendingRequest[]>([]);
-  const reconnectAttemptsRef = useRef(0);
+type SharedSocketState = {
+  status: SocketStatus;
+  error: string | null;
+  isLoading: boolean;
+  statusMessage: string | null;
+  latencyMs: number | null;
+  lastCompletedAt: number | null;
+};
 
-  const [status, setStatus] = useState<SocketStatus>("connecting");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [latencyMs, setLatencyMs] = useState<number | null>(null);
-  const [lastCompletedAt, setLastCompletedAt] = useState<number | null>(null);
+const listeners = new Set<(state: SharedSocketState) => void>();
+const pendingRequests: PendingRequest[] = [];
+let sharedSocket: WebSocket | null = null;
+let reconnectTimeout: number | null = null;
+let reconnectAttempts = 0;
+let activeUrl: string | null = null;
+let shouldReconnect = true;
+let skipReconnect = false;
 
-  const clearReconnectTimer = () => {
-    if (reconnectTimeoutRef.current !== null) {
-      window.clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
+let sharedState: SharedSocketState = {
+  status: "connecting",
+  error: null,
+  isLoading: false,
+  statusMessage: null,
+  latencyMs: null,
+  lastCompletedAt: null,
+};
+
+function emit() {
+  listeners.forEach((listener) => listener(sharedState));
+}
+
+function setSharedState(patch: Partial<SharedSocketState>) {
+  sharedState = { ...sharedState, ...patch };
+  emit();
+}
+
+function syncSocket(socket: WebSocket | null) {
+  useCircuitStore.getState().setSocket(socket);
+}
+
+function clearReconnectTimer() {
+  if (reconnectTimeout !== null) {
+    window.clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+}
+
+function rejectPending(reason: Error) {
+  while (pendingRequests.length) {
+    pendingRequests.shift()?.reject(reason);
+  }
+}
+
+function connect(url: string) {
+  activeUrl = url;
+  clearReconnectTimer();
+
+  if (sharedSocket && (sharedSocket.readyState === WebSocket.OPEN || sharedSocket.readyState === WebSocket.CONNECTING)) {
+    return;
+  }
+
+  setSharedState({ status: "connecting" });
+
+  const socket = new WebSocket(url);
+  sharedSocket = socket;
+  syncSocket(socket);
+
+  socket.onopen = () => {
+    reconnectAttempts = 0;
+    setSharedState({
+      status: pendingRequests.length > 0 ? "running" : "connected",
+      error: null,
+      statusMessage: "Connected",
+    });
   };
 
-  const connect = useCallback(() => {
-    clearReconnectTimer();
-    setStatus("connecting");
+  socket.onmessage = (event) => {
+    try {
+      const message = JSON.parse(event.data) as ResultEnvelope | ErrorEnvelope | StatusEnvelope;
 
-    const socket = new WebSocket(url);
-    socketRef.current = socket;
-
-    socket.onopen = () => {
-      reconnectAttemptsRef.current = 0;
-      setStatus((current) => (current === "running" ? current : "connected"));
-      setError(null);
-      setStatusMessage("Connected");
-    };
-
-    socket.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data) as ResultEnvelope | ErrorEnvelope | StatusEnvelope;
-
-        if (message.type === "status") {
-          setStatusMessage(message.message);
-          setStatus("running");
-          setIsLoading(true);
-          return;
-        }
-
-        if (message.type === "result") {
-          const pending = pendingRequestsRef.current.shift();
-          if (pending) {
-            setLatencyMs(Math.round(performance.now() - pending.sentAt));
-            pending.resolve(message.payload);
-          }
-          setIsLoading(pendingRequestsRef.current.length > 0);
-          setStatus(pendingRequestsRef.current.length > 0 ? "running" : "connected");
-          setStatusMessage("Completed");
-          setLastCompletedAt(Date.now());
-          return;
-        }
-
-        if (message.type === "error") {
-          const pending = pendingRequestsRef.current.shift();
-          pending?.reject(new Error(message.message));
-          setError(message.message);
-          setStatus("error");
-          setStatusMessage(message.message);
-          setIsLoading(pendingRequestsRef.current.length > 0);
-        }
-      } catch (caughtError) {
-        setError(caughtError instanceof Error ? caughtError.message : "Unable to parse WebSocket message.");
-        setStatus("error");
-      }
-    };
-
-    socket.onerror = () => {
-      setStatus("error");
-      setError("WebSocket connection error.");
-      setStatusMessage("Connection error");
-    };
-
-    socket.onclose = () => {
-      setStatus("disconnected");
-      setStatusMessage("Disconnected");
-
-      if (!shouldReconnectRef.current || skipReconnectRef.current) {
-        skipReconnectRef.current = false;
+      if (message.type === "status") {
+        setSharedState({
+          status: "running",
+          isLoading: true,
+          statusMessage: message.message,
+        });
         return;
       }
 
-      const backoff = Math.min(1000 * 2 ** reconnectAttemptsRef.current, 8000);
-      reconnectAttemptsRef.current += 1;
-      reconnectTimeoutRef.current = window.setTimeout(connect, backoff);
+      if (message.type === "result") {
+        const pending = pendingRequests.shift();
+        if (pending) {
+          pending.resolve(message.payload);
+          setSharedState({ latencyMs: Math.round(performance.now() - pending.sentAt) });
+        }
+        setSharedState({
+          isLoading: pendingRequests.length > 0,
+          status: pendingRequests.length > 0 ? "running" : "connected",
+          statusMessage: "Completed",
+          lastCompletedAt: Date.now(),
+        });
+        return;
+      }
+
+      if (message.type === "error") {
+        pendingRequests.shift()?.reject(new Error(message.message));
+        setSharedState({
+          error: message.message,
+          status: "error",
+          statusMessage: message.message,
+          isLoading: pendingRequests.length > 0,
+        });
+      }
+    } catch (caughtError) {
+      setSharedState({
+        error: caughtError instanceof Error ? caughtError.message : "Unable to parse WebSocket message.",
+        status: "error",
+      });
+    }
+  };
+
+  socket.onerror = () => {
+    setSharedState({
+      status: "error",
+      error: "WebSocket connection error.",
+      statusMessage: "Connection error",
+    });
+  };
+
+  socket.onclose = () => {
+    sharedSocket = null;
+    syncSocket(null);
+    setSharedState({
+      status: "disconnected",
+      statusMessage: "Disconnected",
+      isLoading: false,
+    });
+
+    if (!shouldReconnect || skipReconnect || listeners.size === 0 || !activeUrl) {
+      skipReconnect = false;
+      rejectPending(new Error("WebSocket connection closed."));
+      return;
+    }
+
+    const backoff = Math.min(1000 * 2 ** reconnectAttempts, 8000);
+    reconnectAttempts += 1;
+    reconnectTimeout = window.setTimeout(() => connect(activeUrl!), backoff);
+  };
+}
+
+function disconnectIfUnused() {
+  if (listeners.size > 0) return;
+  shouldReconnect = false;
+  skipReconnect = true;
+  clearReconnectTimer();
+  sharedSocket?.close();
+  sharedSocket = null;
+  syncSocket(null);
+}
+
+export const useWebSocket = (url: string) => {
+  const [localState, setLocalState] = useState<SharedSocketState>(sharedState);
+
+  useEffect(() => {
+    shouldReconnect = true;
+    listeners.add(setLocalState);
+    setLocalState(sharedState);
+    connect(url);
+
+    return () => {
+      listeners.delete(setLocalState);
+      disconnectIfUnused();
     };
   }, [url]);
 
-  useEffect(() => {
-    shouldReconnectRef.current = true;
-    connect();
-
-    return () => {
-      shouldReconnectRef.current = false;
-      clearReconnectTimer();
-      socketRef.current?.close();
-      pendingRequestsRef.current.forEach((pending) =>
-        pending.reject(new Error("WebSocket connection closed."))
-      );
-      pendingRequestsRef.current = [];
-    };
-  }, [connect]);
-
-  const sendJson = useCallback((payload: SerializedCircuit) => {
-    const socket = socketRef.current;
+  const sendJson = useCallback((payload: SimulationRequest) => {
+    const socket = sharedSocket;
 
     if (!socket || socket.readyState !== WebSocket.OPEN) {
       throw new Error("WebSocket is not connected.");
@@ -145,17 +211,20 @@ export const useWebSocket = (url: string) => {
   }, []);
 
   const simulateCircuit = useCallback(
-    (payload: SerializedCircuit) =>
+    (payload: SimulationRequest) =>
       new Promise<SimulationResult>((resolve, reject) => {
         try {
-          pendingRequestsRef.current.push({ sentAt: performance.now(), resolve, reject });
-          setLatencyMs(null);
-          setStatus("running");
-          setStatusMessage("Sending circuit");
+          pendingRequests.push({ sentAt: performance.now(), resolve, reject });
+          setSharedState({
+            latencyMs: null,
+            status: "running",
+            statusMessage: "Sending circuit",
+            isLoading: true,
+            error: null,
+          });
           sendJson(payload);
-          setIsLoading(true);
         } catch (caughtError) {
-          pendingRequestsRef.current.pop();
+          pendingRequests.pop();
           reject(caughtError);
         }
       }),
@@ -163,22 +232,18 @@ export const useWebSocket = (url: string) => {
   );
 
   const reconnect = useCallback(() => {
-    skipReconnectRef.current = true;
+    if (!activeUrl) return;
+    skipReconnect = true;
     clearReconnectTimer();
-    socketRef.current?.close();
-    connect();
-  }, [connect]);
+    sharedSocket?.close();
+    skipReconnect = false;
+    connect(activeUrl);
+  }, []);
 
   return {
-    status,
-    error,
-    isLoading,
-    statusMessage,
-    latencyMs,
-    lastCompletedAt,
+    ...localState,
     reconnect,
     sendJson,
     simulateCircuit
   };
 };
-
