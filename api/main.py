@@ -1,4 +1,4 @@
-# main.py
+﻿# main.py
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from qiskit import QuantumCircuit
@@ -17,6 +17,7 @@ except ModuleNotFoundError:
 app = FastAPI()
 
 simulator = AerSimulator()
+MAX_STATEVECTOR_QUBITS = 8
 
 
 def require_fields(gate, gate_type, *fields):
@@ -135,6 +136,24 @@ def apply_gate(qc, gate):
         raise ValueError(f"Unsupported gate type: {t}")
 
 
+def maybe_capture_statevector(qc):
+    qc = qc.copy()
+
+    if qc.num_qubits > MAX_STATEVECTOR_QUBITS:
+        return None
+
+    qc.save_statevector()
+
+    try:
+        result = simulator.run(qc, shots=1).result()
+        raw_sv = result.get_statevector().data
+    except Exception:
+        return None
+
+    return serialize_statevector(raw_sv)
+
+
+
 def simulate_quantum_circuit(qc):
     qc = qc.copy()
     qubits = qc.num_qubits
@@ -146,7 +165,7 @@ def simulate_quantum_circuit(qc):
     result = simulator.run(qc, shots=1024).result()
     counts = result.get_counts()
 
-    if not has_measurements and qubits <= 8:
+    if not has_measurements and qubits <= MAX_STATEVECTOR_QUBITS:
         raw_sv = result.get_statevector().data
         statevector = serialize_statevector(raw_sv)
     else:
@@ -160,6 +179,7 @@ def simulate_quantum_circuit(qc):
     }
 
 
+
 def build_circuit_from_gates(qubits, gates):
     qc = QuantumCircuit(qubits, qubits)
     compiled_gates = compile_circuit(gates)
@@ -168,6 +188,29 @@ def build_circuit_from_gates(qubits, gates):
         apply_gate(qc, gate)
 
     return qc
+
+
+
+def simulate_stepwise_circuit(qubits, gates):
+    compiled_gates = compile_circuit(gates)
+    steps = []
+
+    for index, _gate in enumerate(compiled_gates):
+        qc_step = QuantumCircuit(qubits, qubits)
+        for prefix_gate in compiled_gates[: index + 1]:
+            apply_gate(qc_step, prefix_gate)
+
+        steps.append({
+            "gate_index": index,
+            "gate_type": compiled_gates[index]["type"],
+            "statevector": maybe_capture_statevector(qc_step),
+        })
+
+    final_result = simulate_quantum_circuit(build_circuit_from_gates(qubits, gates))
+    final_result["steps"] = steps
+    return final_result
+
+
 
 def run_simulation(data):
     mode = data.get("mode", "circuit")
@@ -181,6 +224,10 @@ def run_simulation(data):
 
     qubits = data["qubits"]
     gates = data["gates"]
+
+    if mode == "step_simulation":
+        return simulate_stepwise_circuit(qubits, gates)
+
     qc = build_circuit_from_gates(qubits, gates)
     return simulate_quantum_circuit(qc)
 
@@ -188,3 +235,4 @@ def run_simulation(data):
 @app.post("/variational/run")
 async def variational_run(payload: dict):
     return optimize_variational(payload)
+

@@ -1,5 +1,6 @@
-import AlgorithmSelector from "@/components/AlgorithmSelector";
+﻿import AlgorithmSelector from "@/components/AlgorithmSelector";
 import CircuitBuilder from "@/components/CircuitBuilder";
+import VisualizationPanel from "@/components/VisualizationPanel";
 import Histogram from "@/components/Histogram";
 import ComparisonTable from "@/components/ComparisonTable";
 
@@ -7,7 +8,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
-        {/* ── Page header ── */}
+        {/* â”€â”€ Page header â”€â”€ */}
         <header className="flex flex-col gap-1 pb-2">
           <div className="flex items-center gap-3">
             {/* Glowing logo mark */}
@@ -59,7 +60,7 @@ export default function HomePage() {
                   marginTop: 1,
                 }}
               >
-                Circuit Simulator · v2.0
+                Circuit Simulator Â· v2.0
               </p>
             </div>
           </div>
@@ -73,21 +74,36 @@ export default function HomePage() {
           />
         </header>
 
-        {/* ── Main builder ── */}
-        <AlgorithmSelector />
+        {/* â”€â”€ Main builder â”€â”€ */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            flex: "0 0 55%",
+            overflow: "auto",
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            paddingBottom: 16,
+          }}>
+            <AlgorithmSelector />
+            <CircuitBuilder />
+          </div>
 
-        <CircuitBuilder />
+          <VisualizationPanel />
+        </div>
 
-        {/* ── Histograms ── */}
+        {/* â”€â”€ Histograms â”€â”€ */}
         <section className="grid gap-5 lg:grid-cols-2">
           <Histogram circuitKey="A" title="Algorithm A" />
           <Histogram circuitKey="B" title="Algorithm B" />
         </section>
 
-        {/* ── Comparison ── */}
+        {/* â”€â”€ Comparison â”€â”€ */}
         <ComparisonTable />
 
-        {/* ── Footer ── */}
+        {/* â”€â”€ Footer â”€â”€ */}
         <footer
           style={{
             textAlign: "center",
@@ -98,9 +114,10 @@ export default function HomePage() {
             letterSpacing: "0.06em",
           }}
         >
-          QUANTUM NOIR · CIRCUIT SIMULATION ENGINE
+          QUANTUM NOIR Â· CIRCUIT SIMULATION ENGINE
         </footer>
       </div>
     </main>
   );
 }
+

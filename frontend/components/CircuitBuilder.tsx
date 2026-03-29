@@ -1,10 +1,10 @@
 ﻿"use client";
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // CircuitBuilder.tsx
 // IBM-style SVG quantum circuit diagram with full 15-gate support.
 // Uses GatePalette, /lib/gates, /lib/types, /store/useCircuitStore.
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 import {
     memo,
@@ -16,8 +16,10 @@ import {
 } from "react";
 import { GatePalette } from "./GatePalette";
 import { CircuitJsonEditor } from "./CircuitJsonEditor";
+
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { calculateMetrics, serializeCircuit } from "@/lib/circuit";
+
 import {
     GATE_COLOR,
     GateType,
@@ -27,10 +29,11 @@ import {
     isParametricGate,
     isTwoQubitGate,
 } from "@/lib/gates";
-import { CircuitKey, GateOperation, SimulationResult } from "@/lib/types";
+import { CircuitKey, GateOperation } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
+import { useVisualizationStore } from "@/store/useVisualizationStore";
 
-// ── Layout ───────────────────────────────────────────────────────────────────
+// -- Layout -------------------------------------------------------------------
 const WS_URL = "ws://localhost:8000/ws";
 const COL_W = 68;
 const LANE_H = 84;
@@ -40,19 +43,19 @@ const BOT_PAD = 44;
 const GATE_W = 44;
 const GATE_H = 36;
 const GATE_R = 7;
-const TWO_Q_R = 16;   // radius for CNOT ⊕ and SWAP ×
+const TWO_Q_R = 16;   // radius for CNOT ? and SWAP ×
 const DOT_R = 7;    // control dot radius
 const MIN_COLS = 8;
 const MAX_QUBITS = 6;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 function wireY(q: number) { return TOP_PAD + q * LANE_H + LANE_H / 2; }
 function colX(c: number) { return LEFT_PAD + c * COL_W + COL_W / 2; }
 function gateCol(g: GateOperation) {
     return Math.max(0, Math.round(g.position.x / COL_W));
 }
 
-// ── Measure arc+needle (M gate) ───────────────────────────────────────────────
+// -- Measure arc+needle (M gate) -----------------------------------------------
 const MeasureSymbol = memo(function MeasureSymbol({
     cx, cy, color,
 }: { cx: number; cy: number; color: string }) {
@@ -69,7 +72,7 @@ const MeasureSymbol = memo(function MeasureSymbol({
     );
 });
 
-// ── Gate label (handles daggers and superscripts) ─────────────────────────────
+// -- Gate label (handles daggers and superscripts) -----------------------------
 const GateLabel = memo(function GateLabel({
     type, x, y, color,
 }: { type: GateType; x: number; y: number; color: string }) {
@@ -88,14 +91,14 @@ const GateLabel = memo(function GateLabel({
         );
     }
 
-    // Rotation gates: show compact label + small θ line below
+    // Rotation gates: show compact label + small ? line below
     if (isParametricGate(type)) {
         return (
             <text textAnchor="middle" fontFamily="Syne, sans-serif"
                 fontWeight="700" fill={color} style={{ userSelect: "none" }}
             >
                 <tspan x={x} y={y - 3} fontSize="12">{type.slice(0, 1).toUpperCase()}{type.slice(1).toLowerCase()}</tspan>
-                {/* θ value shown as a tiny subscript — caller passes theta as data attr via parent */}
+                {/* ? value shown as a tiny subscript — caller passes theta as data attr via parent */}
             </text>
         );
     }
@@ -116,7 +119,7 @@ const GateLabel = memo(function GateLabel({
     );
 });
 
-// ── Generic gate box (single-qubit) ──────────────────────────────────────────
+// -- Generic gate box (single-qubit) ------------------------------------------
 const SingleGate = memo(function SingleGate({
     gate, hovered, lit, onClick,
 }: { gate: GateOperation; hovered: boolean; lit: boolean; onClick: (e: React.MouseEvent) => void }) {
@@ -139,7 +142,7 @@ const SingleGate = memo(function SingleGate({
             ) : (
                 <>
                     <GateLabel type={gate.type} x={x} y={y} color={color} />
-                    {/* θ value below gate label for rotation gates */}
+                    {/* ? value below gate label for rotation gates */}
                     {isParametricGate(gate.type) && gate.theta !== undefined && (
                         <text
                             x={x} y={y + 9}
@@ -156,7 +159,7 @@ const SingleGate = memo(function SingleGate({
     );
 });
 
-// ── CNOT gate  ●──⊕ ──────────────────────────────────────────────────────────
+// -- CNOT gate  ?--? ----------------------------------------------------------
 const CnotGate = memo(function CnotGate({
     gate, hovered, lit, onClick,
 }: { gate: GateOperation; hovered: boolean; lit: boolean; onClick: (e: React.MouseEvent) => void }) {
@@ -176,7 +179,7 @@ const CnotGate = memo(function CnotGate({
             <circle cx={x} cy={cy} r={DOT_R} fill={color}
                 style={{ filter: `drop-shadow(0 0 ${lit ? 14 : 7}px ${color}${lit ? "cc" : "88"})` }}
             />
-            {/* Target ⊕ */}
+            {/* Target ? */}
             <circle cx={x} cy={ty} r={TWO_Q_R}
                 fill={lit ? `${color}38` : hovered ? `${color}28` : `${color}14`}
                 stroke={color} strokeWidth={lit || hovered ? "2" : "1.5"}
@@ -188,7 +191,7 @@ const CnotGate = memo(function CnotGate({
     );
 });
 
-// ── CZ gate  ●──● ────────────────────────────────────────────────────────────
+// -- CZ gate  ?--? ------------------------------------------------------------
 const CzGate = memo(function CzGate({
     gate, hovered, lit, onClick,
 }: { gate: GateOperation; hovered: boolean; lit: boolean; onClick: (e: React.MouseEvent) => void }) {
@@ -224,7 +227,7 @@ const CzGate = memo(function CzGate({
     );
 });
 
-// ── SWAP gate  ×──× ──────────────────────────────────────────────────────────
+// -- SWAP gate  ×--× ----------------------------------------------------------
 function SwapX({ x, y, color, r = 8 }: { x: number; y: number; color: string; r?: number }) {
     return (
         <>
@@ -300,7 +303,7 @@ const ControlledRotationGate = memo(function ControlledRotationGate({
     );
 });
 
-// ── Ghost preview (all gate types) ───────────────────────────────────────────
+// -- Ghost preview (all gate types) -------------------------------------------
 const GhostGate = memo(function GhostGate({
     col, qubit, gateType, controlQubit,
 }: {
@@ -380,7 +383,7 @@ const GhostGate = memo(function GhostGate({
     );
 });
 
-// ── Gate dispatcher ───────────────────────────────────────────────────────────
+// -- Gate dispatcher -----------------------------------------------------------
 // Routes each gate to the correct SVG component. Memoized per gate.
 const PlacedGate = memo(function PlacedGate({
     gate, hovered, lit, onDelete,
@@ -404,16 +407,15 @@ const PlacedGate = memo(function PlacedGate({
     return <SingleGate gate={gate} hovered={hovered} lit={lit} onClick={onClick} />;
 });
 
-// ── Circuit SVG canvas ────────────────────────────────────────────────────────
+// -- Circuit SVG canvas --------------------------------------------------------
 function CircuitSVG({
-    gates, qubits, numCols, litUpToCol, selectedGate, controlQubit,
+    gates, qubits, numCols, activeGateId, selectedGate, controlQubit,
     onPlaceGate, onDeleteGate,
 }: {
     gates: GateOperation[];
     qubits: number;
     numCols: number;
-    /** Column index up to which gates are highlighted. -1 = none. */
-    litUpToCol: number;
+    activeGateId: string | null;
     selectedGate: GateType | null;
     controlQubit: number;
     onPlaceGate: (qubit: number, col: number) => void;
@@ -426,7 +428,7 @@ function CircuitSVG({
     const svgW = LEFT_PAD + numCols * COL_W + 22;
     const svgH = TOP_PAD + qubits * LANE_H + BOT_PAD;
 
-    // Build occupancy map: "qubit-col" → gateId (for collision detection)
+    // Build occupancy map: "qubit-col" ? gateId (for collision detection)
     const occupied = useMemo(() => {
         const m = new Map<string, string>();
         for (const g of gates) {
@@ -439,7 +441,7 @@ function CircuitSVG({
         return m;
     }, [gates]);
 
-    // Hit-test: mouse event → {col, row} or null
+    // Hit-test: mouse event ? {col, row} or null
     const hitCell = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
         const rect = svgRef.current?.getBoundingClientRect();
         if (!rect) return null;
@@ -573,7 +575,7 @@ function CircuitSVG({
                         <PlacedGate
                             gate={gate}
                             hovered={hoveredGateId === gate.id}
-                            lit={litUpToCol >= 0 && gateCol(gate) <= litUpToCol}
+                            lit={activeGateId === gate.id}
                             onDelete={onDeleteGate}
                         />
                     </g>
@@ -583,7 +585,7 @@ function CircuitSVG({
     );
 }
 
-// ── Metric card ───────────────────────────────────────────────────────────────
+// -- Metric card ---------------------------------------------------------------
 function MetricCard({
     label, value, accent,
 }: { label: string; value: number | string; accent?: string }) {
@@ -606,22 +608,13 @@ function MetricCard({
     );
 }
 
-// ── Root CircuitBuilder ───────────────────────────────────────────────────────
+// -- Root CircuitBuilder -------------------------------------------------------
 export default function CircuitBuilder() {
     const [selectedGate, setSelectedGate] = useState<GateType | null>(null);
     const [controlQubit, setControlQubit] = useState(0);
     const [targetQubit, setTargetQubit] = useState(1);
     // Global theta state: changing it updates next placement, shown in palette
     const [theta, setTheta] = useState<number>(() => Math.PI / 2);
-
-    // ── Scan animation state ────────────────────────────────────────────────────
-    // litUpToCol: which column index is "lit up" (-1 = none, increases during sim)
-    const [litUpToCol, setLitUpToCol] = useState(-1);
-    const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const currentColRef = useRef(-1);   // column the scan is currently on
-    const targetColRef = useRef(0);    // last gate column index to reach
-    const pendingResultRef = useRef<{ key: CircuitKey; result: SimulationResult } | null>(null);
-    const scanDoneRef = useRef(false);
 
     const activeCircuit = useCircuitStore((s) => s.activeCircuit);
     const circuit = useCircuitStore((s) => s.circuits[s.activeCircuit]);
@@ -637,64 +630,8 @@ export default function CircuitBuilder() {
     const setIsRunning = useCircuitStore((s) => s.setIsRunning);
     const loadMockData = useCircuitStore((s) => s.loadMockData);
 
-    /** Stop any running scan interval. */
-    const clearScan = useCallback(() => {
-        if (scanIntervalRef.current !== null) {
-            clearInterval(scanIntervalRef.current);
-            scanIntervalRef.current = null;
-        }
-    }, []);
-
-    /** Called when scan finishes OR result arrives — whichever is last commits. */
-    const commitIfReady = useCallback((key: CircuitKey) => {
-        if (scanDoneRef.current && pendingResultRef.current?.key === key) {
-            setResult(key, pendingResultRef.current.result);
-            pendingResultRef.current = null;
-            scanDoneRef.current = false;
-            setIsRunning(false);
-            // Fade lit gates back after a brief moment so the user sees the final state
-            setTimeout(() => setLitUpToCol(-1), 600);
-        }
-    }, [setIsRunning, setResult]);
-
-    /**
-     * Advance the scan by one column tick.
-     * When it reaches targetColRef, marks scan done and tries to commit.
-     */
-    const makeTick = useCallback((key: CircuitKey) => () => {
-        currentColRef.current += 1;
-        setLitUpToCol(currentColRef.current);
-        if (currentColRef.current >= targetColRef.current) {
-            clearScan();
-            scanDoneRef.current = true;
-            commitIfReady(key);
-        }
-    }, [clearScan, commitIfReady]);
-
-    /**
-     * Start the column-by-column scan at msPerCol ms interval.
-     * If the scan is already running, speed it up instead of resetting.
-     */
-    const startScan = useCallback((key: CircuitKey, totalGateCols: number, msPerCol: number) => {
-        clearScan();
-        currentColRef.current = -1;
-        targetColRef.current = totalGateCols - 1;
-        scanDoneRef.current = false;
-        setLitUpToCol(-1);
-        scanIntervalRef.current = setInterval(makeTick(key), msPerCol);
-    }, [clearScan, makeTick]);
-
-    /** Compress remaining columns into faster ticks (called when result arrives early). */
-    const speedUpScan = useCallback((key: CircuitKey, msPerCol: number) => {
-        clearScan();
-        // If nothing is left, just mark done immediately
-        if (currentColRef.current >= targetColRef.current) {
-            scanDoneRef.current = true;
-            commitIfReady(key);
-            return;
-        }
-        scanIntervalRef.current = setInterval(makeTick(key), msPerCol);
-    }, [clearScan, commitIfReady, makeTick]);
+    const currentStep = useVisualizationStore((s) => s.currentStep);
+    const isVisualizing = useVisualizationStore((s) => s.isVisualizing);
 
     // Sync theta default when gate selection changes
     const handleSelectGate = useCallback((type: GateType | null) => {
@@ -708,10 +645,6 @@ export default function CircuitBuilder() {
 
     const { status, error, isLoading, reconnect, simulateCircuit } = useWebSocket(WS_URL);
 
-    useEffect(() => { setSocketStatus(status); }, [setSocketStatus, status]);
-    useEffect(() => { setSocketError(error); }, [error, setSocketError]);
-    useEffect(() => { setIsRunning(isLoading); }, [isLoading, setIsRunning]);
-
     // Dynamic column count: max occupied col + 4 headroom
     const numCols = useMemo(() => {
         const maxUsed = circuit.gates.reduce((m, g) => Math.max(m, gateCol(g)), -1);
@@ -719,6 +652,12 @@ export default function CircuitBuilder() {
     }, [circuit.gates]);
 
     const metrics = useMemo(() => calculateMetrics(circuit), [circuit]);
+    const sortedGates = useMemo(
+        () => circuit.gates.slice().sort((left, right) => left.position.x - right.position.x),
+        [circuit.gates]
+    );
+
+    const activeGateId = currentStep >= 0 ? sortedGates[currentStep]?.id ?? null : null;
 
     const handlePlaceGate = useCallback((qubit: number, col: number) => {
         if (!selectedGate) return;
@@ -744,46 +683,23 @@ export default function CircuitBuilder() {
         (id: string) => removeGate(activeCircuit, id),
         [activeCircuit, removeGate]
     );
-
     const runSingleCircuit = useCallback(async (key: CircuitKey) => {
         const cur = useCircuitStore.getState().circuits[key];
 
-        // Calculate how many gate columns exist (minimum 1 so the sweep is visible)
-        const maxGateCol = cur.gates.reduce((m, g) => Math.max(m, gateCol(g)), 0);
-        const totalGateCols = Math.max(1, maxGateCol + 1);
-
-        // Reset stale state from any prior run
-        pendingResultRef.current = null;
-        scanDoneRef.current = false;
-
         try {
+            
+            
             setSocketError(null);
             setIsRunning(true);
 
-            // Fire animation and WebSocket request simultaneously.
-            // Normal pace: 110 ms per column (e.g. 8 cols ≈ 880 ms minimum visual)
-            startScan(key, totalGateCols, 110);
-
             const result = await simulateCircuit(serializeCircuit(cur));
-
-            // Result arrived — stash it and speed up the remaining columns.
-            pendingResultRef.current = { key, result };
-
-            // Speed-up pace: 35 ms per remaining column so it always finishes smoothly
-            speedUpScan(key, 35);
-
+            setResult(key, result);
         } catch (err) {
-            // On error: stop animation immediately, no pending result
-            clearScan();
-            setLitUpToCol(-1);
-            pendingResultRef.current = null;
-            scanDoneRef.current = false;
             setSocketError(err instanceof Error ? err.message : "Simulation failed.");
+        } finally {
             setIsRunning(false);
         }
-        // NOTE: setIsRunning(false) and setResult() are called inside commitIfReady
-        // once BOTH the result is ready AND the scan animation has finished.
-    }, [clearScan, setIsRunning, setSocketError, simulateCircuit, speedUpScan, startScan]);
+    }, [setIsRunning, setResult, setSocketError, simulateCircuit]);
 
     const runBothCircuits = useCallback(async () => {
         await runSingleCircuit("A");
@@ -800,7 +716,7 @@ export default function CircuitBuilder() {
             boxShadow: "0 0 0 1px rgba(0,212,255,0.04), 0 24px 64px rgba(0,0,0,0.75)",
             backdropFilter: "blur(12px)",
         }}>
-            {/* ── Top toolbar ── */}
+            {/* -- Top toolbar -- */}
             <div style={{
                 display: "flex", flexWrap: "wrap", alignItems: "center",
                 justifyContent: "space-between", gap: 14, marginBottom: 18,
@@ -814,7 +730,7 @@ export default function CircuitBuilder() {
                         fontFamily: "JetBrains Mono, monospace", fontSize: 10,
                         color: "rgba(40,64,90,0.85)", marginTop: 3,
                     }}>
-                        Select gate → click wire to place · click gate to delete
+                        Select gate, click a wire to place, and click a gate to delete
                     </p>
                 </div>
 
@@ -838,7 +754,7 @@ export default function CircuitBuilder() {
                         cursor: "pointer", border: "1px solid rgba(0,212,255,0.4)",
                         background: "linear-gradient(135deg,rgba(0,212,255,0.18),rgba(0,212,255,0.08))",
                         color: "#00d4ff", boxShadow: "0 0 18px rgba(0,212,255,0.14)",
-                    }}>▶ Run {activeCircuit}</button>
+                    }}>Run {activeCircuit}</button>
 
                     <button type="button" onClick={runBothCircuits} style={{
                         borderRadius: 12, padding: "7px 18px",
@@ -846,7 +762,7 @@ export default function CircuitBuilder() {
                         cursor: "pointer", border: "1px solid rgba(162,89,255,0.4)",
                         background: "linear-gradient(135deg,rgba(162,89,255,0.16),rgba(162,89,255,0.07))",
                         color: "#a259ff", boxShadow: "0 0 18px rgba(162,89,255,0.12)",
-                    }}>⇌ A vs B</button>
+                    }}>A vs B</button>
 
                     <button type="button" onClick={loadMockData} style={{
                         borderRadius: 12, padding: "7px 14px",
@@ -861,7 +777,7 @@ export default function CircuitBuilder() {
                 </div>
             </div>
 
-            {/* ── 3-column layout: palette | canvas | right panel ── */}
+            {/* -- 3-column layout: palette | canvas | right panel -- */}
             <div style={{ display: "grid", gridTemplateColumns: "240px minmax(0,1fr) 276px", gap: 14 }}>
 
                 {/* LEFT: categorized gate palette */}
@@ -896,11 +812,11 @@ export default function CircuitBuilder() {
                             <span style={{
                                 width: 8, height: 8, borderRadius: "50%", display: "inline-block",
                                 background: wsColor, boxShadow: `0 0 7px ${wsColor}`,
-                                animation: (isLoading || litUpToCol >= 0) ? "pulse-dot 1s ease-in-out infinite" : "none",
+                                animation: (isLoading || isVisualizing) ? "pulse-dot 1s ease-in-out infinite" : "none",
                             }} />
                             ws:{status}
                             {error ? ` · ${error}` : ""}
-                            {isLoading ? " · running…" : ""}
+                            {isLoading ? " · running…" : isVisualizing ? " · visualizing…" : ""}
                         </div>
 
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -942,7 +858,7 @@ export default function CircuitBuilder() {
                         gates={circuit.gates}
                         qubits={circuit.qubits}
                         numCols={numCols}
-                        litUpToCol={litUpToCol}
+                        activeGateId={activeGateId}
                         selectedGate={selectedGate}
                         controlQubit={controlQubit}
                         onPlaceGate={handlePlaceGate}
@@ -952,7 +868,7 @@ export default function CircuitBuilder() {
 
                 {/* RIGHT: JSON editor + metrics */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {/* Editable Circuit JSON */}
+                {/* Editable Circuit JSON */}
                     <CircuitJsonEditor circuitKey={activeCircuit} />
 
                     {/* Live metrics */}
@@ -976,3 +892,47 @@ export default function CircuitBuilder() {
         </section>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

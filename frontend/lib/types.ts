@@ -1,4 +1,4 @@
-import type { GateType } from "./gates";
+﻿import type { GateType } from "./gates";
 
 export type { GateType } from "./gates";
 
@@ -18,11 +18,23 @@ export interface Circuit {
   gates: GateOperation[];
 }
 
+export interface ComplexAmplitude {
+  real: number;
+  imag: number;
+}
+
+export interface SimulationStep {
+  gate_index: number;
+  gate_type: GateType;
+  statevector: ComplexAmplitude[] | null;
+}
+
 export interface SimulationResult {
   counts: Record<string, number>;
-  statevector: unknown[] | null;
+  statevector: ComplexAmplitude[] | null;
   depth?: number;
   gate_count?: number;
+  steps?: SimulationStep[];
 }
 
 export type SocketStatus = "connecting" | "connected" | "running" | "disconnected" | "error";
@@ -55,4 +67,9 @@ export interface AlgorithmExecutionRequest {
   params?: Record<string, unknown>;
 }
 
-export type SimulationRequest = SerializedCircuit | AlgorithmExecutionRequest;
+export interface StepSimulationRequest extends SerializedCircuit {
+  mode: "step_simulation";
+}
+
+export type SimulationRequest = SerializedCircuit | AlgorithmExecutionRequest | StepSimulationRequest;
+

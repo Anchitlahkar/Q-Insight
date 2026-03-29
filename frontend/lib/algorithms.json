@@ -1,73 +1,164 @@
 [
   {
-    "name": "Quantum Fourier Transform (4 qubits)",
-    "qubits": 4,
+    "name": "Quantum Supremacy Demo Circuit (Hybrid Deep Circuit)",
+    "qubits": 6,
+    "gates": [
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+      { "type": "H", "target": 4 },
+      { "type": "H", "target": 5 },
+
+      { "type": "CNOT", "control": 0, "target": 1 },
+      { "type": "CNOT", "control": 1, "target": 2 },
+      { "type": "CNOT", "control": 2, "target": 3 },
+      { "type": "CNOT", "control": 3, "target": 4 },
+      { "type": "CNOT", "control": 4, "target": 5 },
+
+      { "type": "RZ", "target": 0, "theta": 0.3 },
+      { "type": "RY", "target": 1, "theta": 0.7 },
+      { "type": "RX", "target": 2, "theta": 1.1 },
+      { "type": "RZ", "target": 3, "theta": 0.5 },
+      { "type": "RY", "target": 4, "theta": 0.9 },
+      { "type": "RX", "target": 5, "theta": 1.4 },
+
+      { "type": "CRZ", "control": 1, "target": 0, "theta": 1.57079632679 },
+      { "type": "CRZ", "control": 2, "target": 0, "theta": 0.78539816339 },
+      { "type": "CRZ", "control": 3, "target": 0, "theta": 0.39269908169 },
+
+      { "type": "CRZ", "control": 2, "target": 1, "theta": 1.57079632679 },
+      { "type": "CRZ", "control": 3, "target": 1, "theta": 0.78539816339 },
+
+      { "type": "CRZ", "control": 3, "target": 2, "theta": 1.57079632679 },
+
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "CZ", "control": 0, "target": 5 },
+      { "type": "CZ", "control": 1, "target": 4 },
+      { "type": "CZ", "control": 2, "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+      { "type": "X", "target": 4 },
+      { "type": "X", "target": 5 },
+
+      { "type": "H", "target": 5 },
+      { "type": "CZ", "control": 0, "target": 1 },
+      { "type": "CZ", "control": 2, "target": 3 },
+      { "type": "CZ", "control": 4, "target": 5 },
+      { "type": "H", "target": 5 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+      { "type": "X", "target": 4 },
+      { "type": "X", "target": 5 },
+
+      { "type": "RY", "target": 0, "theta": 1.2 },
+      { "type": "RY", "target": 1, "theta": 0.8 },
+      { "type": "RY", "target": 2, "theta": 1.5 },
+      { "type": "RY", "target": 3, "theta": 0.6 },
+      { "type": "RY", "target": 4, "theta": 1.1 },
+      { "type": "RY", "target": 5, "theta": 0.9 },
+
+      { "type": "CNOT", "control": 0, "target": 2 },
+      { "type": "CNOT", "control": 2, "target": 4 },
+      { "type": "CNOT", "control": 1, "target": 3 },
+      { "type": "CNOT", "control": 3, "target": 5 },
+
+      { "type": "SWAP", "control": 0, "target": 5 },
+      { "type": "SWAP", "control": 1, "target": 4 },
+      { "type": "SWAP", "control": 2, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "CRZ", "control": 2, "target": 1, "theta": -1.57079632679 },
+      { "type": "CRZ", "control": 1, "target": 0, "theta": -0.78539816339 },
+
+      { "type": "H", "target": 0 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 },
+      { "type": "M", "target": 4 },
+      { "type": "M", "target": 5 }
+    ]
+  },
+  {
+    "name": "QFT Deep Visual (5 Qubits)",
+    "qubits": 5,
     "gates": [
       { "type": "H", "target": 0 },
       { "type": "CRZ", "control": 1, "target": 0, "theta": 1.57079632679 },
       { "type": "CRZ", "control": 2, "target": 0, "theta": 0.78539816339 },
       { "type": "CRZ", "control": 3, "target": 0, "theta": 0.39269908169 },
+      { "type": "CRZ", "control": 4, "target": 0, "theta": 0.19634954084 },
 
       { "type": "H", "target": 1 },
       { "type": "CRZ", "control": 2, "target": 1, "theta": 1.57079632679 },
       { "type": "CRZ", "control": 3, "target": 1, "theta": 0.78539816339 },
+      { "type": "CRZ", "control": 4, "target": 1, "theta": 0.39269908169 },
 
       { "type": "H", "target": 2 },
       { "type": "CRZ", "control": 3, "target": 2, "theta": 1.57079632679 },
+      { "type": "CRZ", "control": 4, "target": 2, "theta": 0.78539816339 },
 
       { "type": "H", "target": 3 },
+      { "type": "CRZ", "control": 4, "target": 3, "theta": 1.57079632679 },
 
-      { "type": "SWAP", "control": 0, "target": 3 },
-      { "type": "SWAP", "control": 1, "target": 2 },
+      { "type": "H", "target": 4 },
+
+      { "type": "SWAP", "control": 0, "target": 4 },
+      { "type": "SWAP", "control": 1, "target": 3 },
 
       { "type": "M", "target": 0 },
       { "type": "M", "target": 1 },
       { "type": "M", "target": 2 },
-      { "type": "M", "target": 3 }
+      { "type": "M", "target": 3 },
+      { "type": "M", "target": 4 }
     ]
   },
-
   {
-    "name": "Grover (3 qubits)",
-    "qubits": 3,
-    "gates": [
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-      { "type": "H", "target": 2 },
-
-      { "type": "CZ", "control": 0, "target": 2 },
-      { "type": "CZ", "control": 1, "target": 2 },
-
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-      { "type": "H", "target": 2 },
-
-      { "type": "X", "target": 0 },
-      { "type": "X", "target": 1 },
-      { "type": "X", "target": 2 },
-
-      { "type": "H", "target": 2 },
-      { "type": "CZ", "control": 0, "target": 1 },
-      { "type": "H", "target": 2 },
-
-      { "type": "X", "target": 0 },
-      { "type": "X", "target": 1 },
-      { "type": "X", "target": 2 },
-
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-      { "type": "H", "target": 2 },
-
-      { "type": "M", "target": 0 },
-      { "type": "M", "target": 1 },
-      { "type": "M", "target": 2 }
-    ]
-  },
-
-  {
-    "name": "Deutsch–Jozsa",
+    "name": "Grover Deep Visual 1 (4 Qubits, Multi-Iteration)",
     "qubits": 4,
     "gates": [
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "CZ", "control": 0, "target": 3 },
+      { "type": "CZ", "control": 1, "target": 3 },
+      { "type": "CZ", "control": 2, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 3 },
+      { "type": "CZ", "control": 0, "target": 1 },
+      { "type": "CZ", "control": 2, "target": 3 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
       { "type": "X", "target": 3 },
 
       { "type": "H", "target": 0 },
@@ -75,23 +166,173 @@
       { "type": "H", "target": 2 },
       { "type": "H", "target": 3 },
 
-      { "type": "CNOT", "control": 0, "target": 3 },
-      { "type": "CNOT", "control": 1, "target": 3 },
+      { "type": "CZ", "control": 0, "target": 2 },
+      { "type": "CZ", "control": 1, "target": 3 },
 
       { "type": "H", "target": 0 },
       { "type": "H", "target": 1 },
       { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 2 },
+      { "type": "CZ", "control": 1, "target": 2 },
+      { "type": "CZ", "control": 0, "target": 3 },
+      { "type": "H", "target": 2 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
 
       { "type": "M", "target": 0 },
       { "type": "M", "target": 1 },
-      { "type": "M", "target": 2 }
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 }
     ]
   },
-
   {
-    "name": "Bernstein–Vazirani",
+    "name": "Grover Deep Visual 2 (4 Qubits, Multi-Iteration)",
+    "qubits": 4,
+    "gates": [
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "CZ", "control": 0, "target": 3 },
+      { "type": "CZ", "control": 1, "target": 3 },
+      { "type": "CZ", "control": 2, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 3 },
+      { "type": "CZ", "control": 0, "target": 1 },
+      { "type": "CZ", "control": 2, "target": 3 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "CZ", "control": 0, "target": 2 },
+      { "type": "CZ", "control": 1, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 2 },
+      { "type": "CZ", "control": 1, "target": 2 },
+      { "type": "CZ", "control": 0, "target": 3 },
+      { "type": "H", "target": 2 },
+
+      { "type": "X", "target": 0 },
+      { "type": "X", "target": 1 },
+      { "type": "X", "target": 2 },
+      { "type": "X", "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 }
+    ]
+  },
+  {
+    "name": "Shor Expanded Visual (6 Qubits)",
+    "qubits": 6,
+    "gates": [
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+
+      { "type": "X", "target": 4 },
+
+      { "type": "CNOT", "control": 0, "target": 4 },
+      { "type": "CNOT", "control": 1, "target": 5 },
+      { "type": "CNOT", "control": 2, "target": 4 },
+      { "type": "CNOT", "control": 3, "target": 5 },
+
+      { "type": "CRZ", "control": 0, "target": 4, "theta": 3.14159265359 },
+      { "type": "CRZ", "control": 1, "target": 4, "theta": 6.28318530718 },
+      { "type": "CRZ", "control": 2, "target": 4, "theta": 12.56637061436 },
+      { "type": "CRZ", "control": 3, "target": 4, "theta": 25.1327412287 },
+
+      { "type": "CNOT", "control": 4, "target": 5 },
+      { "type": "CNOT", "control": 5, "target": 4 },
+
+      { "type": "CZ", "control": 0, "target": 5 },
+      { "type": "CZ", "control": 1, "target": 4 },
+      { "type": "CZ", "control": 2, "target": 5 },
+      { "type": "CZ", "control": 3, "target": 4 },
+
+      { "type": "H", "target": 3 },
+      { "type": "CRZ", "control": 3, "target": 2, "theta": -1.57079632679 },
+
+      { "type": "H", "target": 2 },
+      { "type": "CRZ", "control": 3, "target": 1, "theta": -0.78539816339 },
+      { "type": "CRZ", "control": 2, "target": 1, "theta": -1.57079632679 },
+
+      { "type": "H", "target": 1 },
+      { "type": "CRZ", "control": 3, "target": 0, "theta": -0.39269908169 },
+      { "type": "CRZ", "control": 2, "target": 0, "theta": -0.78539816339 },
+      { "type": "CRZ", "control": 1, "target": 0, "theta": -1.57079632679 },
+
+      { "type": "H", "target": 0 },
+
+      { "type": "SWAP", "control": 0, "target": 3 },
+      { "type": "SWAP", "control": 1, "target": 2 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 },
+      { "type": "M", "target": 4 },
+      { "type": "M", "target": 5 }
+    ]
+  },
+  {
+    "name": "Deutsch–Jozsa Deep Visual (4 Input + 1 Ancilla)",
     "qubits": 5,
     "gates": [
+
       { "type": "X", "target": 4 },
 
       { "type": "H", "target": 0 },
@@ -101,8 +342,15 @@
       { "type": "H", "target": 4 },
 
       { "type": "CNOT", "control": 0, "target": 4 },
+      { "type": "CNOT", "control": 1, "target": 4 },
       { "type": "CNOT", "control": 2, "target": 4 },
       { "type": "CNOT", "control": 3, "target": 4 },
+
+      { "type": "CZ", "control": 0, "target": 2 },
+      { "type": "CZ", "control": 1, "target": 3 },
+
+      { "type": "CRZ", "control": 0, "target": 1, "theta": 0.78539816339 },
+      { "type": "CRZ", "control": 2, "target": 3, "theta": 1.57079632679 },
 
       { "type": "H", "target": 0 },
       { "type": "H", "target": 1 },
@@ -115,116 +363,152 @@
       { "type": "M", "target": 3 }
     ]
   },
-
   {
-    "name": "Simon's Algorithm",
-    "qubits": 4,
+    "name": "Simon's Algorithm Deep Visual (6 Qubits, 3+3 Registers)",
+    "qubits": 6,
     "gates": [
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
 
-      { "type": "CNOT", "control": 0, "target": 2 },
-      { "type": "CNOT", "control": 1, "target": 3 },
-      { "type": "CNOT", "control": 0, "target": 3 },
-
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-
-      { "type": "M", "target": 0 },
-      { "type": "M", "target": 1 }
-    ]
-  },
-
-  {
-    "name": "Phase Estimation (4 qubits)",
-    "qubits": 4,
-    "gates": [
       { "type": "H", "target": 0 },
       { "type": "H", "target": 1 },
       { "type": "H", "target": 2 },
-
-      { "type": "CRZ", "control": 0, "target": 3, "theta": 3.14159265359 },
-      { "type": "CRZ", "control": 1, "target": 3, "theta": 6.28318530718 },
-      { "type": "CRZ", "control": 2, "target": 3, "theta": 12.56637061436 },
-
-      { "type": "H", "target": 2 },
-      { "type": "CRZ", "control": 2, "target": 1, "theta": -1.57079632679 },
-      { "type": "H", "target": 1 },
-      { "type": "CRZ", "control": 2, "target": 0, "theta": -0.78539816339 },
-      { "type": "CRZ", "control": 1, "target": 0, "theta": -1.57079632679 },
-      { "type": "H", "target": 0 },
-
-      { "type": "M", "target": 0 },
-      { "type": "M", "target": 1 },
-      { "type": "M", "target": 2 }
-    ]
-  },
-
-  {
-    "name": "Shor (Order Finding Core)",
-    "qubits": 5,
-    "gates": [
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-      { "type": "H", "target": 2 },
-
-      { "type": "X", "target": 3 },
 
       { "type": "CNOT", "control": 0, "target": 3 },
       { "type": "CNOT", "control": 1, "target": 4 },
-      { "type": "CNOT", "control": 2, "target": 3 },
+      { "type": "CNOT", "control": 2, "target": 5 },
 
-      { "type": "CRZ", "control": 1, "target": 0, "theta": 1.57079632679 },
-      { "type": "CRZ", "control": 2, "target": 0, "theta": 0.78539816339 },
-
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-
-      { "type": "M", "target": 0 },
-      { "type": "M", "target": 1 },
-      { "type": "M", "target": 2 }
-    ]
-  },
-
-  {
-    "name": "VQE Ansatz (Hardware Efficient)",
-    "qubits": 3,
-    "gates": [
-      { "type": "RY", "target": 0, "theta": 0.5 },
-      { "type": "RY", "target": 1, "theta": 0.7 },
-      { "type": "RY", "target": 2, "theta": 1.2 },
-
-      { "type": "CNOT", "control": 0, "target": 1 },
-      { "type": "CNOT", "control": 1, "target": 2 },
-
-      { "type": "RZ", "target": 0, "theta": 0.3 },
-      { "type": "RZ", "target": 1, "theta": 0.8 },
-      { "type": "RZ", "target": 2, "theta": 0.4 },
-
-      { "type": "M", "target": 0 },
-      { "type": "M", "target": 1 },
-      { "type": "M", "target": 2 }
-    ]
-  },
-
-  {
-    "name": "QAOA (p=1 layer)",
-    "qubits": 3,
-    "gates": [
-      { "type": "H", "target": 0 },
-      { "type": "H", "target": 1 },
-      { "type": "H", "target": 2 },
+      { "type": "CNOT", "control": 0, "target": 4 },
+      { "type": "CNOT", "control": 1, "target": 5 },
 
       { "type": "CZ", "control": 0, "target": 1 },
       { "type": "CZ", "control": 1, "target": 2 },
 
-      { "type": "RX", "target": 0, "theta": 1.0 },
-      { "type": "RX", "target": 1, "theta": 1.0 },
-      { "type": "RX", "target": 2, "theta": 1.0 },
+      { "type": "CRZ", "control": 0, "target": 2, "theta": 0.78539816339 },
+      { "type": "CRZ", "control": 1, "target": 2, "theta": 1.57079632679 },
+
+      { "type": "CNOT", "control": 3, "target": 5 },
+      { "type": "CNOT", "control": 4, "target": 3 },
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+
+      { "type": "CRZ", "control": 2, "target": 1, "theta": -1.57079632679 },
+      { "type": "CRZ", "control": 1, "target": 0, "theta": -0.78539816339 },
+
+      { "type": "H", "target": 0 },
 
       { "type": "M", "target": 0 },
       { "type": "M", "target": 1 },
       { "type": "M", "target": 2 }
+    ]
+  },
+  {
+    "name": "VQE Deep Ansatz (6 Qubits, Multi-Layer)",
+    "qubits": 6,
+    "gates": [
+
+      { "type": "RY", "target": 0, "theta": 0.5 },
+      { "type": "RY", "target": 1, "theta": 0.7 },
+      { "type": "RY", "target": 2, "theta": 1.1 },
+      { "type": "RY", "target": 3, "theta": 0.9 },
+      { "type": "RY", "target": 4, "theta": 1.3 },
+      { "type": "RY", "target": 5, "theta": 0.6 },
+
+      { "type": "CNOT", "control": 0, "target": 1 },
+      { "type": "CNOT", "control": 1, "target": 2 },
+      { "type": "CNOT", "control": 2, "target": 3 },
+      { "type": "CNOT", "control": 3, "target": 4 },
+      { "type": "CNOT", "control": 4, "target": 5 },
+
+      { "type": "RZ", "target": 0, "theta": 0.3 },
+      { "type": "RZ", "target": 1, "theta": 0.8 },
+      { "type": "RZ", "target": 2, "theta": 0.4 },
+      { "type": "RZ", "target": 3, "theta": 1.0 },
+      { "type": "RZ", "target": 4, "theta": 0.6 },
+      { "type": "RZ", "target": 5, "theta": 0.9 },
+
+      { "type": "CNOT", "control": 5, "target": 4 },
+      { "type": "CNOT", "control": 4, "target": 3 },
+      { "type": "CNOT", "control": 3, "target": 2 },
+      { "type": "CNOT", "control": 2, "target": 1 },
+      { "type": "CNOT", "control": 1, "target": 0 },
+
+      { "type": "RY", "target": 0, "theta": 1.2 },
+      { "type": "RY", "target": 1, "theta": 0.4 },
+      { "type": "RY", "target": 2, "theta": 1.5 },
+      { "type": "RY", "target": 3, "theta": 0.8 },
+      { "type": "RY", "target": 4, "theta": 1.1 },
+      { "type": "RY", "target": 5, "theta": 0.7 },
+
+      { "type": "CZ", "control": 0, "target": 3 },
+      { "type": "CZ", "control": 1, "target": 4 },
+      { "type": "CZ", "control": 2, "target": 5 },
+
+      { "type": "CRZ", "control": 0, "target": 2, "theta": 0.6 },
+      { "type": "CRZ", "control": 3, "target": 5, "theta": 1.1 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 },
+      { "type": "M", "target": 4 },
+      { "type": "M", "target": 5 }
+    ]
+  },
+  {
+    "name": "QAOA Deep Visual (6 Qubits, p=2 Layers)",
+    "qubits": 6,
+    "gates": [
+
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 1 },
+      { "type": "H", "target": 2 },
+      { "type": "H", "target": 3 },
+      { "type": "H", "target": 4 },
+      { "type": "H", "target": 5 },
+
+      { "type": "CZ", "control": 0, "target": 1 },
+      { "type": "CZ", "control": 1, "target": 2 },
+      { "type": "CZ", "control": 2, "target": 3 },
+      { "type": "CZ", "control": 3, "target": 4 },
+      { "type": "CZ", "control": 4, "target": 5 },
+
+      { "type": "CRZ", "control": 0, "target": 1, "theta": 0.8 },
+      { "type": "CRZ", "control": 1, "target": 2, "theta": 1.1 },
+      { "type": "CRZ", "control": 2, "target": 3, "theta": 0.6 },
+      { "type": "CRZ", "control": 3, "target": 4, "theta": 1.3 },
+      { "type": "CRZ", "control": 4, "target": 5, "theta": 0.9 },
+
+      { "type": "RX", "target": 0, "theta": 1.2 },
+      { "type": "RX", "target": 1, "theta": 1.2 },
+      { "type": "RX", "target": 2, "theta": 1.2 },
+      { "type": "RX", "target": 3, "theta": 1.2 },
+      { "type": "RX", "target": 4, "theta": 1.2 },
+      { "type": "RX", "target": 5, "theta": 1.2 },
+
+      { "type": "CZ", "control": 0, "target": 2 },
+      { "type": "CZ", "control": 1, "target": 3 },
+      { "type": "CZ", "control": 2, "target": 4 },
+      { "type": "CZ", "control": 3, "target": 5 },
+
+      { "type": "CRZ", "control": 0, "target": 2, "theta": 1.0 },
+      { "type": "CRZ", "control": 1, "target": 3, "theta": 0.7 },
+      { "type": "CRZ", "control": 2, "target": 4, "theta": 1.4 },
+      { "type": "CRZ", "control": 3, "target": 5, "theta": 0.5 },
+
+      { "type": "RX", "target": 0, "theta": 0.9 },
+      { "type": "RX", "target": 1, "theta": 0.9 },
+      { "type": "RX", "target": 2, "theta": 0.9 },
+      { "type": "RX", "target": 3, "theta": 0.9 },
+      { "type": "RX", "target": 4, "theta": 0.9 },
+      { "type": "RX", "target": 5, "theta": 0.9 },
+
+      { "type": "M", "target": 0 },
+      { "type": "M", "target": 1 },
+      { "type": "M", "target": 2 },
+      { "type": "M", "target": 3 },
+      { "type": "M", "target": 4 },
+      { "type": "M", "target": 5 }
     ]
   }
 ]

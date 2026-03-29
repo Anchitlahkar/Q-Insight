@@ -24,11 +24,20 @@ export const mockCircuits: Record<"A" | "B", Circuit> = {
 export const mockResults: Record<"A" | "B", SimulationResult> = {
   A: {
     counts: { "00": 512, "11": 512 },
-    statevector: [0.7071, 0, 0, 0.7071]
+    statevector: [
+      { real: 0.7071, imag: 0 },
+      { real: 0, imag: 0 },
+      { real: 0, imag: 0 },
+      { real: 0.7071, imag: 0 }
+    ]
   },
   B: {
     counts: { "01": 495, "11": 529 },
-    statevector: [0, 0.6999, 0, 0.7142]
+    statevector: [
+      { real: 0, imag: 0 },
+      { real: 0.6999, imag: 0 },
+      { real: 0, imag: 0 },
+      { real: 0.7142, imag: 0 }
+    ]
   }
 };
-
