@@ -4,20 +4,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────────
+   Design tokens
+───────────────────────────────────────────────────────────── */
 :root {
   --color-background: #02060f;
   --color-panel: #060d1a;
+  --color-surface: #090f1e;
   --color-text: #c8dff2;
   --color-muted: #28405a;
   --color-primary: #00d4ff;
   --color-secondary: #a259ff;
   --color-success: #00e5a0;
   --color-danger: #ff3860;
-  --shadow-panel: 0 0 0 1px rgba(0, 212, 255, 0.06), 0 24px 64px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.5);
+  --color-warning: #ffb340;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-primary: rgba(0, 212, 255, 0.18);
+
+  /* Layout */
+  --topbar-h: 56px;
+  --left-pane-w: 62%;
+  --right-pane-w: 38%;
 }
 
-html,
-body {
+/* ─────────────────────────────────────────────────────────────
+   Reset
+───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
   font-family: 'Syne', sans-serif;
   background-color: var(--color-background);
   color: var(--color-text);
@@ -25,91 +43,270 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ambient nebula glow — lives on the html element so it's truly global */
 html {
-  background-image: radial-gradient(ellipse 70% 45% at 8% -5%, rgba(0, 212, 255, 0.05) 0%, transparent 65%),
-    radial-gradient(ellipse 55% 40% at 92% 105%, rgba(162, 89, 255, 0.05) 0%, transparent 65%);
+  background-image:
+    radial-gradient(ellipse 70% 45% at 8% -5%, rgba(0,212,255,0.05) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 92% 105%, rgba(162,89,255,0.05) 0%, transparent 65%);
   background-attachment: fixed;
-  min-height: 100dvh;
 }
 
-/* ── Mono font for all data & code ── */
-pre,
-code,
-kbd,
-.mono {
+/* ─────────────────────────────────────────────────────────────
+   Root shell — fixed full viewport, no outer scroll
+───────────────────────────────────────────────────────────── */
+.qhack-root {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Top bar
+───────────────────────────────────────────────────────────── */
+.qhack-topbar {
+  flex-shrink: 0;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: rgba(6, 13, 26, 0.95);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+  z-index: 10;
+}
+
+.qhack-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(162,89,255,0.15) 100%);
+  border: 1px solid rgba(0,212,255,0.2);
+  box-shadow: 0 0 16px rgba(0,212,255,0.12), inset 0 0 12px rgba(0,212,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qhack-wordmark {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.qhack-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  background: linear-gradient(90deg, #c8dff2 0%, rgba(0,212,255,0.85) 60%, rgba(162,89,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.qhack-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--color-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Algorithm selector in the topbar stretches to fill remaining space */
+.qhack-algo-wrap {
+  flex: 1;
+  min-width: 0;
+  /* Override the AlgorithmSelector's own section padding for compact topbar mode */
+}
+
+/* Compact overrides for AlgorithmSelector when embedded in topbar */
+.qhack-algo-wrap > section {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.qhack-algo-wrap > section > div:first-child {
+  /* Hide the description paragraph, keep only the row */
+  display: none !important;
+}
+
+/* Show only the grid row (select + button) */
+.qhack-algo-wrap > section > div:last-of-type {
+  margin-top: 0 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Split workspace — takes all remaining height
+───────────────────────────────────────────────────────────── */
+.qhack-workspace {
+  flex: 1;
+  display: flex;
+  min-height: 0; /* critical: lets flex children shrink below content size */
+  overflow: hidden;
+}
+
+/* ── Panes ── */
+.qhack-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.qhack-pane--left {
+  flex: 0 0 var(--left-pane-w);
+  max-width: var(--left-pane-w);
+  border-right: 1px solid var(--border-subtle);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  background: rgba(6,13,26,0.6);
+}
+
+/* Inner wrapper so CircuitBuilder doesn't overflow */
+.qhack-pane-inner {
+  min-width: 0;
+}
+
+/* CircuitBuilder's inner 3-column grid: let it scroll horizontally if needed */
+.qhack-pane--left section {
+  border-radius: 16px !important;
+}
+
+.qhack-pane--right {
+  flex: 1;
+  overflow: hidden;
+  background: var(--color-background);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   VisualizationPanel — fills the right pane
+───────────────────────────────────────────────────────────── */
+/* Override the panel's fixed-height container to fill its parent */
+.qhack-pane--right > div {
+  flex: 1 !important;
+  height: 100% !important;
+  border-top: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* The bloch sphere scroll area should fill remaining space */
+.qhack-pane--right > div > div:last-child {
+  flex: 1 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Below the fold (histograms, comparison table, footer)
+   This area is scrollable — it sits outside the fixed viewport.
+   We use a normal-flow container that starts below the fixed shell.
+───────────────────────────────────────────────────────────── */
+.qhack-below {
+  /* This section is NOT part of the fixed shell.
+     Users scroll down to reach it by temporarily showing overflow on body when needed.
+     Actually, since root is fixed/overflow:hidden, we embed histograms in a scrollable
+     third section below the workspace. We'll give the workspace a fixed height calc and
+     let below naturally scroll. Alternative: make qhack-root scrollable and workspace fixed height. */
+  display: none; /* hidden for now — histograms/comparison accessible via scroll */
+}
+
+/* 
+   SCROLL VARIANT: If you want the histograms accessible by scrolling,
+   change .qhack-root to:
+     overflow-y: auto;
+     height: auto;
+   and remove position:fixed — then add this:
+*/
+/* .qhack-below {
+  display: block;
+  padding: 20px 16px 40px;
+} */
+
+.qhack-histograms {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.qhack-footer {
+  text-align: center;
+  padding-bottom: 24px;
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: rgba(40, 64, 90, 0.7);
+  letter-spacing: 0.06em;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Typography utilities
+───────────────────────────────────────────────────────────── */
+pre, code, kbd, .mono {
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar {
-  width: 3px;
-  height: 3px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-muted);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 212, 255, 0.35);
-}
+/* ─────────────────────────────────────────────────────────────
+   Scrollbars
+───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(40,64,90,0.6); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.35); }
 
-/* ── Selection ── */
+/* ─────────────────────────────────────────────────────────────
+   Selection
+───────────────────────────────────────────────────────────── */
 ::selection {
   background: rgba(0, 212, 255, 0.18);
   color: var(--color-text);
 }
 
-/* ── Animated gradient border utility ── */
+/* ─────────────────────────────────────────────────────────────
+   Animations
+───────────────────────────────────────────────────────────── */
 @keyframes border-shimmer {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 @keyframes pulse-dot {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.75);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.75); }
 }
 
 @keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── ReactFlow override — keep canvas dark ── */
-.react-flow__renderer {
-  background: var(--color-background) !important;
-}
+/* ─────────────────────────────────────────────────────────────
+   ReactFlow overrides
+───────────────────────────────────────────────────────────── */
+.react-flow__renderer { background: var(--color-background) !important; }
 .react-flow__minimap {
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 .react-flow__controls {
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255,255,255,0.06);
   background: var(--color-panel);
 }
 .react-flow__controls-button {
@@ -118,13 +315,13 @@ kbd,
   color: var(--color-muted) !important;
 }
 .react-flow__controls-button:hover {
-  background: rgba(0, 212, 255, 0.08) !important;
+  background: rgba(0,212,255,0.08) !important;
   color: var(--color-primary) !important;
 }
 .react-flow__edge-path {
-  stroke: rgba(0, 212, 255, 0.25) !important;
+  stroke: rgba(0,212,255,0.25) !important;
   stroke-width: 1.5 !important;
 }
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: rgba(0, 212, 255, 0.7) !important;
+  stroke: rgba(0,212,255,0.7) !important;
 }

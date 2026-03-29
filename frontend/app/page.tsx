@@ -6,12 +6,26 @@ import ComparisonTable from "@/components/ComparisonTable";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
-        {/* â”€â”€ Page header â”€â”€ */}
-        <header className="flex flex-col gap-1 pb-2">
-          <div className="flex items-center gap-3">
-            {/* Glowing logo mark */}
+    <main
+      style={{
+        minHeight: "100vh",
+        padding: "28px 28px 48px",
+      }}
+    >
+      <div
+        style={{
+          margin: "0 auto",
+          width: "100%",
+          maxWidth: 1440,
+          display: "flex",
+          flexDirection: "column",
+          gap: 0,
+        }}
+      >
+        {/* ── Page header ── */}
+        <header style={{ paddingBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Logo mark */}
             <div
               style={{
                 width: 36,
@@ -34,6 +48,7 @@ export default function HomePage() {
                 <line x1="9" y1="1" x2="9" y2="17" stroke="#00d4ff" strokeWidth="0.5" opacity="0.2" />
               </svg>
             </div>
+
             <div>
               <h1
                 style={{
@@ -46,78 +61,84 @@ export default function HomePage() {
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                   lineHeight: 1.2,
+                  margin: 0,
                 }}
               >
                 Quantum Lab
               </h1>
               <p
                 style={{
-                  fontSize: "0.72rem",
-                  color: "rgba(40, 64, 90, 1)",
+                  fontSize: "0.7rem",
+                  color: "rgba(40,64,90,1)",
                   fontFamily: "JetBrains Mono, monospace",
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  marginTop: 1,
+                  marginTop: 2,
                 }}
               >
-                Circuit Simulator Â· v2.0
+                Circuit Simulator · v2.0
               </p>
             </div>
           </div>
-          {/* Thin rule */}
+
+          {/* Divider */}
           <div
             style={{
               height: 1,
-              marginTop: 16,
+              marginTop: 18,
               background: "linear-gradient(90deg, rgba(0,212,255,0.25) 0%, rgba(162,89,255,0.15) 50%, transparent 100%)",
             }}
           />
         </header>
 
-        {/* â”€â”€ Main builder â”€â”€ */}
-        <div style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-        }}>
-          <div style={{
-            flex: "0 0 55%",
-            overflow: "auto",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
-            paddingBottom: 16,
-          }}>
-            <AlgorithmSelector />
-            <CircuitBuilder />
-          </div>
+        {/* ── Algorithm selector ── */}
+        <section style={{ marginBottom: 16 }}>
+          <AlgorithmSelector />
+        </section>
 
+        {/* ── Circuit builder ── */}
+        <section style={{ marginBottom: 16 }}>
+          <CircuitBuilder />
+        </section>
+
+        {/* ── Visualization panel ── */}
+        <section style={{ marginBottom: 28 }}>
           <VisualizationPanel />
-        </div>
+        </section>
 
-        {/* â”€â”€ Histograms â”€â”€ */}
-        <section className="grid gap-5 lg:grid-cols-2">
+        {/* ── Histograms ── */}
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 16,
+            marginBottom: 20,
+          }}
+        >
           <Histogram circuitKey="A" title="Algorithm A" />
           <Histogram circuitKey="B" title="Algorithm B" />
         </section>
 
-        {/* â”€â”€ Comparison â”€â”€ */}
-        <ComparisonTable />
+        {/* ── Comparison table ── */}
+        <section style={{ marginBottom: 40 }}>
+          <ComparisonTable />
+        </section>
 
-        {/* â”€â”€ Footer â”€â”€ */}
+        {/* ── Footer ── */}
         <footer
           style={{
             textAlign: "center",
-            paddingBottom: 24,
-            fontSize: "0.7rem",
+            fontSize: "0.68rem",
             fontFamily: "JetBrains Mono, monospace",
-            color: "rgba(40, 64, 90, 0.7)",
-            letterSpacing: "0.06em",
+            color: "rgba(40,64,90,0.65)",
+            letterSpacing: "0.08em",
+            paddingTop: 8,
+            borderTop: "1px solid rgba(255,255,255,0.04)",
           }}
         >
-          QUANTUM NOIR Â· CIRCUIT SIMULATION ENGINE
+          QUANTUM NOIR · CIRCUIT SIMULATION ENGINE
         </footer>
       </div>
     </main>
   );
 }
-
