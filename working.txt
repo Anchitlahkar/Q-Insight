@@ -1,21 +1,25 @@
 Quantum Lab - Working Notes
 
 Latest update
-- Project now includes a richer backend module layout under api/ for algorithms, gate compilation, and hybrid/variational workflows.
-- Frontend now includes a live Visualization panel with step-by-step simulation playback and Bloch sphere views.
-- The architecture is no longer just a basic circuit runner. It supports direct circuit simulation, algorithm-driven simulation, step simulation, and a separate variational endpoint.
+- Project currently has a modular backend under `api/` for algorithms, gate compilation, and hybrid / variational workflows.
+- Frontend includes the circuit builder, algorithm selection, histogram comparison, and a live visualization panel for step-by-step playback.
+- Repo structure also includes package/runtime support files that were missing from this note, such as `__init__.py`, `postcss.config.js`, `next-env.d.ts`, and `package-lock.json`.
 
 Current file architecture
 - api/
+  - __init__.py
   - main.py
   - algorithms/
+    - __init__.py
     - registry.py
     - grover.py
     - oracle.py
     - qft.py
   - compiler/
+    - __init__.py
     - gate_compiler.py
   - hybrid/
+    - __init__.py
     - variational.py
 - frontend/
   - app/
@@ -44,8 +48,11 @@ Current file architecture
   - store/
     - useCircuitStore.ts
     - useVisualizationStore.ts
-  - package.json
+  - next-env.d.ts
   - next.config.ts
+  - package.json
+  - package-lock.json
+  - postcss.config.js
   - tailwind.config.ts
   - tsconfig.json
 - README.md
@@ -57,8 +64,8 @@ Overall flow
 3. The user can either build a circuit manually or choose an algorithm-driven flow.
 4. Circuit data is stored in Zustand state.
 5. The frontend serializes the active circuit into backend JSON.
-6. The payload is sent to the backend over WebSocket at ws://localhost:8000/ws.
-7. The backend compiles the gate list before applying it to a Qiskit QuantumCircuit.
+6. The payload is sent to the backend over WebSocket at `ws://localhost:8000/ws`.
+7. The backend compiles the gate list before applying it to a Qiskit `QuantumCircuit`.
 8. Qiskit Aer runs the simulation.
 9. The backend returns status, results, and optionally step-by-step state data.
 10. The frontend updates histograms, comparison metrics, and visualization state.
@@ -66,140 +73,140 @@ Overall flow
 Frontend working
 
 App shell
-- frontend/app/page.tsx is the main page entry.
+- `frontend/app/page.tsx` is the main page entry.
 - It renders:
-  - AlgorithmSelector
-  - CircuitBuilder
-  - VisualizationPanel
-  - Histogram for Circuit A
-  - Histogram for Circuit B
-  - ComparisonTable
+  - `AlgorithmSelector`
+  - `CircuitBuilder`
+  - `VisualizationPanel`
+  - `Histogram` for Circuit A
+  - `Histogram` for Circuit B
+  - `ComparisonTable`
   - branded page header and footer
-- The current layout gives the builder the top portion of the screen and the visualization panel the lower portion.
+- The current layout places the builder above the visualization and results sections.
 
 State management
-- frontend/store/useCircuitStore.ts manages:
+- `frontend/store/useCircuitStore.ts` manages:
   - active circuit key
   - circuit definitions for A and B
   - simulation results
-  - loading/running state
+  - loading / running state
   - socket state and errors
-- frontend/store/useVisualizationStore.ts manages:
+- `frontend/store/useVisualizationStore.ts` manages:
   - current visualization step
   - visualization result payload
-  - play/pause state
+  - play / pause state
   - playback speed
   - reset behavior when circuit context changes
 
 Algorithm selection
-- frontend/components/AlgorithmSelector.tsx is part of the main screen.
-- The project includes algorithm metadata in frontend/lib/algorithms.json.
+- `frontend/components/AlgorithmSelector.tsx` is part of the main screen.
+- The project includes algorithm metadata in `frontend/lib/algorithms.json`.
 - Backend-supported algorithm builders currently include:
-  - qft
-  - oracle
-  - grover
+  - `qft`
+  - `oracle`
+  - `grover`
 
 Gate system
-- frontend/lib/gates.ts is the source of truth for supported frontend gates.
+- `frontend/lib/gates.ts` is the source of truth for supported frontend gates.
 - Current gate families include:
-  - Basic: H, X, Y, Z
-  - Phase: S, SDG, T, TDG
-  - Rotation: RX, RY, RZ
-  - Multi-qubit: CNOT, CZ, SWAP, CRX, CRY, CRZ
-  - Utility: M, I
+  - Basic: `H`, `X`, `Y`, `Z`
+  - Phase: `S`, `SDG`, `T`, `TDG`
+  - Rotation: `RX`, `RY`, `RZ`
+  - Multi-qubit: `CNOT`, `CZ`, `SWAP`, `CRX`, `CRY`, `CRZ`
+  - Utility: `M`, `I`
 - The file also defines labels, categories, colors, parametric defaults, and helpers for formatting/parsing theta values.
 
 Circuit builder
-- frontend/components/CircuitBuilder.tsx is the interactive circuit editor.
+- `frontend/components/CircuitBuilder.tsx` is the interactive circuit editor.
 - The user places gates on qubit wires and works with Circuit A or Circuit B.
 - This builder feeds the serialized circuit payload used by backend simulation.
 
 Visualization panel
-- frontend/components/VisualizationPanel.tsx provides step simulation playback.
+- `frontend/components/VisualizationPanel.tsx` provides step simulation playback.
 - It:
   - uses the active circuit from the circuit store
-  - requests mode: step_simulation over WebSocket
-  - stores returned steps in useVisualizationStore
-  - supports play, pause, speed control, collapse/expand
-  - displays Bloch spheres for each qubit using frontend/components/BlochSphere.tsx
+  - requests `step_simulation` mode over WebSocket
+  - stores returned steps in `useVisualizationStore`
+  - supports play, pause, speed control, and collapse / expand
+  - displays Bloch spheres for each qubit using `frontend/components/BlochSphere.tsx`
 - Visualization state resets automatically when the active circuit, qubit count, or gate list changes.
 
 Histograms and comparison
-- frontend/components/Histogram.tsx renders measurement distributions.
-- frontend/components/ComparisonTable.tsx compares the two circuits using returned metrics like depth and gate count.
+- `frontend/components/Histogram.tsx` renders measurement distributions.
+- `frontend/components/ComparisonTable.tsx` compares the two circuits using returned metrics such as depth and gate count.
 
 WebSocket working
-- frontend/hooks/useWebSocket.ts manages backend communication.
-- The active visualization panel currently connects to ws://localhost:8000/ws.
-- The WebSocket flow supports status/result style responses from the backend.
+- `frontend/hooks/useWebSocket.ts` manages backend communication.
+- The active visualization panel currently connects to `ws://localhost:8000/ws`.
+- The WebSocket flow supports status / result style responses from the backend.
 
 Backend working
 
 Main backend
-- api/main.py defines the FastAPI app.
+- `api/main.py` defines the FastAPI app.
 - It exposes:
-  - WebSocket endpoint: /ws
-  - POST endpoint: /variational/run
+  - WebSocket endpoint: `/ws`
+  - POST endpoint: `/variational/run`
 
 Simulation modes
-- run_simulation(data) supports multiple modes:
+- `run_simulation(data)` supports multiple modes:
   - default circuit mode using qubits + gates
   - algorithm mode using a named algorithm and params
-  - step_simulation mode for visualization playback
+  - `step_simulation` mode for visualization playback
 
 Gate compilation
-- api/compiler/gate_compiler.py preprocesses gates before simulation.
-- Current compiler behavior expands SWAP into three CNOT gates.
+- `api/compiler/gate_compiler.py` preprocesses gates before simulation.
+- Current compiler behavior expands `SWAP` into three `CNOT` gates.
 
 Gate execution
-- api/main.py applies gates to a Qiskit QuantumCircuit.
+- `api/main.py` applies gates to a Qiskit `QuantumCircuit`.
 - Current backend-supported gates include:
-  - H, X, Y, Z
-  - S, SDG, T, TDG
-  - RX, RY, RZ
-  - CNOT, CZ, SWAP
-  - CRX, CRY, CRZ
-  - M, I
-- The backend validates required fields such as theta, control, and target.
+  - `H`, `X`, `Y`, `Z`
+  - `S`, `SDG`, `T`, `TDG`
+  - `RX`, `RY`, `RZ`
+  - `CNOT`, `CZ`, `SWAP`
+  - `CRX`, `CRY`, `CRZ`
+  - `M`, `I`
+- The backend validates required fields such as `theta`, `control`, and `target`.
 
 Algorithm module
-- api/algorithms/registry.py routes algorithm names to builders.
+- `api/algorithms/registry.py` routes algorithm names to builders.
 - Available builders currently include:
   - QFT
   - Oracle
   - Grover
 
 Step simulation
-- api/main.py can simulate a circuit incrementally.
+- `api/main.py` can simulate a circuit incrementally.
 - For each compiled gate prefix, it builds a partial circuit and captures a statevector when feasible.
 - The final response includes:
   - normal result payload
-  - steps array with gate index, gate type, and statevector snapshot
+  - `steps` array with gate index, gate type, and statevector snapshot
 
 Statevector behavior
-- MAX_STATEVECTOR_QUBITS is set to 8.
-- Statevectors are serialized into { real, imag } objects.
+- `MAX_STATEVECTOR_QUBITS` is set to 8.
+- Statevectors are serialized into `{ real, imag }` objects.
 - Large circuits skip statevector payloads to avoid oversized responses.
 - For normal simulation, the backend returns counts and may return a final statevector.
 - For step simulation, the backend may return per-step statevectors as well.
 
 Hybrid / variational support
-- api/hybrid/variational.py contains a simple variational workflow.
-- /variational/run evaluates multiple theta values across a scan range.
+- `api/hybrid/variational.py` contains a simple variational workflow.
+- `/variational/run` evaluates multiple theta values across a scan range.
 - The response returns:
   - best result
   - history of all iterations
   - counts, cost, depth, and gate_count per trial
 
 Important behavior notes
-- The frontend is now more than a static builder plus histogram view; it also includes quantum state visualization.
-- The backend has a modular structure: algorithms, compiler, and hybrid logic are split into separate packages.
+- The frontend is more than a static builder plus histogram view; it also includes quantum state visualization.
+- The backend has a modular structure with algorithms, compiler, and hybrid logic split into separate packages.
 - The WebSocket endpoint is still the main real-time execution path.
 - Supported frontend gates and backend gates are mostly aligned, including controlled rotations and identity.
 
 How to run
 - Backend:
-  - run FastAPI app from api/main.py using uvicorn
+  - run the FastAPI app from `api/main.py` using `uvicorn`
 - Frontend:
-  - run Next.js app from frontend/
+  - run the Next.js app from `frontend/`
 - Live simulation and visualization require both services running.
