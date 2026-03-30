@@ -3,6 +3,7 @@ import CircuitBuilder from "@/components/CircuitBuilder";
 import VisualizationPanel from "@/components/VisualizationPanel";
 import Histogram from "@/components/Histogram";
 import ComparisonTable from "@/components/ComparisonTable";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -22,31 +23,33 @@ export default function HomePage() {
           gap: 0,
         }}
       >
-        {/* ── Page header ── */}
+        {/* Page header */}
         <header style={{ paddingBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {/* Logo mark */}
             <div
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: "linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(162,89,255,0.15) 100%)",
-                border: "1px solid rgba(0,212,255,0.2)",
-                boxShadow: "0 0 16px rgba(0,212,255,0.12), inset 0 0 12px rgba(0,212,255,0.06)",
+                width: 52,
+                height: 52,
+                borderRadius: 14,
+                background: "rgba(7, 16, 28, 0.82)",
+                border: "1px solid rgba(0,212,255,0.18)",
+                boxShadow: "0 0 18px rgba(0,212,255,0.12)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
+                overflow: "hidden",
+                padding: 6,
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <circle cx="9" cy="9" r="2.5" fill="#00d4ff" opacity="0.9" />
-                <circle cx="9" cy="9" r="6" stroke="#00d4ff" strokeWidth="1" opacity="0.35" />
-                <circle cx="9" cy="9" r="8.5" stroke="rgba(162,89,255,0.3)" strokeWidth="0.75" />
-                <line x1="1" y1="9" x2="17" y2="9" stroke="#00d4ff" strokeWidth="0.5" opacity="0.2" />
-                <line x1="9" y1="1" x2="9" y2="17" stroke="#00d4ff" strokeWidth="0.5" opacity="0.2" />
-              </svg>
+              <Image
+                src="/logo.png"
+                alt="Quantum Lab logo"
+                width={40}
+                height={40}
+                priority
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
             </div>
 
             <div>
@@ -81,7 +84,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Divider */}
           <div
             style={{
               height: 1,
@@ -91,22 +93,18 @@ export default function HomePage() {
           />
         </header>
 
-        {/* ── Algorithm selector ── */}
         <section style={{ marginBottom: 16 }}>
           <AlgorithmSelector />
         </section>
 
-        {/* ── Circuit builder ── */}
         <section style={{ marginBottom: 16 }}>
           <CircuitBuilder />
         </section>
 
-        {/* ── Visualization panel ── */}
         <section style={{ marginBottom: 28 }}>
           <VisualizationPanel />
         </section>
 
-        {/* ── Histograms ── */}
         <section
           style={{
             display: "grid",
@@ -119,12 +117,10 @@ export default function HomePage() {
           <Histogram circuitKey="B" title="Algorithm B" />
         </section>
 
-        {/* ── Comparison table ── */}
         <section style={{ marginBottom: 40 }}>
           <ComparisonTable />
         </section>
 
-        {/* ── Footer ── */}
         <footer
           style={{
             textAlign: "center",
