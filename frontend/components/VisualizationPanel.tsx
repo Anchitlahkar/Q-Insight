@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BlochSphere } from "@/components/BlochSphere";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { serializeCircuit } from "@/lib/circuit";
+import { webSocketUrl } from "@/lib/env";
 import { getBlochVectors } from "@/lib/quantum";
 import { StepSimulationRequest } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
@@ -17,8 +18,6 @@ import {
   isTwoQubitGate,
 } from "@/lib/gates";
 import type { GateOperation } from "@/lib/types";
-
-const WS_URL = "ws://localhost:8000/ws";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mini circuit SVG constants
@@ -464,7 +463,7 @@ export default function VisualizationPanel() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const { simulateCircuit } = useWebSocket(WS_URL);
+  const { simulateCircuit } = useWebSocket(webSocketUrl);
 
   const playingRef = useRef(isPlaying);
   const speedRef   = useRef(speedMs);

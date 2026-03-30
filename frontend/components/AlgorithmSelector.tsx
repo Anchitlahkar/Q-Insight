@@ -4,11 +4,11 @@ import { memo, useMemo, useState } from "react";
 import algorithms from "@/lib/algorithms.json";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { serializeCircuit } from "@/lib/circuit";
+import { webSocketUrl } from "@/lib/env";
 import type { AlgorithmDefinition } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
 const ALGORITHMS = algorithms as AlgorithmDefinition[];
-const WS_URL = "ws://localhost:8000/ws";
 
 function AlgorithmSelectorComponent() {
   const activeCircuit = useCircuitStore((state) => state.activeCircuit);
@@ -18,7 +18,7 @@ function AlgorithmSelectorComponent() {
   const clearResult = useCircuitStore((state) => state.clearResult);
   const clearCircuit = useCircuitStore((state) => state.clearCircuit);
   const setQubitCount = useCircuitStore((state) => state.setQubitCount);
-  const { simulateCircuit, isLoading } = useWebSocket(WS_URL);
+  const { simulateCircuit, isLoading } = useWebSocket(webSocketUrl);
   const [selectedName, setSelectedName] = useState(ALGORITHMS[0]?.name ?? "");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

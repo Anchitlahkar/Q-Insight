@@ -1,9 +1,12 @@
 ﻿# main.py
 
+from json import JSONDecodeError
+import json
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
-import json
 
 try:
     from api.algorithms import build_algorithm
@@ -15,6 +18,14 @@ except ModuleNotFoundError:
     from hybrid import optimize_variational
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # replace with frontend URL later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 simulator = AerSimulator()
 MAX_STATEVECTOR_QUBITS = 8
@@ -46,6 +57,18 @@ def require_control_target(gate, gate_type):
     return control, target
 
 
+def parse_request_payload(raw_message):
+    try:
+        payload = json.loads(raw_message)
+    except JSONDecodeError as exc:
+        raise ValueError("Request body must be valid JSON") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("Request body must be a JSON object")
+
+    return payload
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
@@ -53,19 +76,26 @@ async def websocket_endpoint(ws: WebSocket):
     try:
         while True:
             data = await ws.receive_text()
-            circuit_data = json.loads(data)
-
-            await ws.send_json({
-                "type": "status",
-                "message": "Circuit received"
-            })
 
             try:
+                circuit_data = parse_request_payload(data)
+
+                await ws.send_json({
+                    "type": "status",
+                    "message": "Circuit received"
+                })
+
                 result = run_simulation(circuit_data)
-            except (KeyError, TypeError, ValueError) as exc:
+            except (JSONDecodeError, KeyError, TypeError, ValueError) as exc:
                 await ws.send_json({
                     "type": "error",
                     "message": str(exc)
+                })
+                continue
+            except Exception:
+                await ws.send_json({
+                    "type": "error",
+                    "message": "Internal server error"
                 })
                 continue
 
@@ -75,7 +105,7 @@ async def websocket_endpoint(ws: WebSocket):
             })
 
     except WebSocketDisconnect:
-        print("Client disconnected")
+        return
 
 
 def serialize_statevector(statevector):

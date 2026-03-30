@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // -----------------------------------------------------------------------------
 // CircuitBuilder.tsx
@@ -19,6 +19,7 @@ import { CircuitJsonEditor } from "./CircuitJsonEditor";
 
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { calculateMetrics, serializeCircuit } from "@/lib/circuit";
+import { webSocketUrl } from "@/lib/env";
 
 import {
     GATE_COLOR,
@@ -34,7 +35,6 @@ import { useCircuitStore } from "@/store/useCircuitStore";
 import { useVisualizationStore } from "@/store/useVisualizationStore";
 
 // -- Layout -------------------------------------------------------------------
-const WS_URL = "ws://localhost:8000/ws";
 const COL_W = 68;
 const LANE_H = 84;
 const LEFT_PAD = 82;
@@ -643,7 +643,7 @@ export default function CircuitBuilder() {
 
 
 
-    const { status, error, isLoading, reconnect, simulateCircuit } = useWebSocket(WS_URL);
+    const { status, error, isLoading, reconnect, simulateCircuit } = useWebSocket(webSocketUrl);
 
     // Dynamic column count: max occupied col + 4 headroom
     const numCols = useMemo(() => {
