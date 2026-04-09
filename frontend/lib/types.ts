@@ -1,4 +1,4 @@
-﻿import type { GateType } from "./gates";
+import type { GateType } from "./gates";
 
 export type { GateType } from "./gates";
 
@@ -52,6 +52,7 @@ export interface SerializedCircuit {
 }
 
 export interface AlgorithmDefinition {
+  id: string;
   name: string;
   qubits: number;
   gates: SerializedGate[];
@@ -72,4 +73,3 @@ export interface StepSimulationRequest extends SerializedCircuit {
 }
 
 export type SimulationRequest = SerializedCircuit | AlgorithmExecutionRequest | StepSimulationRequest;
-
