@@ -9,6 +9,11 @@ export interface BlochVector {
   isMixed: boolean;
 }
 
+export interface BlochAngles {
+  theta: number;
+  phi: number;
+}
+
 interface ComplexNumber {
   re: number;
   im: number;
@@ -31,6 +36,20 @@ function multiplyConjugate(left: ComplexNumber, right: ComplexNumber): ComplexNu
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
+}
+
+function toDegrees(radians: number) {
+  return (radians * 180) / Math.PI;
+}
+
+export function computeBlochAngles(x: number, y: number, z: number): BlochAngles {
+  const theta = Math.acos(clamp(z, -1, 1));
+  const phi = Math.atan2(y, x);
+
+  return {
+    theta: toDegrees(theta),
+    phi: ((toDegrees(phi) % 360) + 360) % 360,
+  };
 }
 
 export function getBlochVectors(statevector: ComplexAmplitude[] | null, qubits: number): BlochVector[] {
