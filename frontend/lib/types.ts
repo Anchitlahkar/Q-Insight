@@ -4,12 +4,24 @@ export type { GateType } from "./gates";
 
 export type CircuitKey = "A" | "B";
 
+export interface SerializedGate {
+  type: Exclude<GateType, "COMPONENT">;
+  target: number;
+  control?: number;
+  theta?: number;
+}
+
 export interface GateOperation {
   id: string;
   type: GateType;
   target: number;
   control?: number;
   theta?: number;
+  classicalTarget?: number;
+  label?: string;
+  qubits?: number[];
+  internalCircuit?: SerializedGate[];
+  category?: string;
   position: { x: number; y: number };
 }
 
@@ -39,13 +51,6 @@ export interface SimulationResult {
 
 export type SocketStatus = "connecting" | "connected" | "running" | "disconnected" | "error";
 
-export interface SerializedGate {
-  type: GateType;
-  target: number;
-  control?: number;
-  theta?: number;
-}
-
 export interface SerializedCircuit {
   qubits: number;
   gates: SerializedGate[];
@@ -54,12 +59,23 @@ export interface SerializedCircuit {
 export interface AlgorithmDefinition {
   id: string;
   name: string;
+  category?: string;
   qubits: number;
   gates: SerializedGate[];
   description?: string;
   executionMode?: "load" | "backend";
   backendAlgorithm?: string;
   backendParams?: Record<string, unknown>;
+}
+
+export interface ClassicalBitProbability {
+  classicalBit: number;
+  oneProbability: number;
+  zeroProbability: number;
+}
+
+export interface ExpandedGate extends SerializedGate {
+  sourceOperationId: string;
 }
 
 export interface AlgorithmExecutionRequest {

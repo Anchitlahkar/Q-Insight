@@ -8,18 +8,18 @@
    Design tokens
 ───────────────────────────────────────────────────────────── */
 :root {
-  --color-background: #02060f;
-  --color-panel: #060d1a;
-  --color-surface: #090f1e;
-  --color-text: #c8dff2;
-  --color-muted: #28405a;
-  --color-primary: #00d4ff;
-  --color-secondary: #a259ff;
-  --color-success: #00e5a0;
-  --color-danger: #ff3860;
-  --color-warning: #ffb340;
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-primary: rgba(0, 212, 255, 0.18);
+  --color-background: #f8fbff;
+  --color-panel: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-primary: #2563eb;
+  --color-secondary: #0ea5e9;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+  --border-subtle: rgba(148, 163, 184, 0.3);
+  --border-primary: rgba(37, 99, 235, 0.22);
 
   /* Layout */
   --topbar-h: 56px;
@@ -45,8 +45,8 @@ html, body {
 
 html {
   background-image:
-    radial-gradient(ellipse 70% 45% at 8% -5%, rgba(0,212,255,0.05) 0%, transparent 65%),
-    radial-gradient(ellipse 55% 40% at 92% 105%, rgba(162,89,255,0.05) 0%, transparent 65%);
+    radial-gradient(ellipse 70% 45% at 8% -5%, rgba(59,130,246,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 40% at 92% 105%, rgba(14,165,233,0.06) 0%, transparent 65%);
   background-attachment: fixed;
 }
 

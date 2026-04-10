@@ -7,6 +7,7 @@ interface VisualizationState {
   isVisualizing: boolean;
   isPlaying: boolean;
   speedMs: number;
+  modalOpen: boolean;
 }
 
 interface VisualizationActions {
@@ -15,6 +16,7 @@ interface VisualizationActions {
   setIsVisualizing: (value: boolean) => void;
   setIsPlaying: (value: boolean) => void;
   setSpeedMs: (value: number) => void;
+  setModalOpen: (value: boolean) => void;
   resetVisualization: () => void;
 }
 
@@ -24,6 +26,7 @@ const initialState: VisualizationState = {
   isVisualizing: false,
   isPlaying: false,
   speedMs: 600,
+  modalOpen: false,
 };
 
 export const useVisualizationStore = create<VisualizationState & VisualizationActions>((set) => ({
@@ -33,5 +36,6 @@ export const useVisualizationStore = create<VisualizationState & VisualizationAc
   setIsVisualizing: (value) => set({ isVisualizing: value }),
   setIsPlaying: (value) => set({ isPlaying: value }),
   setSpeedMs: (value) => set({ speedMs: value }),
+  setModalOpen: (value) => set({ modalOpen: value }),
   resetVisualization: () => set({ ...initialState }),
 }));

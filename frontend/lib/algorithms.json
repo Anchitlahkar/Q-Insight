@@ -1,18 +1,10 @@
 {
   "Quantum Foundations": [
     {
-      "id": "bell_1q",
-      "name": "Bell State (1 Qubit Superposition)",
-      "qubits": 1,
-      "gates": [
-        { "type": "H", "target": 0 },
-        { "type": "M", "target": 0 }
-      ]
-    },
-    {
-      "id": "bell_2q",
-      "name": "Bell State (2 Qubits)",
+      "id": "bell_state",
+      "name": "Bell State",
       "qubits": 2,
+      "description": "Prepare an entangled Bell pair and measure both qubits.",
       "gates": [
         { "type": "H", "target": 0 },
         { "type": "CNOT", "control": 0, "target": 1 },
@@ -21,260 +13,104 @@
       ]
     },
     {
-  "id": "superposition_demo",
-  "name": "Single Qubit Superposition",
-  "qubits": 1,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "M", "target": 0 }
-  ]
-},
-{
-  "id": "ghz_state",
-  "name": "GHZ State (3 Qubits)",
-  "qubits": 3,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "CNOT", "control": 0, "target": 1 },
-    { "type": "CNOT", "control": 1, "target": 2 },
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 },
-    { "type": "M", "target": 2 }
-  ]
-},{
-  "id": "ghz_state",
-  "name": "GHZ State (3 Qubits)",
-  "qubits": 3,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "CNOT", "control": 0, "target": 1 },
-    { "type": "CNOT", "control": 1, "target": 2 },
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 },
-    { "type": "M", "target": 2 }
-  ]
-},{
-  "id": "w_state",
-  "name": "W State (3 Qubits)",
-  "qubits": 3,
-  "gates": [
-    { "type": "RY", "target": 0, "theta": 1.91 },
-    { "type": "CNOT", "control": 0, "target": 1 },
-    { "type": "RY", "target": 1, "theta": 1.23 },
-    { "type": "CNOT", "control": 1, "target": 2 },
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 },
-    { "type": "M", "target": 2 }
-  ]
-},{
-  "id": "qrng",
-  "name": "Quantum Random Number Generator",
-  "qubits": 1,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "M", "target": 0 }
-  ]
-}
-  ],
-
-  "Quantum Communication": [
-    {
-      "id": "teleportation",
-      "name": "Quantum Teleportation",
+      "id": "ghz_state",
+      "name": "GHZ State",
       "qubits": 3,
+      "description": "Create a three-qubit GHZ state with chained entanglement.",
       "gates": [
-        { "type": "H", "target": 1 },
-        { "type": "CNOT", "control": 1, "target": 2 },
-
-        { "type": "CNOT", "control": 0, "target": 1 },
         { "type": "H", "target": 0 },
-
+        { "type": "CNOT", "control": 0, "target": 1 },
         { "type": "CNOT", "control": 1, "target": 2 },
-        { "type": "CZ", "control": 0, "target": 2 },
-
         { "type": "M", "target": 0 },
         { "type": "M", "target": 1 },
         { "type": "M", "target": 2 }
       ]
     },
     {
-      "id": "superdense",
-      "name": "Superdense Coding",
-      "qubits": 2,
+      "id": "w_state",
+      "name": "W State",
+      "qubits": 3,
+      "description": "Demonstrate distributed excitation across three qubits.",
       "gates": [
-        { "type": "H", "target": 0 },
+        { "type": "RY", "target": 0, "theta": 1.91 },
         { "type": "CNOT", "control": 0, "target": 1 },
-
-        { "type": "X", "target": 0 },
-        { "type": "Z", "target": 0 },
-
-        { "type": "CNOT", "control": 0, "target": 1 },
-        { "type": "H", "target": 0 },
-
+        { "type": "RY", "target": 1, "theta": 1.23 },
+        { "type": "CNOT", "control": 1, "target": 2 },
         { "type": "M", "target": 0 },
-        { "type": "M", "target": 1 }
+        { "type": "M", "target": 1 },
+        { "type": "M", "target": 2 }
       ]
-    },{
-  "id": "entanglement_swapping",
-  "name": "Entanglement Swapping",
-  "qubits": 4,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "CNOT", "control": 0, "target": 1 },
-
-    { "type": "H", "target": 2 },
-    { "type": "CNOT", "control": 2, "target": 3 },
-
-    { "type": "CNOT", "control": 1, "target": 2 },
-    { "type": "H", "target": 1 },
-
-    { "type": "M", "target": 1 },
-    { "type": "M", "target": 2 }
-  ]
-}
+    }
   ],
-
   "Search Algorithms": [
     {
-      "id": "grover",
-      "name": "Grover Search (2 Qubits)",
+      "id": "grover_2q",
+      "name": "Grover",
       "qubits": 2,
+      "description": "A compact Grover search iteration on two qubits.",
       "gates": [
         { "type": "H", "target": 0 },
         { "type": "H", "target": 1 },
-
         { "type": "CZ", "control": 0, "target": 1 },
-
         { "type": "H", "target": 0 },
         { "type": "H", "target": 1 },
-
         { "type": "X", "target": 0 },
         { "type": "X", "target": 1 },
-
         { "type": "CZ", "control": 0, "target": 1 },
-
         { "type": "X", "target": 0 },
         { "type": "X", "target": 1 },
-
         { "type": "H", "target": 0 },
         { "type": "H", "target": 1 },
-
         { "type": "M", "target": 0 },
         { "type": "M", "target": 1 }
       ]
     },
     {
-  "id": "grover_3q",
-  "name": "Grover Search (3 Qubits)",
-  "qubits": 3,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-    { "type": "H", "target": 2 },
-
-    { "type": "CZ", "control": 0, "target": 2 },
-    { "type": "CZ", "control": 1, "target": 2 },
-
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-    { "type": "H", "target": 2 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 },
-    { "type": "M", "target": 2 }
-  ]
-},{
-  "id": "deutsch",
-  "name": "Deutsch Algorithm",
-  "qubits": 2,
-  "gates": [
-    { "type": "X", "target": 1 },
-
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "CNOT", "control": 0, "target": 1 },
-
-    { "type": "H", "target": 0 },
-
-    { "type": "M", "target": 0 }
-  ]
-},{
-  "id": "deutsch_jozsa",
-  "name": "Deutsch-Jozsa Algorithm",
-  "qubits": 3,
-  "gates": [
-    { "type": "X", "target": 2 },
-
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-    { "type": "H", "target": 2 },
-
-    { "type": "CNOT", "control": 0, "target": 2 },
-    { "type": "CNOT", "control": 1, "target": 2 },
-
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 }
-  ]
-},{
-  "id": "simon",
-  "name": "Simon's Algorithm Demo",
-  "qubits": 3,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "CNOT", "control": 0, "target": 2 },
-    { "type": "CNOT", "control": 1, "target": 2 },
-
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 }
-  ]
-},{
-  "id": "amplitude_amplification",
-  "name": "Amplitude Amplification",
-  "qubits": 2,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "CZ", "control": 0, "target": 1 },
-
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "X", "target": 0 },
-    { "type": "X", "target": 1 },
-
-    { "type": "CZ", "control": 0, "target": 1 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 }
-  ]
-}
+      "id": "deutsch",
+      "name": "Deutsch Algorithm",
+      "qubits": 2,
+      "description": "Distinguish between balanced and constant oracles.",
+      "gates": [
+        { "type": "X", "target": 1 },
+        { "type": "H", "target": 0 },
+        { "type": "H", "target": 1 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "H", "target": 0 },
+        { "type": "M", "target": 0 }
+      ]
+    },
+    {
+      "id": "deutsch_jozsa",
+      "name": "Deutsch-Jozsa",
+      "qubits": 3,
+      "description": "A small Deutsch-Jozsa circuit with two input qubits.",
+      "gates": [
+        { "type": "X", "target": 2 },
+        { "type": "H", "target": 0 },
+        { "type": "H", "target": 1 },
+        { "type": "H", "target": 2 },
+        { "type": "CNOT", "control": 0, "target": 2 },
+        { "type": "CNOT", "control": 1, "target": 2 },
+        { "type": "H", "target": 0 },
+        { "type": "H", "target": 1 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 }
+      ]
+    }
   ],
-
-  "Fourier-based Algorithms": [
+  "Fourier Algorithms": [
     {
       "id": "qft_3q",
-      "name": "Quantum Fourier Transform (3 Qubits)",
+      "name": "Quantum Fourier Transform",
       "qubits": 3,
+      "description": "Three-qubit QFT with controlled phase rotations and swap.",
       "gates": [
         { "type": "H", "target": 0 },
         { "type": "CRZ", "control": 1, "target": 0, "theta": 1.5708 },
         { "type": "CRZ", "control": 2, "target": 0, "theta": 0.7854 },
-
         { "type": "H", "target": 1 },
         { "type": "CRZ", "control": 2, "target": 1, "theta": 1.5708 },
-
         { "type": "H", "target": 2 },
-
         { "type": "SWAP", "control": 0, "target": 2 }
       ]
     },
@@ -282,209 +118,154 @@
       "id": "qpe_basic",
       "name": "Quantum Phase Estimation",
       "qubits": 3,
+      "description": "Estimate a simple phase using two counting qubits.",
       "gates": [
         { "type": "H", "target": 0 },
         { "type": "H", "target": 1 },
-
         { "type": "CRZ", "control": 0, "target": 2, "theta": 3.1416 },
         { "type": "CRZ", "control": 1, "target": 2, "theta": 6.2832 },
-
         { "type": "H", "target": 0 },
         { "type": "CRZ", "control": 1, "target": 0, "theta": -1.5708 },
         { "type": "H", "target": 1 },
-
-        { "type": "M", "target": 0 },
-        { "type": "M", "target": 1 }
-      ]
-    },
-    {
-  "id": "qft_4q",
-  "name": "Quantum Fourier Transform (4 Qubits)",
-  "qubits": 4,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "CRZ", "control": 1, "target": 0, "theta": 1.5708 },
-    { "type": "CRZ", "control": 2, "target": 0, "theta": 0.7854 },
-    { "type": "CRZ", "control": 3, "target": 0, "theta": 0.3927 },
-
-    { "type": "H", "target": 1 },
-    { "type": "CRZ", "control": 2, "target": 1, "theta": 1.5708 },
-    { "type": "CRZ", "control": 3, "target": 1, "theta": 0.7854 },
-
-    { "type": "H", "target": 2 },
-    { "type": "CRZ", "control": 3, "target": 2, "theta": 1.5708 },
-
-    { "type": "H", "target": 3 },
-
-    { "type": "SWAP", "control": 0, "target": 3 },
-    { "type": "SWAP", "control": 1, "target": 2 }
-  ]
-},{
-  "id": "qft_4q",
-  "name": "Quantum Fourier Transform (4 Qubits)",
-  "qubits": 4,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "CRZ", "control": 1, "target": 0, "theta": 1.57 },
-    { "type": "CRZ", "control": 2, "target": 0, "theta": 0.78 },
-    { "type": "CRZ", "control": 3, "target": 0, "theta": 0.39 },
-
-    { "type": "H", "target": 1 },
-    { "type": "CRZ", "control": 2, "target": 1, "theta": 1.57 },
-    { "type": "CRZ", "control": 3, "target": 1, "theta": 0.78 },
-
-    { "type": "H", "target": 2 },
-    { "type": "CRZ", "control": 3, "target": 2, "theta": 1.57 },
-
-    { "type": "H", "target": 3 },
-
-    { "type": "SWAP", "control": 0, "target": 3 },
-    { "type": "SWAP", "control": 1, "target": 2 }
-  ]
-},{
-  "id": "phase_kickback",
-  "name": "Phase Kickback Demo",
-  "qubits": 2,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "CRZ", "control": 0, "target": 1, "theta": 3.14 },
-    { "type": "H", "target": 0 },
-    { "type": "M", "target": 0 }
-  ]
-}
-  ],
-
-  "Variational Algorithms": [
-    {
-      "id": "vqe_basic",
-      "name": "VQE Ansatz",
-      "qubits": 2,
-      "gates": [
-        { "type": "RY", "target": 0, "theta": 0.8 },
-        { "type": "RY", "target": 1, "theta": 1.2 },
-
-        { "type": "CNOT", "control": 0, "target": 1 },
-
-        { "type": "RZ", "target": 0, "theta": 0.4 },
-        { "type": "RZ", "target": 1, "theta": 0.9 },
-
-        { "type": "M", "target": 0 },
-        { "type": "M", "target": 1 }
-      ]
-    },
-    {
-  "id": "vqe_ansatz_3q",
-  "name": "VQE Ansatz (3 Qubits)",
-  "qubits": 3,
-  "gates": [
-    { "type": "RY", "target": 0, "theta": 0.7 },
-    { "type": "RY", "target": 1, "theta": 1.1 },
-    { "type": "RY", "target": 2, "theta": 0.5 },
-
-    { "type": "CNOT", "control": 0, "target": 1 },
-    { "type": "CNOT", "control": 1, "target": 2 },
-
-    { "type": "RZ", "target": 0, "theta": 0.4 },
-    { "type": "RZ", "target": 1, "theta": 0.9 },
-    { "type": "RZ", "target": 2, "theta": 0.2 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 },
-    { "type": "M", "target": 2 }
-  ]
-}
-  ],
-
-  "Linear Algebra Algorithms": [
-    {
-      "id": "hhl_demo",
-      "name": "HHL Demo Circuit",
-      "qubits": 3,
-      "gates": [
-        { "type": "H", "target": 0 },
-        { "type": "H", "target": 1 },
-
-        { "type": "CRZ", "control": 0, "target": 2, "theta": 1.5708 },
-        { "type": "CRZ", "control": 1, "target": 2, "theta": 3.1416 },
-
-        { "type": "H", "target": 0 },
-        { "type": "CRZ", "control": 1, "target": 0, "theta": -1.5708 },
-        { "type": "H", "target": 1 },
-
         { "type": "M", "target": 0 },
         { "type": "M", "target": 1 }
       ]
     }
   ],
-
+  "Variational Algorithms": [
+    {
+      "id": "vqe_ansatz",
+      "name": "VQE Ansatz",
+      "qubits": 2,
+      "description": "A compact variational ansatz with entanglement and readout.",
+      "gates": [
+        { "type": "RY", "target": 0, "theta": 0.8 },
+        { "type": "RY", "target": 1, "theta": 1.2 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "RZ", "target": 0, "theta": 0.4 },
+        { "type": "RZ", "target": 1, "theta": 0.9 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 }
+      ]
+    },
+    {
+      "id": "vqe_ansatz_3q",
+      "name": "Layered VQE Ansatz",
+      "qubits": 3,
+      "description": "Three-qubit variational circuit with chained entanglers.",
+      "gates": [
+        { "type": "RY", "target": 0, "theta": 0.7 },
+        { "type": "RY", "target": 1, "theta": 1.1 },
+        { "type": "RY", "target": 2, "theta": 0.5 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "CNOT", "control": 1, "target": 2 },
+        { "type": "RZ", "target": 0, "theta": 0.4 },
+        { "type": "RZ", "target": 1, "theta": 0.9 },
+        { "type": "RZ", "target": 2, "theta": 0.2 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 },
+        { "type": "M", "target": 2 }
+      ]
+    }
+  ],
+  "Linear Algebra Algorithms": [
+    {
+      "id": "hhl_demo",
+      "name": "HHL Demo",
+      "qubits": 3,
+      "description": "Simplified HHL-style phase estimation and readout flow.",
+      "gates": [
+        { "type": "H", "target": 0 },
+        { "type": "H", "target": 1 },
+        { "type": "CRZ", "control": 0, "target": 2, "theta": 1.5708 },
+        { "type": "CRZ", "control": 1, "target": 2, "theta": 3.1416 },
+        { "type": "H", "target": 0 },
+        { "type": "CRZ", "control": 1, "target": 0, "theta": -1.5708 },
+        { "type": "H", "target": 1 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 }
+      ]
+    }
+  ],
+  "Quantum Communication": [
+    {
+      "id": "teleportation",
+      "name": "Quantum Teleportation",
+      "qubits": 3,
+      "description": "Teleport an unknown state using entanglement and corrections.",
+      "gates": [
+        { "type": "H", "target": 1 },
+        { "type": "CNOT", "control": 1, "target": 2 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "H", "target": 0 },
+        { "type": "CNOT", "control": 1, "target": 2 },
+        { "type": "CZ", "control": 0, "target": 2 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 },
+        { "type": "M", "target": 2 }
+      ]
+    },
+    {
+      "id": "superdense_coding",
+      "name": "Superdense Coding",
+      "qubits": 2,
+      "description": "Encode two classical bits into one transmitted qubit.",
+      "gates": [
+        { "type": "H", "target": 0 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "X", "target": 0 },
+        { "type": "Z", "target": 0 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "H", "target": 0 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 }
+      ]
+    }
+  ],
   "Post-Quantum Cryptography": [
     {
-  "id": "kyber_demo_extended",
-  "name": "Kyber Concept Demo Circuit (Extended)",
-  "qubits": 2,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "CNOT", "control": 0, "target": 1 },
-
-    { "type": "RZ", "target": 0, "theta": 0.7 },
-    { "type": "RZ", "target": 1, "theta": 1.1 },
-
-    { "type": "RY", "target": 0, "theta": 0.6 },
-    { "type": "RY", "target": 1, "theta": 0.9 },
-
-    { "type": "CZ", "control": 0, "target": 1 },
-
-    { "type": "RX", "target": 0, "theta": 0.4 },
-    { "type": "RX", "target": 1, "theta": 0.8 },
-
-    { "type": "CNOT", "control": 1, "target": 0 },
-
-    { "type": "RZ", "target": 0, "theta": 0.5 },
-    { "type": "RZ", "target": 1, "theta": 0.3 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 }
-  ]
-},
+      "id": "kyber_demo",
+      "name": "Kyber Concept Demo",
+      "qubits": 2,
+      "description": "Circuit sketch inspired by lattice-based post-quantum primitives.",
+      "gates": [
+        { "type": "H", "target": 0 },
+        { "type": "H", "target": 1 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "RZ", "target": 0, "theta": 0.7 },
+        { "type": "RZ", "target": 1, "theta": 1.1 },
+        { "type": "RY", "target": 0, "theta": 0.6 },
+        { "type": "RY", "target": 1, "theta": 0.9 },
+        { "type": "CZ", "control": 0, "target": 1 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 }
+      ]
+    },
     {
-  "id": "dilithium_demo_extended",
-  "name": "Dilithium Concept Demo Circuit (Extended)",
-  "qubits": 2,
-  "gates": [
-    { "type": "H", "target": 0 },
-    { "type": "H", "target": 1 },
-
-    { "type": "RY", "target": 0, "theta": 0.9 },
-    { "type": "RY", "target": 1, "theta": 0.4 },
-
-    { "type": "CNOT", "control": 0, "target": 1 },
-
-    { "type": "RZ", "target": 0, "theta": 1.2 },
-    { "type": "RZ", "target": 1, "theta": 0.7 },
-
-    { "type": "CZ", "control": 0, "target": 1 },
-
-    { "type": "RX", "target": 0, "theta": 0.5 },
-    { "type": "RX", "target": 1, "theta": 1.0 },
-
-    { "type": "CNOT", "control": 1, "target": 0 },
-
-    { "type": "RY", "target": 0, "theta": 0.3 },
-    { "type": "RY", "target": 1, "theta": 0.6 },
-
-    { "type": "M", "target": 0 },
-    { "type": "M", "target": 1 }
-  ]
-}
+      "id": "dilithium_demo",
+      "name": "Dilithium Concept Demo",
+      "qubits": 2,
+      "description": "Circuit sketch echoing structured lattice signing workflows.",
+      "gates": [
+        { "type": "H", "target": 0 },
+        { "type": "H", "target": 1 },
+        { "type": "RY", "target": 0, "theta": 0.9 },
+        { "type": "RY", "target": 1, "theta": 0.4 },
+        { "type": "CNOT", "control": 0, "target": 1 },
+        { "type": "RZ", "target": 0, "theta": 1.2 },
+        { "type": "RZ", "target": 1, "theta": 0.7 },
+        { "type": "CZ", "control": 0, "target": 1 },
+        { "type": "M", "target": 0 },
+        { "type": "M", "target": 1 }
+      ]
+    }
   ],
-
   "Hardware Demonstrations": [
     {
       "id": "ibm_demo",
-      "name": "IBM Quantum Demo Circuit",
+      "name": "IBM Hardware Demo",
       "qubits": 3,
+      "description": "A compact hardware-oriented entangling demonstration.",
       "gates": [
         { "type": "H", "target": 0 },
         { "type": "CNOT", "control": 0, "target": 1 },
