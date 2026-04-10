@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { BlochVector } from "@/lib/quantum";
+import { BlochVector, computeBlochAngles } from "@/lib/quantum";
 
 interface BlochSphereProps {
   label: string;
@@ -67,15 +67,17 @@ export const BlochSphere = memo(function BlochSphere({
   }, [vector]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const svgSize = sphereSize ?? SIZE;
-  const tip  = useMemo(() => project(display), [display]);
+  const tip = useMemo(() => project(display), [display]);
   const xAxis = useMemo(() => ({ s: project({ x: -1, y: 0, z: 0 }), e: project({ x: 1, y: 0, z: 0 }) }), []);
   const yAxis = useMemo(() => ({ s: project({ x: 0, y: -1, z: 0 }), e: project({ x: 0, y: 1, z: 0 }) }), []);
   const zAxis = useMemo(() => ({ s: project({ x: 0, y: 0, z: -1 }), e: project({ x: 0, y: 0, z: 1 }) }), []);
+  const blochAngles = useMemo(
+    () => computeBlochAngles(display.x, display.y, display.z),
+    [display.x, display.y, display.z]
+  );
 
   const isMixed = display.isMixed;
   const stateColor = isMixed ? "#ffb340" : "#00e5a0";
-
-  // Unique gradient id per label to avoid SVG conflicts
   const gradId = `bg-${label.replace(/[^a-z0-9]/gi, "_")}`;
 
   return (
@@ -94,7 +96,6 @@ export const BlochSphere = memo(function BlochSphere({
         gap: 0,
       }}
     >
-      {/* ── Header row: label + state badge ── */}
       <div
         style={{
           display: "flex",
@@ -115,7 +116,6 @@ export const BlochSphere = memo(function BlochSphere({
           {label}
         </span>
 
-        {/* State badge — compact pill */}
         <span
           style={{
             fontFamily: "JetBrains Mono, monospace",
@@ -134,7 +134,6 @@ export const BlochSphere = memo(function BlochSphere({
         </span>
       </div>
 
-      {/* ── SVG sphere ── */}
       <div style={{ display: "flex", justifyContent: "center" }}>
         <svg
           width={svgSize}
@@ -149,7 +148,6 @@ export const BlochSphere = memo(function BlochSphere({
               <stop offset="100%" stopColor="rgba(3,10,22,0.02)" />
             </radialGradient>
 
-            {/* Glow filter for the state vector */}
             <filter id={`glow-${gradId}`} x="-40%" y="-40%" width="180%" height="180%">
               <feGaussianBlur stdDeviation="3.5" result="blur" />
               <feMerge>
@@ -159,97 +157,105 @@ export const BlochSphere = memo(function BlochSphere({
             </filter>
           </defs>
 
-          {/* Equatorial ellipse (dashed) */}
           <ellipse
-            cx={CENTER} cy={CENTER}
-            rx={RADIUS * 0.82} ry={RADIUS * 0.32}
+            cx={CENTER}
+            cy={CENTER}
+            rx={RADIUS * 0.82}
+            ry={RADIUS * 0.32}
             fill="none"
             stroke="rgba(255,255,255,0.07)"
             strokeDasharray="3 4"
           />
 
-          {/* Sphere outline */}
           <circle
-            cx={CENTER} cy={CENTER} r={RADIUS}
+            cx={CENTER}
+            cy={CENTER}
+            r={RADIUS}
             fill={`url(#${gradId})`}
             stroke="rgba(200,223,242,0.12)"
             strokeWidth="1.2"
           />
 
-          {/* Axes */}
-          <line x1={xAxis.s.x} y1={xAxis.s.y} x2={xAxis.e.x} y2={xAxis.e.y} stroke="rgba(255,80,110,0.4)"  strokeWidth="1.2" />
+          <line x1={xAxis.s.x} y1={xAxis.s.y} x2={xAxis.e.x} y2={xAxis.e.y} stroke="rgba(255,80,110,0.4)" strokeWidth="1.2" />
           <line x1={yAxis.s.x} y1={yAxis.s.y} x2={yAxis.e.x} y2={yAxis.e.y} stroke="rgba(255,170,50,0.38)" strokeWidth="1.2" />
-          <line x1={zAxis.s.x} y1={zAxis.s.y} x2={zAxis.e.x} y2={zAxis.e.y} stroke="rgba(0,212,255,0.4)"   strokeWidth="1.2" />
+          <line x1={zAxis.s.x} y1={zAxis.s.y} x2={zAxis.e.x} y2={zAxis.e.y} stroke="rgba(0,212,255,0.4)" strokeWidth="1.2" />
 
-          {/* Axis labels */}
-          <text x={xAxis.e.x + 5} y={xAxis.e.y + 1} fontSize="9" fill="rgba(255,80,110,0.75)"  dominantBaseline="middle">X</text>
-          <text x={yAxis.e.x + 5} y={yAxis.e.y + 1} fontSize="9" fill="rgba(255,170,50,0.72)"  dominantBaseline="middle">Y</text>
-          <text x={zAxis.e.x + 3} y={zAxis.e.y - 5} fontSize="9" fill="rgba(0,212,255,0.82)">Z</text>
+          <text x={xAxis.e.x + 5} y={xAxis.e.y + 1} fontSize="9" fill="rgba(255,80,110,0.75)" dominantBaseline="middle">
+            X
+          </text>
+          <text x={yAxis.e.x + 5} y={yAxis.e.y + 1} fontSize="9" fill="rgba(255,170,50,0.72)" dominantBaseline="middle">
+            Y
+          </text>
+          <text x={zAxis.e.x + 3} y={zAxis.e.y - 5} fontSize="9" fill="rgba(0,212,255,0.82)">
+            Z
+          </text>
 
-          {/* State vector shadow */}
           <line
-            x1={CENTER} y1={CENTER} x2={tip.x} y2={tip.y}
+            x1={CENTER}
+            y1={CENTER}
+            x2={tip.x}
+            y2={tip.y}
             stroke="rgba(0,212,255,0.18)"
             strokeWidth="5"
             strokeLinecap="round"
           />
 
-          {/* State vector */}
           <line
-            x1={CENTER} y1={CENTER} x2={tip.x} y2={tip.y}
+            x1={CENTER}
+            y1={CENTER}
+            x2={tip.x}
+            y2={tip.y}
             stroke="#00d4ff"
             strokeWidth="2.5"
             strokeLinecap="round"
             filter={`url(#glow-${gradId})`}
           />
 
-          {/* Tip dot */}
-          <circle
-            cx={tip.x} cy={tip.y} r="5"
-            fill="#00d4ff"
-            filter={`url(#glow-${gradId})`}
-          />
-
-          {/* Origin dot */}
+          <circle cx={tip.x} cy={tip.y} r="5" fill="#00d4ff" filter={`url(#glow-${gradId})`} />
           <circle cx={CENTER} cy={CENTER} r="2.5" fill="rgba(200,223,242,0.85)" />
         </svg>
       </div>
 
-      {/* ── Data grid ── */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          columnGap: 12,
-          rowGap: 3,
           marginTop: 8,
-          padding: "7px 8px",
+          padding: "9px 10px",
           borderRadius: 8,
           background: "rgba(2,6,15,0.5)",
           border: "1px solid rgba(255,255,255,0.05)",
         }}
       >
+        <div
+          style={{
+            fontFamily: "JetBrains Mono, monospace",
+            fontSize: 9,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "rgba(0,212,255,0.5)",
+            marginBottom: 6,
+          }}
+        >
+          Bloch Coordinates
+        </div>
         {(
           [
-            ["x", display.x],
-            ["y", display.y],
-            ["z", display.z],
-            ["|r|", display.magnitude],
+            ["\u03B8", blochAngles.theta],
+            ["\u03C6", blochAngles.phi],
           ] as [string, number][]
-        ).map(([k, v]) => (
+        ).map(([key, value]) => (
           <div
-            key={k}
+            key={key}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 5,
+              justifyContent: "space-between",
+              gap: 12,
+              paddingTop: 4,
               fontFamily: "JetBrains Mono, monospace",
             }}
           >
-            <span style={{ fontSize: 9, color: "rgba(0,212,255,0.45)", minWidth: 14 }}>{k}</span>
-            <span style={{ fontSize: 11, color: "rgba(200,223,242,0.8)", fontWeight: 500 }}>
-              {fmt(v)}
-            </span>
+            <span style={{ fontSize: 11, color: "rgba(0,212,255,0.55)" }}>{key}</span>
+            <span style={{ fontSize: 11, color: "rgba(200,223,242,0.8)", fontWeight: 500 }}>{`${fmt(value)}\u00B0`}</span>
           </div>
         ))}
       </div>
