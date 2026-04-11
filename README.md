@@ -17,6 +17,12 @@ The app is designed around two parallel circuits, `A` and `B`, so you can build 
 - Histogram views for basis-state distributions
 - Probability meter for measured classical bits
 - Comparison table for gate count, depth, measured states, and efficiency score
+- Deterministic explanation engine derived from actual circuit state evolution
+- Circuit explainer panel with tabbed views for:
+  - summary
+  - gate-by-gate explanations
+  - optimization suggestions
+  - backend comparison insights
 - Step-by-step visualization modal with:
   - gate-by-gate playback
   - live circuit highlighting
@@ -70,6 +76,25 @@ QHack/
 - Delete placed operations directly from the canvas
 - Load mock starter circuits
 - Run the active circuit or run `A vs B`
+- View a collapsible explainer panel beside the builder
+- Click gate explanations to highlight matching operations on the canvas
+
+### Circuit Explainer
+
+The frontend includes `frontend/components/CircuitExplainer.tsx`, a reactive side-panel driven by the active circuit result in Zustand.
+
+Tabs:
+
+- `Summary`: circuit-level summary and measurement insight
+- `Gates`: collapsible gate-level explanations with before/after state strings
+- `Optimization`: rule-based cleanup suggestions from the backend
+- `Comparison`: backend comparison result when a `compare_to` circuit is included
+
+Notes:
+
+- The explainer updates from the same WebSocket payload as counts and statevector
+- It does not trigger additional requests
+- `Run A vs B` and single-circuit runs both send a `compare_to` payload so comparison data can be returned
 
 ### Gate Palette
 
@@ -141,6 +166,29 @@ The backend exposes a WebSocket endpoint at `/ws` and supports:
 - step-by-step circuit simulation
 - error reporting and status events
 - statevector serialization when feasible
+- deterministic circuit explanation and optimization analysis
+- optional circuit-to-circuit comparison analysis
+
+### Explanation Engine
+
+The backend analysis layer lives in:
+
+- `api/analysis/explainer.py`
+
+It provides:
+
+- `explain_circuit(...)`
+- `compare_circuits(...)`
+- `suggest_optimizations(...)`
+
+The explanation flow is based on actual state evolution:
+
+- build the circuit from serialized gates
+- evolve a statevector gate by gate
+- generate per-gate before/after state summaries
+- infer circuit-level superposition and entanglement properties
+- explain dominant measurement outcomes from the observed amplitude distribution
+- detect rule-based optimization opportunities
 
 ### Variational Endpoint
 
@@ -211,6 +259,8 @@ If you want to set it explicitly, create `frontend/.env.local`:
 ```env
 NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8000/ws
 ```
+
+If you use `frontend/.env`, make sure the value also uses the `ws://` or `wss://` scheme. The frontend now normalizes `http://...` to `ws://...`, but using the correct scheme directly is recommended.
 
 ### 3. Start the frontend
 
@@ -325,6 +375,24 @@ Optional comparison payload:
 }
 ```
 
+New top-level payload fields:
+
+- `explanation`
+- `comparison`
+- `suggestions`
+
+`explanation` shape:
+
+```json
+{
+  "gate_explanations": [],
+  "circuit_summary": "string",
+  "measurement_insight": "string",
+  "comparison": null,
+  "optimization_suggestions": []
+}
+```
+
 ### Bell-state explanation example
 
 For `H(0)` followed by `CNOT(0,1)`, the deterministic explanation payload includes gate-level state transitions such as:
@@ -405,6 +473,7 @@ Example response shape:
 - `frontend/app/page.tsx`: main page composition
 - `frontend/components/AlgorithmSelector.tsx`: categorized preset browser
 - `frontend/components/CircuitBuilder.tsx`: main editing, execution, and metrics UI
+- `frontend/components/CircuitExplainer.tsx`: tabbed explanation/optimization/comparison panel
 - `frontend/components/CircuitJsonEditor.tsx`: structured JSON import/export editor
 - `frontend/components/Histogram.tsx`: result distribution chart for circuits A and B
 - `frontend/components/ComparisonTable.tsx`: side-by-side metrics comparison
@@ -418,6 +487,7 @@ Example response shape:
 ### Backend
 
 - `api/main.py`: FastAPI app, WebSocket endpoint, simulation dispatch, variational endpoint
+- `api/analysis/explainer.py`: deterministic explanation, comparison, and optimization engine
 - `api/compiler/gate_compiler.py`: gate preprocessing and compilation
 - `api/algorithms/registry.py`: backend algorithm dispatcher
 - `api/algorithms/qft.py`: QFT builder
@@ -453,11 +523,14 @@ The frontend is a standard Next.js app and can be deployed to Vercel or any Node
 - Backend `algorithm` mode exists but is not yet the main frontend execution path
 - Grover diffusion in the backend currently supports only `1` or `2` qubits
 - The repository does not currently declare a formal open-source license
+- The explainer panel will remain empty if the frontend is connected to an older backend process that does not yet serve `explanation`, `comparison`, and `suggestions`
 
 ## Recommended Next Improvements
 
 - Restrict CORS to trusted frontend origins
 - Add automated tests for frontend stores and backend simulation handlers
+- Add backend tests for explanation payload determinism and optimization rules
+- Add frontend tests for explainer rendering from mocked WebSocket results
 - Wire frontend algorithm execution to backend `mode: "algorithm"` where useful
 - Add documentation screenshots or GIFs for the builder and visualization flow
 - Add a formal license before distribution

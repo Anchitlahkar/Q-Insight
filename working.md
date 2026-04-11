@@ -11,6 +11,8 @@ This file is the Markdown handoff note for the current state of the project. It 
 - The UI is organized around two editable circuits, `A` and `B`
 - Step-by-step visualization is implemented and working
 - Live histogram in `VisualizationPanel` now reads statevectors using `{ real, imag }` amplitudes
+- Backend explanation/insight engine is implemented
+- Frontend explainer panel is implemented and reads from the same WebSocket result object as the rest of the simulator
 
 ## Main User Flows
 
@@ -22,16 +24,17 @@ This file is the Markdown handoff note for the current state of the project. It 
 4. Frontend serializes the circuit with `serializeCircuit(...)`
 5. Payload is sent over WebSocket
 6. Backend compiles and executes the circuit with Qiskit Aer
-7. Frontend receives counts, optional statevector, depth, and gate count
-8. Histogram, metrics, comparison table, and probability meter update
+7. Backend enriches the result with explanation, optimization suggestions, and optional comparison data
+8. Frontend receives counts, optional statevector, depth, gate count, explanation, comparison, and suggestions
+9. Histogram, metrics, comparison table, probability meter, and explainer panel update
 
 ### 2. Compare two circuits
 
 1. User edits both circuits in the same workspace
 2. User runs `A vs B`
-3. Each circuit is simulated independently
+3. Each circuit is simulated independently and includes the other circuit as `compare_to`
 4. Results are stored separately in `useCircuitStore`
-5. Histograms and comparison metrics render side by side
+5. Histograms, comparison metrics, and backend comparison insight render side by side
 
 ### 3. Step visualization
 
@@ -106,6 +109,8 @@ Responsibilities:
 - summary metric cards
 - JSON editor integration
 - WebSocket status badge integration
+- explainer panel integration
+- passes `compare_to` during simulation requests
 
 Notable details:
 
@@ -113,6 +118,25 @@ Notable details:
 - canvas supports zoom presets from `50%` to `150%`
 - measurement-aware wire truncation is implemented
 - clicking a placed gate deletes it
+- clicking a gate explanation highlights the corresponding rendered operation on the circuit
+
+#### `frontend/components/CircuitExplainer.tsx`
+
+Responsibilities:
+
+- read active-circuit result data from Zustand
+- render tabbed summary, gates, optimization, and comparison sections
+- keep gate-level content collapsed by default
+- show fallback messaging when explanation data is not present
+- let users highlight a gate on the builder by opening a gate explanation
+
+Important implementation details:
+
+- the panel is mounted in the right-side inspector area
+- tabs are local UI state only; no extra backend requests are made
+- `Summary` and `Gates` depend on `result.explanation`
+- `Optimization` reads `result.suggestions`
+- `Comparison` reads `result.comparison`
 
 #### `frontend/components/GatePalette.tsx`
 
@@ -246,6 +270,10 @@ Responsibilities:
 - queue pending requests
 - expose `simulateCircuit(...)`
 
+Important implementation detail:
+
+- simulation payloads are passed through unchanged, so new optional fields like `compare_to` do not require special hook logic
+
 ## Backend Architecture
 
 ### `api/main.py`
@@ -257,7 +285,14 @@ Responsibilities:
 - host WebSocket endpoint `/ws`
 - parse and validate incoming payloads
 - dispatch simulations by mode
+- enrich normal simulation results with analysis payloads
 - expose `POST /variational/run`
+
+Returned analysis fields:
+
+- `explanation`
+- `comparison`
+- `suggestions`
 
 ### Simulation modes
 
@@ -267,13 +302,16 @@ Expected payload:
 
 - `qubits`
 - `gates`
+- optional `compare_to`
 
 Behavior:
 
 - build circuit
 - compile gates
 - simulate with Aer
-- return counts, optional statevector, depth, and gate count
+- run explanation / optimization analysis
+- optionally compare against `compare_to`
+- return counts, optional statevector, depth, gate count, explanation, comparison, and suggestions
 
 #### Step simulation mode
 
@@ -282,6 +320,7 @@ Expected payload:
 - `mode: "step_simulation"`
 - `qubits`
 - `gates`
+- optional `compare_to`
 
 Behavior:
 
@@ -289,6 +328,28 @@ Behavior:
 - rebuild the circuit prefix for each step
 - capture intermediate statevectors when possible
 - attach `steps` to final payload
+- enrich the final payload with explanation / optimization / optional comparison
+
+### Analysis layer
+
+#### `api/analysis/explainer.py`
+
+Responsibilities:
+
+- evolve statevector gate by gate for deterministic explanations
+- build gate-level explanation entries from actual before/after state summaries
+- summarize circuit-level behavior including superposition and entanglement cues
+- explain dominant measurement outcomes from final amplitudes and counts
+- compare circuits using depth, gate count, redundancy penalty, and output similarity
+- suggest rule-based simplifications
+
+Current optimization rules:
+
+- `X` followed by `X`
+- `H` followed by `H`
+- inverse phase pairs like `T` + `TDG`, `S` + `SDG`
+- consecutive mergeable rotations
+- identity and zero-angle cleanup
 
 #### Algorithm mode
 
@@ -343,6 +404,8 @@ Exposes a simple theta sweep:
 - Backend Grover diffusion currently supports only `1` or `2` qubits
 - The frontend algorithm library and backend algorithm mode are separate concepts
 - There is no test suite yet for the current frontend/backend behavior
+- The explainer panel will appear empty if the browser is still connected to an older backend instance that predates the analysis payload
+- `frontend/.env` or `.env.local` should use `ws://.../ws` or `wss://.../ws`; the frontend now normalizes `http://` to `ws://`, but direct WebSocket URLs are preferred
 
 ## Files Worth Opening First
 
@@ -391,6 +454,8 @@ npm run build
 ## Recommended Next Work
 
 - Add tests for serialization, gate validation, and simulation response shapes
+- Add tests for `api/analysis/explainer.py`
+- Add frontend tests that mount `CircuitExplainer` from mocked `useCircuitStore` results
 - Tighten production CORS configuration
 - Decide whether frontend should directly use backend `mode: "algorithm"`
 - Add docs screenshots for builder and visualization
