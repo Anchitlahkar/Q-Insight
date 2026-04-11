@@ -22,12 +22,11 @@ export default function HomePage() {
             </div>
           </div>
         </header>
-
+        <AlgorithmSelector />
         <CircuitBuilder />
         <VisualizationPanel />
 
         <footer style={{ display: "grid", gap: 16 }}>
-          <AlgorithmSelector />
           <section style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
             <Histogram circuitKey="A" title="Circuit A Distribution" />
             <Histogram circuitKey="B" title="Circuit B Distribution" />

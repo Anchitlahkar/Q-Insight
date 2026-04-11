@@ -1,9 +1,9 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CircuitJsonEditor.tsx
+// CircuitJsonEditor.tsx  — white design system colour scheme
 //
-// Editable circuit JSON panel. Accepts:
+// Accepts:
 //   • Full circuit  : { "qubits": 3, "gates": [...] }
 //   • Gates-only    : { "gates": [...] }
 //   • Bare array    : [ { "type": "H", "target": 0 }, ... ]
@@ -12,27 +12,45 @@
 // Two commit modes:
 //   Replace — clears the circuit, sets qubit count, loads all gates
 //   Append  — leaves existing gates, adds new ones after them
-//
-// The textarea tracks "dirty" state: while the user is editing,
-// live circuit changes (from clicking the canvas) don't overwrite their draft.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { GATE_MAP, GateType, isParametricGate, isTwoQubitGate } from "@/lib/gates";
 import { CircuitKey, GateOperation } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
+// ── Design tokens (matches the white system used in CircuitBuilder) ───────────
+const T = {
+  bg:           "#FFFFFF",
+  bgSurface:    "#F9FAFB",
+  border:       "#E5E7EB",
+  borderFocus:  "#93C5FD",
+  text:         "#1F2937",
+  muted:        "#6B7280",
+  accent:       "#3B82F6",
+  accentLight:  "#EFF6FF",
+  accentBorder: "#DBEAFE",
+  success:      "#10B981",
+  successLight: "#ECFDF5",
+  successBorder:"#A7F3D0",
+  error:        "#EF4444",
+  errorLight:   "#FEF2F2",
+  errorBorder:  "#FECACA",
+  warn:         "#F59E0B",
+  warnLight:    "#FFFBEB",
+  warnBorder:   "#FDE68A",
+  info:         "#3B82F6",
+  infoLight:    "#EFF6FF",
+  infoBorder:   "#DBEAFE",
+  mono:         "JetBrains Mono, monospace",
+  head:         "Syne, sans-serif",
+} as const;
+
 // ── Constants ─────────────────────────────────────────────────────────────────
-const COL_W  = 68;   // must match CircuitBuilder
+const COL_W  = 68;
 const LANE_H = 84;
 
-// ── Type aliases used only inside this file ───────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 type ParsedGate = {
   type: GateType;
   target: number;
@@ -44,145 +62,105 @@ type ParseResult =
   | { ok: true;  qubits: number | null; gates: ParsedGate[] }
   | { ok: false; message: string; line?: number };
 
-// ── Known type aliases (lowercase / alternate spellings → canonical) ──────────
+type ToastKind = "success" | "error" | "info";
+
+// ── Type aliases ──────────────────────────────────────────────────────────────
 const TYPE_ALIASES: Record<string, GateType> = {
-  cx:      "CNOT",
-  ccx:     "CNOT",
-  cz:      "CZ",
-  swap:    "SWAP",
-  hadamard:"H",
-  pauli_x: "X",
-  pauli_y: "Y",
-  pauli_z: "Z",
-  measure: "M",
-  m:       "M",
-  id:      "I",
-  identity:"I",
-  sdg:     "SDG",
-  tdg:     "TDG",
-  rx:      "RX",
-  ry:      "RY",
-  rz:      "RZ",
-  crx:     "CRX",
-  cry:     "CRY",
-  crz:     "CRZ",
+  cx: "CNOT", ccx: "CNOT", cz: "CZ", swap: "SWAP",
+  hadamard: "H", pauli_x: "X", pauli_y: "Y", pauli_z: "Z",
+  measure: "M", m: "M", id: "I", identity: "I",
+  sdg: "SDG", tdg: "TDG",
+  rx: "RX", ry: "RY", rz: "RZ",
+  crx: "CRX", cry: "CRY", crz: "CRZ",
 };
 
 function normalizeGateType(raw: unknown): GateType | null {
   if (typeof raw !== "string") return null;
   const up = raw.toUpperCase() as GateType;
   if (GATE_MAP.has(up)) return up;
-  const aliased = TYPE_ALIASES[raw.toLowerCase()];
-  if (aliased) return aliased;
-  return null;
+  return TYPE_ALIASES[raw.toLowerCase()] ?? null;
 }
 
-// ── Core parser ───────────────────────────────────────────────────────────────
+// ── Parser ────────────────────────────────────────────────────────────────────
 function parseCircuitJson(text: string): ParseResult {
-  // 1. Parse JSON
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
   } catch (e) {
     const msg = e instanceof SyntaxError ? e.message : "Invalid JSON";
-    // Extract line number from Chrome/FF error messages
     const lineMatch = msg.match(/line (\d+)/i);
     return { ok: false, message: `JSON parse error: ${msg}`, line: lineMatch ? Number(lineMatch[1]) : undefined };
   }
 
-  // 2. Normalise to { qubits, rawGates }
   let qubits: number | null = null;
   let rawGates: unknown[];
 
   if (Array.isArray(parsed)) {
-    // Bare array of gate objects
     rawGates = parsed;
   } else if (parsed !== null && typeof parsed === "object") {
     const obj = parsed as Record<string, unknown>;
-
-    // Extract optional qubits
     if ("qubits" in obj) {
       const q = obj["qubits"];
-      if (typeof q !== "number" || !Number.isInteger(q) || q < 1 || q > 10) {
-        return { ok: false, message: `"qubits" must be an integer between 1 and 10 (got ${JSON.stringify(q)})` };
-      }
+      if (typeof q !== "number" || !Number.isInteger(q) || q < 1 || q > 10)
+        return { ok: false, message: `"qubits" must be an integer 1–10 (got ${JSON.stringify(q)})` };
       qubits = q;
     }
-
-    // Extract gates
     if ("gates" in obj) {
-      if (!Array.isArray(obj["gates"])) {
+      if (!Array.isArray(obj["gates"]))
         return { ok: false, message: '"gates" must be an array' };
-      }
       rawGates = obj["gates"] as unknown[];
     } else if ("type" in obj) {
-      // Single gate object
       rawGates = [parsed];
     } else {
-      return { ok: false, message: 'Expected an object with a "gates" array, an array of gates, or a single gate object' };
+      return { ok: false, message: 'Expected an object with a "gates" array, array of gates, or single gate object' };
     }
   } else {
     return { ok: false, message: "Expected a JSON object or array" };
   }
 
-  if (rawGates.length === 0) {
+  if (rawGates.length === 0)
     return { ok: false, message: "No gates found — the gates array is empty" };
-  }
 
-  // 3. Validate each gate
   const gates: ParsedGate[] = [];
   for (let i = 0; i < rawGates.length; i++) {
     const raw = rawGates[i];
-    const idx = i + 1; // 1-based for error messages
-
-    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+    const idx = i + 1;
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw))
       return { ok: false, message: `Gate ${idx}: expected an object` };
-    }
 
     const g = raw as Record<string, unknown>;
-
-    // type
     const gtype = normalizeGateType(g["type"]);
     if (!gtype) {
-      const given = JSON.stringify(g["type"]);
       const valid = [...GATE_MAP.keys()].join(", ");
-      return { ok: false, message: `Gate ${idx}: unknown type ${given}. Valid types: ${valid}` };
+      return { ok: false, message: `Gate ${idx}: unknown type ${JSON.stringify(g["type"])}. Valid: ${valid}` };
     }
 
-    // target
-    if (!("target" in g)) {
-      return { ok: false, message: `Gate ${idx} (${gtype}): missing required field "target"` };
-    }
+    if (!("target" in g))
+      return { ok: false, message: `Gate ${idx} (${gtype}): missing "target"` };
     const target = g["target"];
-    if (typeof target !== "number" || !Number.isInteger(target) || target < 0) {
-      return { ok: false, message: `Gate ${idx} (${gtype}): "target" must be a non-negative integer (got ${JSON.stringify(target)})` };
-    }
+    if (typeof target !== "number" || !Number.isInteger(target) || target < 0)
+      return { ok: false, message: `Gate ${idx} (${gtype}): "target" must be a non-negative integer` };
 
-    // control (optional but required for two-qubit gates)
     let control: number | undefined;
     if ("control" in g) {
       const ctrl = g["control"];
-      if (typeof ctrl !== "number" || !Number.isInteger(ctrl) || ctrl < 0) {
+      if (typeof ctrl !== "number" || !Number.isInteger(ctrl) || ctrl < 0)
         return { ok: false, message: `Gate ${idx} (${gtype}): "control" must be a non-negative integer` };
-      }
-      if (ctrl === target) {
-        return { ok: false, message: `Gate ${idx} (${gtype}): "control" and "target" must be different qubits` };
-      }
+      if (ctrl === target)
+        return { ok: false, message: `Gate ${idx} (${gtype}): "control" and "target" must differ` };
       control = ctrl;
     } else if (isTwoQubitGate(gtype)) {
-      return { ok: false, message: `Gate ${idx} (${gtype}): two-qubit gates require a "control" field` };
+      return { ok: false, message: `Gate ${idx} (${gtype}): two-qubit gates require "control"` };
     }
 
-    // theta (required for parametric gates)
     let theta: number | undefined;
     if ("theta" in g) {
       const t = g["theta"];
-      if (typeof t !== "number" || !Number.isFinite(t)) {
-        return { ok: false, message: `Gate ${idx} (${gtype}): "theta" must be a finite number in radians` };
-      }
+      if (typeof t !== "number" || !Number.isFinite(t))
+        return { ok: false, message: `Gate ${idx} (${gtype}): "theta" must be a finite number` };
       theta = t;
     } else if (isParametricGate(gtype)) {
-      return { ok: false, message: `Gate ${idx} (${gtype}): parametric gates require a "theta" field` };
+      return { ok: false, message: `Gate ${idx} (${gtype}): parametric gates require "theta"` };
     }
 
     gates.push({ type: gtype, target, control, theta });
@@ -191,51 +169,45 @@ function parseCircuitJson(text: string): ParseResult {
   return { ok: true, qubits, gates };
 }
 
-// ── Auto-assign column positions ──────────────────────────────────────────────
-// Packs gates left-to-right, advancing per-qubit cursors to avoid overlap.
+// ── Column assignment ─────────────────────────────────────────────────────────
 function assignPositions(gates: ParsedGate[], startCol = 0): GateOperation[] {
-  // cursor[q] = next free column for qubit q
   const cursor: Record<number, number> = {};
   const getCursor = (q: number) => cursor[q] ?? startCol;
   const advance   = (q: number, to: number) => { cursor[q] = Math.max(getCursor(q), to) + 1; };
 
   return gates.map((g) => {
     const qubits = g.control !== undefined ? [g.target, g.control] : [g.target];
-    // The column is the max cursor across all involved qubits
-    const col = Math.max(...qubits.map(getCursor));
+    const col    = Math.max(...qubits.map(getCursor));
     qubits.forEach((q) => advance(q, col));
-
     return {
       id: `${g.type.toLowerCase()}-import-${Date.now()}-${Math.floor(Math.random() * 99999)}`,
       type: g.type,
       target: g.target,
-      ...(g.control  !== undefined ? { control: g.control }   : {}),
-      ...(g.theta    !== undefined ? { theta: g.theta }        : {}),
+      ...(g.control !== undefined ? { control: g.control } : {}),
+      ...(g.theta   !== undefined ? { theta: g.theta }     : {}),
       position: { x: col * COL_W, y: g.target * LANE_H },
     };
   });
 }
 
-// ── Tooltip ───────────────────────────────────────────────────────────────────
-type ToastKind = "success" | "error" | "info";
+// ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ kind, message }: { kind: ToastKind; message: string }) {
-  const colors: Record<ToastKind, { border: string; bg: string; text: string }> = {
-    success: { border: "rgba(0,229,160,0.35)",  bg: "rgba(0,229,160,0.08)",  text: "#00e5a0" },
-    error:   { border: "rgba(255,92,122,0.35)", bg: "rgba(255,92,122,0.08)", text: "#ff5c7a" },
-    info:    { border: "rgba(0,212,255,0.25)",  bg: "rgba(0,212,255,0.07)",  text: "rgba(0,212,255,0.7)" },
+  const palette: Record<ToastKind, { border: string; bg: string; text: string }> = {
+    success: { border: T.successBorder, bg: T.successLight, text: T.success },
+    error:   { border: T.errorBorder,   bg: T.errorLight,   text: T.error   },
+    info:    { border: T.infoBorder,    bg: T.infoLight,    text: T.info    },
   };
-  const c = colors[kind];
+  const c = palette[kind];
   return (
     <div style={{
       border: `1px solid ${c.border}`,
       background: c.bg,
       borderRadius: 9,
       padding: "7px 11px",
-      fontFamily: "JetBrains Mono, monospace",
-      fontSize: 9.5,
+      fontFamily: T.mono,
+      fontSize: 10,
       color: c.text,
       lineHeight: 1.5,
-      letterSpacing: "0.02em",
       wordBreak: "break-word",
     }}>
       {message}
@@ -243,11 +215,11 @@ function Toast({ kind, message }: { kind: ToastKind; message: string }) {
   );
 }
 
-// ── Icon buttons ──────────────────────────────────────────────────────────────
+// ── Icon button ───────────────────────────────────────────────────────────────
 function IconBtn({
-  label, title, onClick, color = "rgba(200,223,242,0.4)",
+  label, title, onClick, danger = false,
 }: {
-  label: string; title: string; onClick: () => void; color?: string;
+  label: string; title: string; onClick: () => void; danger?: boolean;
 }) {
   const [hov, setHov] = useState(false);
   return (
@@ -258,13 +230,15 @@ function IconBtn({
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: hov ? "rgba(255,255,255,0.05)" : "transparent",
-        border: "1px solid rgba(255,255,255,0.07)",
+        background: hov
+          ? (danger ? T.errorLight : T.accentLight)
+          : T.bg,
+        border: `1px solid ${danger ? T.errorBorder : T.border}`,
         borderRadius: 7,
-        padding: "3px 9px",
-        fontFamily: "JetBrains Mono, monospace",
-        fontSize: 9.5,
-        color: hov ? "#c8dff2" : color,
+        padding: "3px 10px",
+        fontFamily: T.mono,
+        fontSize: 9,
+        color: danger ? T.error : (hov ? T.accent : T.muted),
         cursor: "pointer",
         transition: "all 0.12s",
         letterSpacing: "0.04em",
@@ -277,125 +251,84 @@ function IconBtn({
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-interface CircuitJsonEditorProps {
-  circuitKey: CircuitKey;
-}
+interface CircuitJsonEditorProps { circuitKey: CircuitKey; }
 
-export const CircuitJsonEditor = memo(function CircuitJsonEditor({
-  circuitKey,
-}: CircuitJsonEditorProps) {
-  const circuit        = useCircuitStore((s) => s.circuits[circuitKey]);
-  const addGate        = useCircuitStore((s) => s.addGate);
-  const clearCircuit   = useCircuitStore((s) => s.clearCircuit);
-  const setQubitCount  = useCircuitStore((s) => s.setQubitCount);
+export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }: CircuitJsonEditorProps) {
+  const circuit       = useCircuitStore((s) => s.circuits[circuitKey]);
+  const addGate       = useCircuitStore((s) => s.addGate);
+  const clearCircuit  = useCircuitStore((s) => s.clearCircuit);
+  const setQubitCount = useCircuitStore((s) => s.setQubitCount);
 
-  // ── Draft state ──────────────────────────────────────────────────────────────
-  // liveJson  : always-fresh serialization of the store (never set by user)
-  // draft     : what's in the textarea (may diverge when user edits)
-  // isDirty   : draft ≠ liveJson (user has unsaved edits)
-  const [isDirty,  setIsDirty]  = useState(false);
-  const [toast,    setToast]    = useState<{ kind: ToastKind; msg: string } | null>(null);
-  const toastTimerRef           = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const textareaRef             = useRef<HTMLTextAreaElement>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [toast,   setToast]   = useState<{ kind: ToastKind; msg: string } | null>(null);
+  const toastTimerRef         = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const textareaRef           = useRef<HTMLTextAreaElement>(null);
 
-  // ── Live JSON (derived from store, never user-edited) ─────────────────────────
   const liveJson = JSON.stringify(
     {
       qubits: circuit.qubits,
       gates: circuit.gates.map(({ type, target, control, theta }) => ({
-        type,
-        target,
+        type, target,
         ...(control !== undefined ? { control } : {}),
         ...(theta   !== undefined ? { theta }   : {}),
       })),
     },
-    null,
-    2
+    null, 2
   );
 
-  // ── Sync textarea with live JSON when NOT dirty ───────────────────────────────
   useEffect(() => {
-    if (!isDirty && textareaRef.current) {
-      textareaRef.current.value = liveJson;
-    }
+    if (!isDirty && textareaRef.current) textareaRef.current.value = liveJson;
   }, [liveJson, isDirty]);
 
-  // ── Flash a toast, auto-clear after `ms` ms ───────────────────────────────────
   const showToast = useCallback((kind: ToastKind, msg: string, ms = 3000) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToast({ kind, msg });
-    if (ms > 0) {
-      toastTimerRef.current = setTimeout(() => setToast(null), ms);
-    }
+    if (ms > 0) toastTimerRef.current = setTimeout(() => setToast(null), ms);
   }, []);
 
-  // ── Copy to clipboard ─────────────────────────────────────────────────────────
   const handleCopy = useCallback(() => {
     const text = textareaRef.current?.value ?? liveJson;
     navigator.clipboard.writeText(text).then(() => showToast("info", "Copied to clipboard", 1800));
   }, [liveJson, showToast]);
 
-  // ── Discard draft, revert to live JSON ───────────────────────────────────────
   const handleReset = useCallback(() => {
     if (textareaRef.current) textareaRef.current.value = liveJson;
     setIsDirty(false);
     setToast(null);
   }, [liveJson]);
 
-  // ── Core apply logic ─────────────────────────────────────────────────────────
   const applyJson = useCallback(
     (mode: "replace" | "append") => {
-      const raw = textareaRef.current?.value ?? "";
+      const raw    = textareaRef.current?.value ?? "";
       const result = parseCircuitJson(raw);
 
       if (!result.ok) {
-        showToast("error", result.message, 0); // 0 = sticky until next action
+        showToast("error", result.message, 0);
         return;
       }
 
       const { qubits: parsedQubits, gates: parsedGates } = result;
 
       if (mode === "replace") {
-        // Determine qubit count: parsed > inferred from gate indices > current
         const maxGateQubit = parsedGates.reduce((m, g) => {
-          const maxQ = g.control !== undefined ? Math.max(g.target, g.control) : g.target;
-          return Math.max(m, maxQ);
+          return Math.max(m, g.control !== undefined ? Math.max(g.target, g.control) : g.target);
         }, 0);
         const newQubits = parsedQubits ?? Math.max(circuit.qubits, maxGateQubit + 1);
-
         clearCircuit(circuitKey);
-        setQubitCount(circuitKey, Math.min(newQubits, 6)); // cap at MAX_QUBITS
-        const ops = assignPositions(parsedGates, 0);
-        ops.forEach((g) => addGate(circuitKey, g));
-
-        showToast(
-          "success",
-          `Replaced circuit · ${ops.length} gate${ops.length !== 1 ? "s" : ""} loaded`,
-        );
+        setQubitCount(circuitKey, Math.min(newQubits, 6));
+        assignPositions(parsedGates, 0).forEach((g) => addGate(circuitKey, g));
+        showToast("success", `Replaced · ${parsedGates.length} gate${parsedGates.length !== 1 ? "s" : ""} loaded`);
       } else {
-        // Append: find the rightmost column currently occupied
         const lastCol = circuit.gates.reduce((m, g) => {
-          const col = Math.max(0, Math.round(g.position.x / COL_W));
-          return Math.max(m, col);
+          return Math.max(m, Math.max(0, Math.round(g.position.x / COL_W)));
         }, -1);
-        const startCol = lastCol + 1;
-
-        // Widen qubit count if necessary
         const maxGateQubit = parsedGates.reduce((m, g) => {
-          const maxQ = g.control !== undefined ? Math.max(g.target, g.control) : g.target;
-          return Math.max(m, maxQ);
+          return Math.max(m, g.control !== undefined ? Math.max(g.target, g.control) : g.target);
         }, 0);
-        if (maxGateQubit >= circuit.qubits) {
-          setQubitCount(circuitKey, Math.min(maxGateQubit + 1, 6));
-        }
-
-        const ops = assignPositions(parsedGates, startCol);
+        if (maxGateQubit >= circuit.qubits) setQubitCount(circuitKey, Math.min(maxGateQubit + 1, 6));
+        const ops = assignPositions(parsedGates, lastCol + 1);
         ops.forEach((g) => addGate(circuitKey, g));
-
-        showToast(
-          "success",
-          `Appended ${ops.length} gate${ops.length !== 1 ? "s" : ""}`,
-        );
+        showToast("success", `Appended ${ops.length} gate${ops.length !== 1 ? "s" : ""}`);
       }
 
       setIsDirty(false);
@@ -403,13 +336,9 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({
     [addGate, circuitKey, circuit.gates, circuit.qubits, clearCircuit, setQubitCount, showToast]
   );
 
-  // ── Keyboard shortcut: Ctrl/Cmd+Enter → Replace ───────────────────────────────
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        e.preventDefault();
-        applyJson("replace");
-      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); applyJson("replace"); }
     },
     [applyJson]
   );
@@ -417,79 +346,66 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({
   const handleChange = useCallback(() => {
     const current = textareaRef.current?.value ?? "";
     setIsDirty(current !== liveJson);
-    // Clear sticky error while user is still typing
     if (toast?.kind === "error") setToast(null);
   }, [liveJson, toast]);
 
   // ── Render ────────────────────────────────────────────────────────────────────
-  const borderColor = isDirty
-    ? "rgba(0,212,255,0.3)"
-    : "rgba(255,255,255,0.05)";
-
   return (
     <div style={{
-      background: "rgba(2,6,15,0.7)",
-      border: "1px solid rgba(255,255,255,0.07)",
-      borderRadius: 18,
-      padding: 15,
+      background: T.bg,
+      border: `1px solid ${T.border}`,
+      borderRadius: 12,
+      padding: 14,
       display: "flex",
       flexDirection: "column",
       gap: 10,
     }}>
-      {/* ── Header row ── */}
+
+      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <h3 style={{
-            fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 12,
-            color: "#c8dff2", letterSpacing: "0.04em", margin: 0,
-          }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <h3 style={{ fontFamily: T.head, fontWeight: 700, fontSize: 13, color: T.text, margin: 0 }}>
             Circuit JSON
           </h3>
+          {/* Circuit key badge */}
           <span style={{
-            fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-            color: "rgba(0,212,255,0.5)", letterSpacing: "0.08em",
+            fontFamily: T.mono, fontSize: 9,
+            color: T.accent, background: T.accentLight,
+            border: `1px solid ${T.accentBorder}`,
+            borderRadius: 999, padding: "1px 7px",
+            letterSpacing: "0.08em",
           }}>
             {circuitKey}
           </span>
+          {/* Dirty indicator */}
           {isDirty && (
             <span style={{
-              fontFamily: "JetBrains Mono, monospace", fontSize: 8.5,
-              color: "#ffb340", letterSpacing: "0.06em",
-              background: "rgba(255,179,64,0.1)",
-              border: "1px solid rgba(255,179,64,0.22)",
-              borderRadius: 5, padding: "1px 6px",
+              fontFamily: T.mono, fontSize: 8,
+              color: T.warn, background: T.warnLight,
+              border: `1px solid ${T.warnBorder}`,
+              borderRadius: 5, padding: "1px 6px", letterSpacing: "0.06em",
             }}>
               edited
             </span>
           )}
         </div>
 
-        {/* Copy + Reset */}
         <div style={{ display: "flex", gap: 5 }}>
-          <IconBtn label="copy" title="Copy JSON to clipboard" onClick={handleCopy} />
+          <IconBtn label="copy"  title="Copy JSON to clipboard" onClick={handleCopy} />
           {isDirty && (
-            <IconBtn
-              label="reset"
-              title="Discard edits and revert to current circuit"
-              onClick={handleReset}
-              color="rgba(255,92,122,0.6)"
-            />
+            <IconBtn label="reset" title="Discard edits" onClick={handleReset} danger />
           )}
         </div>
       </div>
 
-      {/* ── Hint (only shown when not dirty) ── */}
+      {/* Hint */}
       {!isDirty && (
-        <p style={{
-          fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-          color: "rgba(40,64,90,0.8)", margin: 0, lineHeight: 1.5,
-          letterSpacing: "0.02em",
-        }}>
-          Edit or paste JSON below · <kbd style={{ color: "rgba(0,212,255,0.5)", fontStyle: "normal" }}>⌘/Ctrl+Enter</kbd> to replace · use Append to merge
+        <p style={{ fontFamily: T.mono, fontSize: 9, color: T.muted, margin: 0, lineHeight: 1.5 }}>
+          Edit or paste JSON · <kbd style={{ color: T.accent, fontStyle: "normal" }}>⌘/Ctrl+Enter</kbd> to replace · Append to merge
         </p>
       )}
 
-      {/* ── Textarea ── */}
+      {/* Textarea */}
       <div style={{ position: "relative" }}>
         <textarea
           ref={textareaRef}
@@ -501,92 +417,76 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({
           autoCorrect="off"
           style={{
             width: "100%",
-            minHeight: 220,
-            maxHeight: 340,
+            minHeight: 200,
+            maxHeight: 320,
             resize: "vertical",
-            background: "rgba(2,6,15,0.85)",
-            border: `1px solid ${borderColor}`,
-            borderRadius: 10,
+            background: T.bgSurface,
+            border: `1px solid ${isDirty ? T.accentBorder : T.border}`,
+            borderRadius: 9,
             padding: "10px 12px",
-            fontFamily: "JetBrains Mono, monospace",
-            fontSize: 9.5,
-            color: isDirty ? "#c8dff2" : "rgba(0,212,255,0.5)",
+            fontFamily: T.mono,
+            fontSize: 10,
+            color: T.text,
             lineHeight: 1.7,
             outline: "none",
             boxSizing: "border-box",
-            transition: "border-color 0.18s, color 0.18s",
+            transition: "border-color 0.15s",
             whiteSpace: "pre",
             overflowX: "auto",
             overflowY: "auto",
             display: "block",
           }}
-          onFocus={() => {
-            if (textareaRef.current) {
-              textareaRef.current.style.borderColor = "rgba(0,212,255,0.4)";
-            }
-          }}
-          onBlur={() => {
-            if (textareaRef.current) {
-              textareaRef.current.style.borderColor = isDirty
-                ? "rgba(0,212,255,0.3)"
-                : "rgba(255,255,255,0.05)";
-            }
-          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = T.borderFocus; }}
+          onBlur={(e)  => { e.currentTarget.style.borderColor = isDirty ? T.accentBorder : T.border; }}
         />
       </div>
 
-      {/* ── Toast feedback ── */}
+      {/* Toast */}
       {toast && <Toast kind={toast.kind} message={toast.msg} />}
 
-      {/* ── Action buttons (shown when dirty or always for usability) ── */}
+      {/* Action buttons */}
       <div style={{ display: "flex", gap: 7 }}>
-        {/* Replace — primary action */}
+        {/* Replace — primary */}
         <button
           type="button"
           onClick={() => applyJson("replace")}
           title="Clear circuit and load this JSON (Ctrl+Enter)"
           style={{
             flex: 1,
-            borderRadius: 10,
+            borderRadius: 9,
             padding: "8px 0",
-            fontFamily: "Syne, sans-serif",
+            fontFamily: T.head,
             fontWeight: 700,
             fontSize: 11,
-            letterSpacing: "0.05em",
+            letterSpacing: "0.04em",
             cursor: "pointer",
-            border: `1px solid ${isDirty ? "rgba(0,212,255,0.45)" : "rgba(0,212,255,0.18)"}`,
-            background: isDirty
-              ? "linear-gradient(135deg,rgba(0,212,255,0.18),rgba(0,212,255,0.08))"
-              : "rgba(0,212,255,0.05)",
-            color: isDirty ? "#00d4ff" : "rgba(0,212,255,0.4)",
-            boxShadow: isDirty ? "0 0 16px rgba(0,212,255,0.14)" : "none",
-            transition: "all 0.16s",
+            border: `1px solid ${isDirty ? T.accentBorder : T.border}`,
+            background: isDirty ? T.accentLight : T.bgSurface,
+            color: isDirty ? T.accent : T.muted,
+            transition: "all 0.15s",
           }}
         >
           ↺ Replace
         </button>
 
-        {/* Append — secondary action */}
+        {/* Append — secondary */}
         <button
           type="button"
           onClick={() => applyJson("append")}
-          title="Keep existing gates and append these gates after them"
+          title="Keep existing gates and append new ones"
           style={{
             flex: 1,
-            borderRadius: 10,
+            borderRadius: 9,
             padding: "8px 0",
-            fontFamily: "Syne, sans-serif",
+            fontFamily: T.head,
             fontWeight: 700,
             fontSize: 11,
-            letterSpacing: "0.05em",
+            letterSpacing: "0.04em",
             cursor: "pointer",
-            border: `1px solid ${isDirty ? "rgba(162,89,255,0.4)" : "rgba(162,89,255,0.15)"}`,
-            background: isDirty
-              ? "linear-gradient(135deg,rgba(162,89,255,0.16),rgba(162,89,255,0.07))"
-              : "rgba(162,89,255,0.04)",
-            color: isDirty ? "#a259ff" : "rgba(162,89,255,0.4)",
-            boxShadow: isDirty ? "0 0 14px rgba(162,89,255,0.12)" : "none",
-            transition: "all 0.16s",
+            border: `1px solid ${isDirty ? "#C4B5FD" : T.border}`,
+            background: isDirty ? "#F5F3FF" : T.bgSurface,
+            color: isDirty ? "#7C3AED" : T.muted,
+            transition: "all 0.15s",
           }}
         >
           + Append
