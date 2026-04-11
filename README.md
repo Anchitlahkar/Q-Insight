@@ -254,6 +254,26 @@ Available in `frontend/package.json`:
 }
 ```
 
+Optional comparison payload:
+
+```json
+{
+  "qubits": 2,
+  "gates": [
+    { "type": "H", "target": 0 },
+    { "type": "CNOT", "control": 0, "target": 1 }
+  ],
+  "compare_to": {
+    "qubits": 2,
+    "gates": [
+      { "type": "H", "target": 0 },
+      { "type": "H", "target": 0 },
+      { "type": "CNOT", "control": 0, "target": 1 }
+    ]
+  }
+}
+```
+
 ### Step simulation request
 
 ```json
@@ -291,8 +311,51 @@ Available in `frontend/package.json`:
     ],
     "depth": 3,
     "gate_count": 4,
-    "steps": []
+    "steps": [],
+    "explanation": {
+      "gate_explanations": [],
+      "circuit_summary": "The circuit ends in superposition with observable support on 2 basis states. Entanglement is present across q0-q1; the reduced single-qubit states are mixed even though the joint state is pure. The measurement distribution is concentrated on 00 (50.00%), 11 (50.00%). Controlled operations are what turn single-qubit structure into joint-qubit correlations here.",
+      "measurement_insight": "The dominant exact outcomes are 00 (50.00%), 11 (50.00%). The shot-based results align as 00 (50.00%, 512 counts), 11 (50.00%, 512 counts). An H gate first creates equal amplitude branches, and the following CNOT ties those branches together into correlated measurement outcomes.",
+      "comparison": null,
+      "optimization_suggestions": []
+    },
+    "comparison": null,
+    "suggestions": []
   }
+}
+```
+
+### Bell-state explanation example
+
+For `H(0)` followed by `CNOT(0,1)`, the deterministic explanation payload includes gate-level state transitions such as:
+
+```json
+{
+  "gate_explanations": [
+    {
+      "gate": "H",
+      "target": 0,
+      "before_state": "1.000|00>",
+      "after_state": "0.707|00> + 0.707|01>",
+      "technical": "Before gate 0, the state is |00>:1.000. After applying H, it becomes |00>:0.707, |01>:0.707. Amplitude moved across |00> (1.000 -> 0.707), |01> (0.000 -> 0.707).",
+      "intuitive": "Qubit 0 was driving q0: 0->100.00%, 1->0.00% and now spreads its weight across q0: 0->50.00%, 1->50.00%, creating interference-ready branches visible in the amplitudes.",
+      "effect": "state changed from |00>:1.000 -> |00>:0.707, |01>:0.707"
+    },
+    {
+      "gate": "CNOT",
+      "target": 1,
+      "control": 0,
+      "before_state": "0.707|00> + 0.707|01>",
+      "after_state": "0.707|00> + 0.707|11>",
+      "technical": "Before gate 1, the state is |00>:0.707, |01>:0.707. After applying CNOT, it becomes |00>:0.707, |11>:0.707. Control-target action uses control qubit 0 and target qubit 1. Amplitude moved across |01> (0.707 -> 0.000), |11> (0.000 -> 0.707).",
+      "intuitive": "Only the branches where control qubit 0 is 1 were altered. That conditional change reshaped the joint amplitudes into |00>:0.707, |11>:0.707.",
+      "effect": "state changed from |00>:0.707, |01>:0.707 -> |00>:0.707, |11>:0.707"
+    }
+  ],
+  "circuit_summary": "The circuit ends in superposition with observable support on 2 basis states. Entanglement is present across q0-q1; the reduced single-qubit states are mixed even though the joint state is pure. The measurement distribution is concentrated on 00 (50.00%), 11 (50.00%). Controlled operations are what turn single-qubit structure into joint-qubit correlations here.",
+  "measurement_insight": "The dominant exact outcomes are 00 (50.00%), 11 (50.00%). An H gate first creates equal amplitude branches, and the following CNOT ties those branches together into correlated measurement outcomes.",
+  "comparison": null,
+  "optimization_suggestions": []
 }
 ```
 

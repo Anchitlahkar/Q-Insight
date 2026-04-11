@@ -41,12 +41,52 @@ export interface SimulationStep {
   statevector: ComplexAmplitude[] | null;
 }
 
+export interface GateExplanation {
+  gate: string;
+  target?: number;
+  control?: number;
+  before_state: string;
+  after_state: string;
+  technical: string;
+  intuitive: string;
+  effect: string;
+}
+
+export interface CircuitComparison {
+  winner: "A" | "B";
+  reasoning: string;
+  metrics: {
+    A: Record<string, number>;
+    B: Record<string, number>;
+    output_similarity: number;
+    score_gap: number;
+    scoring: Record<string, number>;
+  };
+}
+
+export interface OptimizationSuggestion {
+  issue: string;
+  location: string;
+  fix: string;
+}
+
+export interface CircuitExplanation {
+  gate_explanations: GateExplanation[];
+  circuit_summary: string;
+  measurement_insight: string;
+  comparison: CircuitComparison | null;
+  optimization_suggestions: OptimizationSuggestion[];
+}
+
 export interface SimulationResult {
   counts: Record<string, number>;
   statevector: ComplexAmplitude[] | null;
   depth?: number;
   gate_count?: number;
   steps?: SimulationStep[];
+  explanation?: CircuitExplanation | null;
+  comparison?: CircuitComparison | null;
+  suggestions?: OptimizationSuggestion[];
 }
 
 export type SocketStatus = "connecting" | "connected" | "running" | "disconnected" | "error";
@@ -86,6 +126,14 @@ export interface AlgorithmExecutionRequest {
 
 export interface StepSimulationRequest extends SerializedCircuit {
   mode: "step_simulation";
+  compare_to?: SerializedCircuit;
 }
 
-export type SimulationRequest = SerializedCircuit | AlgorithmExecutionRequest | StepSimulationRequest;
+export interface ComparableSerializedCircuit extends SerializedCircuit {
+  compare_to?: SerializedCircuit;
+}
+
+export type SimulationRequest =
+  | ComparableSerializedCircuit
+  | AlgorithmExecutionRequest
+  | StepSimulationRequest;

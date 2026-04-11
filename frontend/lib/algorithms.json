@@ -259,22 +259,5 @@
         { "type": "M", "target": 1 }
       ]
     }
-  ],
-  "Hardware Demonstrations": [
-    {
-      "id": "ibm_demo",
-      "name": "IBM Hardware Demo",
-      "qubits": 3,
-      "description": "A compact hardware-oriented entangling demonstration.",
-      "gates": [
-        { "type": "H", "target": 0 },
-        { "type": "CNOT", "control": 0, "target": 1 },
-        { "type": "CNOT", "control": 1, "target": 2 },
-        { "type": "RZ", "target": 2, "theta": 0.5 },
-        { "type": "M", "target": 0 },
-        { "type": "M", "target": 1 },
-        { "type": "M", "target": 2 }
-      ]
-    }
   ]
 }
