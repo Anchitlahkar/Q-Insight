@@ -4,12 +4,14 @@
 
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { isParametricGate, isTwoQubitGate } from "@/lib/gates";
+import { isComponentType, isParametricGate, isTwoQubitGate } from "@/lib/gates";
+import { getOperationQubits } from "@/lib/circuit";
 import {
   AlgorithmDefinition,
   Circuit,
   CircuitKey,
   GateOperation,
+  SerializedGate,
   SimulationResult,
   SocketStatus,
 } from "@/lib/types";
@@ -39,6 +41,7 @@ interface CircuitActions {
   setIsRunning: (running: boolean) => void;
   loadMockData: () => void;
   loadAlgorithm: (key: CircuitKey, algorithm: AlgorithmDefinition) => void;
+  loadAlgorithmComponent: (key: CircuitKey, algorithm: AlgorithmDefinition, startQubit?: number) => void;
 }
 
 type CircuitStore = CircuitState & CircuitActions;
@@ -69,9 +72,9 @@ const MOCK_CIRCUITS: Record<CircuitKey, Circuit> = {
       { id: "h-0", type: "H", target: 0, position: { x: 0, y: 0 } },
       { id: "cnot-1", type: "CNOT", target: 1, control: 0, position: { x: 66, y: 82 } },
       { id: "cnot-2", type: "CNOT", target: 2, control: 1, position: { x: 132, y: 164 } },
-      { id: "m-0", type: "M", target: 0, position: { x: 264, y: 0 } },
-      { id: "m-1", type: "M", target: 1, position: { x: 264, y: 82 } },
-      { id: "m-2", type: "M", target: 2, position: { x: 264, y: 164 } },
+      { id: "m-0", type: "M", target: 0, classicalTarget: 0, position: { x: 264, y: 0 } },
+      { id: "m-1", type: "M", target: 1, classicalTarget: 1, position: { x: 264, y: 82 } },
+      { id: "m-2", type: "M", target: 2, classicalTarget: 2, position: { x: 264, y: 164 } },
     ],
   },
   B: {
@@ -83,9 +86,9 @@ const MOCK_CIRCUITS: Record<CircuitKey, Circuit> = {
       { id: "rz-b2", type: "RZ", target: 2, theta: Math.PI, position: { x: 0, y: 164 } },
       { id: "cz-b1", type: "CZ", target: 1, control: 0, position: { x: 132, y: 82 } },
       { id: "swap-b", type: "SWAP", target: 2, control: 1, position: { x: 198, y: 164 } },
-      { id: "m-b0", type: "M", target: 0, position: { x: 264, y: 0 } },
-      { id: "m-b1", type: "M", target: 1, position: { x: 264, y: 82 } },
-      { id: "m-b2", type: "M", target: 2, position: { x: 264, y: 164 } },
+      { id: "m-b0", type: "M", target: 0, classicalTarget: 0, position: { x: 264, y: 0 } },
+      { id: "m-b1", type: "M", target: 1, classicalTarget: 1, position: { x: 264, y: 82 } },
+      { id: "m-b2", type: "M", target: 2, classicalTarget: 2, position: { x: 264, y: 164 } },
     ],
   },
 };
@@ -140,9 +143,44 @@ function assignPositions(gates: AlgorithmDefinition["gates"]): GateOperation[] {
       target: gate.target,
       ...(gate.control !== undefined ? { control: gate.control } : {}),
       ...(gate.theta !== undefined ? { theta: gate.theta } : {}),
+      ...(gate.type === "M" ? { classicalTarget: gate.target } : {}),
       position: { x: column * COL_W, y: gate.target * LANE_H },
     };
   });
+}
+
+function normalizeGate(gate: GateOperation): GateOperation {
+  const qubits = gate.qubits ?? getOperationQubits(gate);
+
+  return {
+    ...gate,
+    ...(gate.type === "M" && gate.classicalTarget === undefined
+      ? { classicalTarget: gate.target }
+      : {}),
+    ...(isComponentType(gate.type)
+      ? {
+          qubits,
+          label: gate.label ?? "Component",
+        }
+      : {}),
+  };
+}
+
+function createComponentOperation(
+  algorithm: AlgorithmDefinition,
+  startQubit: number,
+  column: number
+): GateOperation {
+  return {
+    id: `component-${algorithm.id}-${Date.now()}`,
+    type: "COMPONENT",
+    target: startQubit,
+    qubits: Array.from({ length: algorithm.qubits }, (_, index) => startQubit + index),
+    label: algorithm.name,
+    category: algorithm.category,
+    internalCircuit: algorithm.gates as SerializedGate[],
+    position: { x: column * COL_W, y: startQubit * LANE_H },
+  };
 }
 
 export const useCircuitStore = create<CircuitStore>()(
@@ -158,13 +196,13 @@ export const useCircuitStore = create<CircuitStore>()(
       set((state) => {
         state.circuits[key].qubits = count;
         state.circuits[key].gates = state.circuits[key].gates.filter(
-          (gate) => gate.target < count && (gate.control === undefined || gate.control < count)
+          (gate) => getOperationQubits(gate).every((qubit) => qubit < count)
         );
       }),
 
     addGate: (key, gate) =>
       set((state) => {
-        state.circuits[key].gates.push(gate);
+        state.circuits[key].gates.push(normalizeGate(gate));
       }),
 
     updateGate: (key, id, patch) =>
@@ -231,6 +269,26 @@ export const useCircuitStore = create<CircuitStore>()(
           qubits: algorithm.qubits,
           gates,
         };
+        state.results[key] = null;
+      });
+    },
+
+    loadAlgorithmComponent: (key, algorithm, startQubit = 0) => {
+      validateAlgorithm(algorithm);
+
+      set((state) => {
+        const currentCircuit = state.circuits[key];
+        const requiredQubits = startQubit + algorithm.qubits;
+        currentCircuit.qubits = Math.min(Math.max(currentCircuit.qubits, requiredQubits), MAX_QUBITS);
+
+        const lastCol = currentCircuit.gates.reduce((maxCol, gate) => {
+          const column = Math.max(0, Math.round(gate.position.x / COL_W));
+          return Math.max(maxCol, column);
+        }, -1);
+
+        currentCircuit.gates.push(
+          createComponentOperation(algorithm, startQubit, lastCol + 1)
+        );
         state.results[key] = null;
       });
     },

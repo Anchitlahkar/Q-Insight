@@ -9,10 +9,12 @@ from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
 try:
+    from api.analysis import compare_circuits, explain_circuit, suggest_optimizations
     from api.algorithms import build_algorithm
     from api.compiler import compile_circuit
     from api.hybrid import optimize_variational
 except ModuleNotFoundError:
+    from analysis import compare_circuits, explain_circuit, suggest_optimizations
     from algorithms import build_algorithm
     from compiler import compile_circuit
     from hybrid import optimize_variational
@@ -250,19 +252,39 @@ def run_simulation(data):
         params = data.get("params", {})
         algorithm_circuit = build_algorithm(algorithm, params)
         qc = build_circuit_from_gates(algorithm_circuit["qubits"], algorithm_circuit["gates"])
-        return simulate_quantum_circuit(qc)
+        result = simulate_quantum_circuit(qc)
+        return enrich_with_analysis(result, algorithm_circuit, data.get("compare_to"))
 
     qubits = data["qubits"]
     gates = data["gates"]
 
     if mode == "step_simulation":
-        return simulate_stepwise_circuit(qubits, gates)
+        result = simulate_stepwise_circuit(qubits, gates)
+        return enrich_with_analysis(result, {"qubits": qubits, "gates": gates}, data.get("compare_to"))
 
     qc = build_circuit_from_gates(qubits, gates)
-    return simulate_quantum_circuit(qc)
+    result = simulate_quantum_circuit(qc)
+    return enrich_with_analysis(result, {"qubits": qubits, "gates": gates}, data.get("compare_to"))
+
+
+def enrich_with_analysis(result, circuit_json, compare_to=None):
+    enriched = dict(result)
+
+    try:
+        explanation = explain_circuit(circuit_json, counts=result.get("counts"))
+        comparison = compare_circuits(circuit_json, compare_to, counts_a=result.get("counts")) if compare_to else None
+        suggestions = suggest_optimizations(circuit_json)
+    except Exception:
+        explanation = None
+        comparison = None
+        suggestions = []
+
+    enriched["explanation"] = explanation
+    enriched["comparison"] = comparison
+    enriched["suggestions"] = suggestions
+    return enriched
 
 
 @app.post("/variational/run")
 async def variational_run(payload: dict):
     return optimize_variational(payload)
-

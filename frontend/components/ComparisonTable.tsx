@@ -4,16 +4,26 @@ import { memo, useMemo } from "react";
 import { calculateMetrics } from "@/lib/circuit";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
-type CompareRow = {
-  label: string;
-  description: string;
-  a: number;
-  b: number;
-  lowerIsBetter?: boolean;
-  explanation: string;
-  differenceLabel: string;
-};
+// ── Design tokens ─────────────────────────────────────────────────────────────
+const T = {
+  bg:        "#FFFFFF",
+  surface:   "#F9FAFB",
+  border:    "#E5E7EB",
+  borderRow: "#F3F4F6",
+  text:      "#1F2937",
+  muted:     "#6B7280",
+  hint:      "#9CA3AF",
+  mono:      "JetBrains Mono, monospace",
+  head:      "Syne, sans-serif",
+  // Circuit A = blue
+  a:         { text: "#1D4ED8", light: "#EFF6FF", border: "#BFDBFE", strong: "#1E40AF" },
+  // Circuit B = violet (distinct from blue, avoids neon purple)
+  b:         { text: "#6D28D9", light: "#F5F3FF", border: "#C4B5FD", strong: "#5B21B6" },
+  // Win = green tint, lose = none, tie = gray
+  win:       { text: "#065F46", light: "#ECFDF5", border: "#6EE7B7" },
+} as const;
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function percentDiff(base: number, compare: number) {
   if (base === 0) return compare === 0 ? 0 : 100;
   return Math.round((Math.abs(compare - base) / base) * 100);
@@ -26,8 +36,8 @@ function getWinner(a: number, b: number, lowerIsBetter = true): "A" | "B" | "tie
 
 function getDifferenceLabel(a: number, b: number) {
   const delta = b - a;
-  if (delta === 0) return "0";
-  return `${delta > 0 ? "+" : "-"}${Math.abs(delta)}`;
+  if (delta === 0) return "±0";
+  return `${delta > 0 ? "+" : ""}${delta}`;
 }
 
 function efficiencyImprovementPercent(worse: number, better: number) {
@@ -41,230 +51,222 @@ function buildExplanation(label: string, a: number, b: number, lowerIsBetter: bo
 
   if (label === "Efficiency Score") {
     const better = winner === "A" ? a : b;
-    const worse = winner === "A" ? b : a;
+    const worse  = winner === "A" ? b : a;
     return `Circuit ${winner} is ${efficiencyImprovementPercent(worse, better)}% more efficient on the weighted score.`;
   }
-
   if (label === "Gate Count") {
-    const better = winner === "A" ? "A" : "B";
     const worse = winner === "A" ? b : a;
-    const betterValue = winner === "A" ? a : b;
-    return `Circuit ${better} uses ${percentDiff(worse, betterValue)}% fewer gates.`;
+    const betterVal = winner === "A" ? a : b;
+    return `Circuit ${winner} uses ${percentDiff(worse, betterVal)}% fewer gates.`;
   }
-
-  if (label === "Circuit Depth") {
+  if (label === "Circuit Depth")
+    return winner === "A" ? "Circuit A is faster due to lower depth." : "Circuit B is faster due to lower depth.";
+  if (label === "Two-Qubit Layer Depth")
     return winner === "A"
-      ? "Circuit A is faster due to lower depth."
-      : "Circuit B is faster due to lower depth.";
-  }
-
-  if (label === "Two-Qubit Layer Depth") {
-    return winner === "A"
-      ? "Circuit A pushes interactions deeper into the two-qubit portion of the circuit."
-      : "Circuit B pushes interactions deeper into the two-qubit portion of the circuit.";
-  }
-
-  if (label === "Measured States") {
+      ? "Circuit A pushes interactions deeper into the two-qubit portion."
+      : "Circuit B pushes interactions deeper into the two-qubit portion.";
+  if (label === "Measured States")
     return winner === "A"
       ? "Circuit A explores a broader output distribution."
       : "Circuit B explores a broader output distribution.";
-  }
-
-  if (label === "Statevector Length") {
+  if (label === "Statevector Length")
     return `Both circuits occupy ${Math.max(a, b)} amplitude slots when an unmeasured statevector is available.`;
-  }
 
   return `Circuit ${winner} performs better on ${label.toLowerCase()}.`;
 }
 
+// ── Winner badge ──────────────────────────────────────────────────────────────
+function WinnerBadge({ winner }: { winner: "A" | "B" | "tie" }) {
+  const style =
+    winner === "A" ? { bg: T.a.light, border: T.a.border, color: T.a.text } :
+    winner === "B" ? { bg: T.b.light, border: T.b.border, color: T.b.text } :
+                    { bg: T.surface,  border: T.border,   color: T.muted   };
+  return (
+    <span style={{
+      display: "inline-block",
+      background: style.bg,
+      border: `1px solid ${style.border}`,
+      color: style.color,
+      borderRadius: 999,
+      padding: "3px 10px",
+      fontFamily: T.mono,
+      fontSize: 10,
+      fontWeight: 600,
+      letterSpacing: "0.04em",
+    }}>
+      {winner === "tie" ? "Tie" : `Circuit ${winner}`}
+    </span>
+  );
+}
+
+// ── Value cell ────────────────────────────────────────────────────────────────
+function ValueCell({
+  value, delta, isWinner, circuit,
+}: {
+  value: number; delta: string; isWinner: boolean; circuit: "A" | "B";
+}) {
+  const palette = circuit === "A" ? T.a : T.b;
+  return (
+    <td style={{ padding: "13px 16px", verticalAlign: "top" }}>
+      <div style={{
+        fontFamily: T.mono,
+        fontSize: 18,
+        fontWeight: isWinner ? 700 : 400,
+        color: isWinner ? palette.strong : T.hint,
+        marginBottom: 4,
+        lineHeight: 1,
+      }}>
+        {value}
+      </div>
+      {isWinner && (
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 3,
+          background: T.win.light, border: `1px solid ${T.win.border}`,
+          borderRadius: 999, padding: "1px 7px",
+          fontFamily: T.mono, fontSize: 8, color: T.win.text, letterSpacing: "0.06em",
+        }}>
+          ✓ better
+        </div>
+      )}
+      {!isWinner && (
+        <div style={{ fontFamily: T.mono, fontSize: 9, color: T.hint }}>
+          {delta}
+        </div>
+      )}
+    </td>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 function ComparisonTableComponent() {
-  const circuits = useCircuitStore((state) => state.circuits);
-  const results = useCircuitStore((state) => state.results);
+  const circuits = useCircuitStore((s) => s.circuits);
+  const results  = useCircuitStore((s) => s.results);
 
-  const metrics = useMemo(
-    () => ({
-      A: calculateMetrics(circuits.A),
-      B: calculateMetrics(circuits.B),
-    }),
-    [circuits]
-  );
+  const metrics = useMemo(() => ({
+    A: calculateMetrics(circuits.A),
+    B: calculateMetrics(circuits.B),
+  }), [circuits]);
 
-  const measuredStates = useMemo(
-    () => ({
-      A: Object.keys(results.A?.counts ?? {}).length,
-      B: Object.keys(results.B?.counts ?? {}).length,
-    }),
-    [results.A?.counts, results.B?.counts]
-  );
+  const measuredStates = useMemo(() => ({
+    A: Object.keys(results.A?.counts ?? {}).length,
+    B: Object.keys(results.B?.counts ?? {}).length,
+  }), [results.A?.counts, results.B?.counts]);
 
-  const rows = useMemo<CompareRow[]>(() => {
-    const statevectorA = results.A?.statevector?.length ?? 0;
-    const statevectorB = results.B?.statevector?.length ?? 0;
+  const rows = useMemo(() => {
+    const svA = results.A?.statevector?.length ?? 0;
+    const svB = results.B?.statevector?.length ?? 0;
 
     return [
       {
         label: "Efficiency Score",
-        description: "Weighted score: depth x 0.6 + gate count x 0.4",
-        a: metrics.A.efficiencyScore,
-        b: metrics.B.efficiencyScore,
-        lowerIsBetter: true,
-        explanation: buildExplanation("Efficiency Score", metrics.A.efficiencyScore, metrics.B.efficiencyScore, true),
-        differenceLabel: getDifferenceLabel(metrics.A.efficiencyScore, metrics.B.efficiencyScore),
+        description: "Weighted: depth × 0.6 + gate count × 0.4",
+        a: metrics.A.efficiencyScore, b: metrics.B.efficiencyScore, lowerIsBetter: true,
       },
       {
         label: "Gate Count",
-        description: "Total number of quantum operations applied",
-        a: metrics.A.gateCount,
-        b: metrics.B.gateCount,
-        lowerIsBetter: true,
-        explanation: buildExplanation("Gate Count", metrics.A.gateCount, metrics.B.gateCount, true),
-        differenceLabel: getDifferenceLabel(metrics.A.gateCount, metrics.B.gateCount),
+        description: "Total quantum operations applied",
+        a: metrics.A.gateCount, b: metrics.B.gateCount, lowerIsBetter: true,
       },
       {
         label: "Circuit Depth",
         description: "Maximum critical path length",
-        a: metrics.A.depth,
-        b: metrics.B.depth,
-        lowerIsBetter: true,
-        explanation: buildExplanation("Circuit Depth", metrics.A.depth, metrics.B.depth, true),
-        differenceLabel: getDifferenceLabel(metrics.A.depth, metrics.B.depth),
+        a: metrics.A.depth, b: metrics.B.depth, lowerIsBetter: true,
       },
       {
         label: "Two-Qubit Layer Depth",
         description: "Deepest layer touched by any two-qubit gate",
-        a: metrics.A.twoQubitLayerDepth,
-        b: metrics.B.twoQubitLayerDepth,
-        lowerIsBetter: false,
-        explanation: buildExplanation("Two-Qubit Layer Depth", metrics.A.twoQubitLayerDepth, metrics.B.twoQubitLayerDepth, false),
-        differenceLabel: getDifferenceLabel(metrics.A.twoQubitLayerDepth, metrics.B.twoQubitLayerDepth),
+        a: metrics.A.twoQubitLayerDepth, b: metrics.B.twoQubitLayerDepth, lowerIsBetter: false,
       },
       {
         label: "Measured States",
-        description: "Distinct outcomes in the basis-state distribution",
-        a: measuredStates.A,
-        b: measuredStates.B,
-        lowerIsBetter: false,
-        explanation: buildExplanation("Measured States", measuredStates.A, measuredStates.B, false),
-        differenceLabel: getDifferenceLabel(measuredStates.A, measuredStates.B),
+        description: "Distinct outcomes in basis-state distribution",
+        a: measuredStates.A, b: measuredStates.B, lowerIsBetter: false,
       },
       {
         label: "Statevector Length",
-        description: "Size of the returned unmeasured amplitude register",
-        a: statevectorA,
-        b: statevectorB,
-        lowerIsBetter: false,
-        explanation: buildExplanation("Statevector Length", statevectorA, statevectorB, false),
-        differenceLabel: getDifferenceLabel(statevectorA, statevectorB),
+        description: "Amplitude register size (unmeasured)",
+        a: svA, b: svB, lowerIsBetter: false,
       },
-    ];
-  }, [measuredStates.A, measuredStates.B, metrics.A.depth, metrics.A.efficiencyScore, metrics.A.gateCount, metrics.A.twoQubitLayerDepth, metrics.B.depth, metrics.B.efficiencyScore, metrics.B.gateCount, metrics.B.twoQubitLayerDepth, results.A?.statevector?.length, results.B?.statevector?.length]);
+    ].map((row) => ({
+      ...row,
+      winner:      getWinner(row.a, row.b, row.lowerIsBetter),
+      explanation: buildExplanation(row.label, row.a, row.b, row.lowerIsBetter),
+      deltaA:      getDifferenceLabel(row.b, row.a),
+      deltaB:      getDifferenceLabel(row.a, row.b),
+    }));
+  }, [measuredStates, metrics, results]);
 
   const comparison = useMemo(() => {
-    const efficiencyWinner = getWinner(metrics.A.efficiencyScore, metrics.B.efficiencyScore, true);
-    const depthWinner = getWinner(metrics.A.depth, metrics.B.depth, true);
-    const gateWinner = getWinner(metrics.A.gateCount, metrics.B.gateCount, true);
-    const twoQubitWinner = getWinner(metrics.A.twoQubitLayerDepth, metrics.B.twoQubitLayerDepth, false);
-    const statesDifferent = measuredStates.A !== measuredStates.B;
+    const effWinner    = getWinner(metrics.A.efficiencyScore, metrics.B.efficiencyScore, true);
+    const depthWinner  = getWinner(metrics.A.depth,           metrics.B.depth,           true);
+    const gateWinner   = getWinner(metrics.A.gateCount,       metrics.B.gateCount,       true);
+    const tqWinner     = getWinner(metrics.A.twoQubitLayerDepth, metrics.B.twoQubitLayerDepth, false);
+    const statesDiff   = measuredStates.A !== measuredStates.B;
+
     const insights: string[] = [];
-
-    if (efficiencyWinner === "A") {
-      insights.push(`Circuit A is ${efficiencyImprovementPercent(metrics.B.efficiencyScore, metrics.A.efficiencyScore)}% more efficient.`);
-    } else if (efficiencyWinner === "B") {
-      insights.push(`Circuit B is ${efficiencyImprovementPercent(metrics.A.efficiencyScore, metrics.B.efficiencyScore)}% more efficient.`);
-    }
-
-    if (depthWinner === "A") {
-      insights.push("Circuit A is faster due to lower depth.");
-    } else if (depthWinner === "B") {
-      insights.push("Circuit B is faster due to lower depth.");
-    }
-
-    if (gateWinner === "A") {
-      insights.push("Circuit A uses fewer gates.");
-    } else if (gateWinner === "B") {
-      insights.push("Circuit B uses fewer gates.");
-    }
-
-    if (statesDifferent) {
-      insights.push("Circuits produce different output distributions.");
-    }
-
-    if (twoQubitWinner === "A") {
-      insights.push("Circuit A carries two-qubit interactions deeper into the circuit.");
-    } else if (twoQubitWinner === "B") {
-      insights.push("Circuit B carries two-qubit interactions deeper into the circuit.");
-    }
-
-    if (insights.length === 0) {
-      insights.push("Both circuits are evenly matched across the current structural metrics.");
-    }
+    if      (effWinner === "A") insights.push(`Circuit A is ${efficiencyImprovementPercent(metrics.B.efficiencyScore, metrics.A.efficiencyScore)}% more efficient.`);
+    else if (effWinner === "B") insights.push(`Circuit B is ${efficiencyImprovementPercent(metrics.A.efficiencyScore, metrics.B.efficiencyScore)}% more efficient.`);
+    if      (depthWinner === "A") insights.push("Circuit A is faster due to lower depth.");
+    else if (depthWinner === "B") insights.push("Circuit B is faster due to lower depth.");
+    if      (gateWinner === "A") insights.push("Circuit A uses fewer gates.");
+    else if (gateWinner === "B") insights.push("Circuit B uses fewer gates.");
+    if (statesDiff) insights.push("Circuits produce different output distributions.");
+    if      (tqWinner === "A") insights.push("Circuit A carries two-qubit interactions deeper.");
+    else if (tqWinner === "B") insights.push("Circuit B carries two-qubit interactions deeper.");
+    if (insights.length === 0) insights.push("Both circuits are evenly matched.");
 
     let winner: "A" | "B" | "tie" = "tie";
     let summary = "Both circuits are similarly efficient overall.";
-
-    if (efficiencyWinner !== "tie") {
-      winner = efficiencyWinner;
-      summary = `Circuit ${winner} is more efficient overall on the weighted depth and gate-count score.`;
-    } else if (depthWinner !== "tie") {
-      winner = depthWinner;
-      summary = `Circuit ${winner} has the edge overall because depth most directly affects execution time.`;
-    } else if (gateWinner !== "tie") {
-      winner = gateWinner;
-      summary = `Circuit ${winner} is more efficient overall due to reduced gate count.`;
-    }
+    if      (effWinner   !== "tie") { winner = effWinner;   summary = `Circuit ${winner} is more efficient on the weighted depth + gate-count score.`; }
+    else if (depthWinner !== "tie") { winner = depthWinner; summary = `Circuit ${winner} has the edge — depth most directly affects execution time.`; }
+    else if (gateWinner  !== "tie") { winner = gateWinner;  summary = `Circuit ${winner} is more efficient due to reduced gate count.`; }
 
     return { insights, winner, summary };
-  }, [measuredStates.A, measuredStates.B, metrics.A.depth, metrics.A.efficiencyScore, metrics.A.gateCount, metrics.A.twoQubitLayerDepth, metrics.B.depth, metrics.B.efficiencyScore, metrics.B.gateCount, metrics.B.twoQubitLayerDepth]);
+  }, [measuredStates, metrics]);
 
   return (
-    <section style={{ background: "rgba(6,13,26,0.85)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 24, padding: 20, boxShadow: "0 0 0 1px rgba(0,212,255,0.04), 0 16px 48px rgba(0,0,0,0.6)", backdropFilter: "blur(12px)" }}>
+    <section style={{
+      background: T.bg,
+      border: `1px solid ${T.border}`,
+      borderRadius: 16,
+      padding: 20,
+      boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+    }}>
+      {/* ── Header ── */}
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
-            <div style={{ width: 3, height: 14, borderRadius: 2, background: "linear-gradient(180deg, #00d4ff, #a259ff)", boxShadow: "0 0 8px rgba(0,212,255,0.5)" }} />
-            <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 16, color: "#c8dff2", letterSpacing: "-0.01em" }}>Comparison Metrics</h2>
-          </div>
-          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "rgba(40,64,90,0.9)", letterSpacing: "0.04em" }}>
+          <h2 style={{ margin: 0, fontFamily: T.head, fontWeight: 700, fontSize: 18, color: T.text }}>
+            Comparison Metrics
+          </h2>
+          <p style={{ margin: "4px 0 0", fontFamily: T.mono, fontSize: 10, color: T.muted }}>
             Side-by-side circuit complexity and output analysis
           </p>
         </div>
 
-        <div style={{ display: "grid", gap: 10, minWidth: 280, maxWidth: 460 }}>
-          <div style={{ background: "rgba(2,6,15,0.7)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "10px 16px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
-              <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "rgba(40,64,90,0.8)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Winner
-              </div>
-              <div
-                style={{
-                  fontFamily: "JetBrains Mono, monospace",
-                  fontSize: 10,
-                  color: comparison.winner === "A" ? "#00d4ff" : comparison.winner === "B" ? "#a259ff" : "#c8dff2",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: 999,
-                  padding: "4px 10px",
-                  background: comparison.winner === "A"
-                    ? "rgba(0,212,255,0.08)"
-                    : comparison.winner === "B"
-                      ? "rgba(162,89,255,0.1)"
-                      : "rgba(255,255,255,0.03)",
-                }}
-              >
-                {comparison.winner === "tie" ? "Tie" : `Circuit ${comparison.winner}`}
-              </div>
+        {/* Summary cards */}
+        <div style={{ display: "grid", gap: 10, minWidth: 260, maxWidth: 440 }}>
+
+          {/* Winner card */}
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "12px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
+              <span style={{ fontFamily: T.mono, fontSize: 9, color: T.muted, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Overall winner
+              </span>
+              <WinnerBadge winner={comparison.winner} />
             </div>
-            <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 13, color: "#c8dff2", lineHeight: 1.45 }}>
+            <p style={{ margin: 0, fontFamily: T.head, fontWeight: 600, fontSize: 13, color: T.text, lineHeight: 1.45 }}>
               {comparison.summary}
-            </div>
+            </p>
           </div>
 
-          <div style={{ background: "rgba(2,6,15,0.7)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "10px 16px" }}>
-            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "rgba(40,64,90,0.8)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>
+          {/* Insights card */}
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: "12px 16px" }}>
+            <div style={{ fontFamily: T.mono, fontSize: 9, color: T.muted, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>
               Insights
             </div>
-            <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 6 }}>
+            <ul style={{ margin: 0, paddingLeft: 16, display: "grid", gap: 5 }}>
               {comparison.insights.map((insight) => (
-                <li key={insight} style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "rgba(200,223,242,0.7)", lineHeight: 1.5 }}>
+                <li key={insight} style={{ fontFamily: T.mono, fontSize: 10, color: T.text, lineHeight: 1.5 }}>
                   {insight}
                 </li>
               ))}
@@ -273,43 +275,84 @@ function ComparisonTableComponent() {
         </div>
       </div>
 
-      <div style={{ height: 1, marginBottom: 16, background: "linear-gradient(90deg, rgba(0,212,255,0.2) 0%, rgba(162,89,255,0.15) 50%, transparent 100%)" }} />
+      {/* ── Divider ── */}
+      <div style={{ height: 1, marginBottom: 16, background: T.borderRow }} />
 
-      <div style={{ overflow: "hidden", borderRadius: 16, border: "1px solid rgba(255,255,255,0.07)" }}>
+      {/* ── Table ── */}
+      <div style={{ overflow: "hidden", borderRadius: 12, border: `1px solid ${T.border}` }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "linear-gradient(90deg, rgba(0,212,255,0.06) 0%, rgba(162,89,255,0.04) 100%)" }}>
-              <th style={{ padding: "12px 18px", textAlign: "left", fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(40,64,90,0.9)", width: "36%", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Metric</th>
-              <th style={{ padding: "12px 18px", textAlign: "left", fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#00d4ff", width: "18%", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Algorithm A</th>
-              <th style={{ padding: "12px 18px", textAlign: "left", fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "#a259ff", width: "18%", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Algorithm B</th>
-              <th style={{ padding: "12px 18px", textAlign: "left", fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(200,223,242,0.55)", width: "28%", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>Insight</th>
+            <tr style={{ background: T.surface }}>
+              <th style={{ padding: "10px 16px", textAlign: "left", fontFamily: T.mono, fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: T.muted, width: "36%", borderBottom: `1px solid ${T.border}` }}>
+                Metric
+              </th>
+              {/* Circuit A header */}
+              <th style={{ padding: "10px 16px", textAlign: "left", fontFamily: T.mono, fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: T.a.text, width: "16%", borderBottom: `1px solid ${T.border}` }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: T.a.text, flexShrink: 0 }} />
+                  Circuit A
+                </span>
+              </th>
+              {/* Circuit B header */}
+              <th style={{ padding: "10px 16px", textAlign: "left", fontFamily: T.mono, fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: T.b.text, width: "16%", borderBottom: `1px solid ${T.border}` }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: T.b.text, flexShrink: 0 }} />
+                  Circuit B
+                </span>
+              </th>
+              <th style={{ padding: "10px 16px", textAlign: "left", fontFamily: T.mono, fontSize: 9, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: T.muted, width: "32%", borderBottom: `1px solid ${T.border}` }}>
+                Insight
+              </th>
             </tr>
           </thead>
+
           <tbody>
-            {rows.map((row, index) => {
-              const winner = getWinner(row.a, row.b, row.lowerIsBetter);
-              return (
-                <tr key={row.label} style={{ borderTop: index === 0 ? "none" : "1px solid rgba(255,255,255,0.05)", background: index % 2 === 0 ? "rgba(2,6,15,0.3)" : "transparent" }}>
-                  <td style={{ padding: "14px 18px" }}>
-                    <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 600, fontSize: 13, color: "#c8dff2", marginBottom: 2 }}>{row.label}</div>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "rgba(40,64,90,0.8)", letterSpacing: "0.03em", lineHeight: 1.4 }}>{row.description}</div>
-                  </td>
-                  <td style={{ padding: "14px 18px" }}>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: winner === "A" ? 600 : 400, fontSize: 14, color: winner === "A" ? "#00d4ff" : "rgba(200,223,242,0.6)", textShadow: winner === "A" ? "0 0 12px rgba(0,212,255,0.4)" : "none" }}>{row.a}</div>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "rgba(40,64,90,0.8)", marginTop: 5 }}>vs B: {getDifferenceLabel(row.b, row.a)}</div>
-                  </td>
-                  <td style={{ padding: "14px 18px" }}>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: winner === "B" ? 600 : 400, fontSize: 14, color: winner === "B" ? "#a259ff" : "rgba(200,223,242,0.6)", textShadow: winner === "B" ? "0 0 12px rgba(162,89,255,0.4)" : "none" }}>{row.b}</div>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "rgba(40,64,90,0.8)", marginTop: 5 }}>vs A: {row.differenceLabel}</div>
-                  </td>
-                  <td style={{ padding: "14px 18px" }}>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: winner === "A" ? "rgba(0,212,255,0.68)" : winner === "B" ? "rgba(162,89,255,0.68)" : "rgba(200,223,242,0.45)", lineHeight: 1.55 }}>
-                      {row.explanation}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+            {rows.map((row, index) => (
+              <tr
+                key={row.label}
+                style={{
+                  borderTop: index === 0 ? "none" : `1px solid ${T.borderRow}`,
+                  background: index % 2 === 0 ? T.bg : T.surface,
+                }}
+              >
+                {/* Metric label + description */}
+                <td style={{ padding: "13px 16px", verticalAlign: "top" }}>
+                  <div style={{ fontFamily: T.head, fontWeight: 600, fontSize: 13, color: T.text, marginBottom: 3 }}>
+                    {row.label}
+                  </div>
+                  <div style={{ fontFamily: T.mono, fontSize: 9, color: T.muted, lineHeight: 1.4 }}>
+                    {row.description}
+                  </div>
+                </td>
+
+                {/* A value */}
+                <ValueCell
+                  value={row.a}
+                  delta={`vs B: ${row.deltaA}`}
+                  isWinner={row.winner === "A"}
+                  circuit="A"
+                />
+
+                {/* B value */}
+                <ValueCell
+                  value={row.b}
+                  delta={`vs A: ${row.deltaB}`}
+                  isWinner={row.winner === "B"}
+                  circuit="B"
+                />
+
+                {/* Insight */}
+                <td style={{ padding: "13px 16px", verticalAlign: "top" }}>
+                  <div style={{
+                    fontFamily: T.mono, fontSize: 10,
+                    color: row.winner === "tie" ? T.muted : T.text,
+                    lineHeight: 1.55,
+                  }}>
+                    {row.explanation}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

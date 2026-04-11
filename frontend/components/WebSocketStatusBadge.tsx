@@ -3,40 +3,48 @@
 import { memo } from "react";
 import { SocketStatus } from "@/lib/types";
 
+// ── Status colour map — white design system ───────────────────────────────────
+// All colours use opaque values that are readable on white backgrounds.
+// No neon / dark-mode colours.
 const STATUS_STYLE: Record<
   SocketStatus,
-  { label: string; color: string; border: string; background: string }
+  { label: string; dot: string; text: string; border: string; background: string }
 > = {
   connecting: {
-    label: "Connecting",
-    color: "#ffb340",
-    border: "rgba(255,179,64,0.28)",
-    background: "rgba(255,179,64,0.08)"
+    label:      "Connecting",
+    dot:        "#F59E0B",   // amber-400
+    text:       "#92400E",   // amber-800
+    border:     "#FDE68A",   // amber-200
+    background: "#FFFBEB",   // amber-50
   },
   connected: {
-    label: "Connected",
-    color: "#00e5a0",
-    border: "rgba(0,229,160,0.28)",
-    background: "rgba(0,229,160,0.08)"
+    label:      "Connected",
+    dot:        "#10B981",   // emerald-500
+    text:       "#065F46",   // emerald-800
+    border:     "#A7F3D0",   // emerald-200
+    background: "#ECFDF5",   // emerald-50
   },
   running: {
-    label: "Running",
-    color: "#00d4ff",
-    border: "rgba(0,212,255,0.28)",
-    background: "rgba(0,212,255,0.08)"
+    label:      "Running",
+    dot:        "#3B82F6",   // blue-500
+    text:       "#1E3A8A",   // blue-900
+    border:     "#BFDBFE",   // blue-200
+    background: "#EFF6FF",   // blue-50
   },
   disconnected: {
-    label: "Disconnected",
-    color: "rgba(200,223,242,0.55)",
-    border: "rgba(255,255,255,0.08)",
-    background: "rgba(255,255,255,0.04)"
+    label:      "Disconnected",
+    dot:        "#9CA3AF",   // gray-400
+    text:       "#374151",   // gray-700
+    border:     "#E5E7EB",   // gray-200
+    background: "#F9FAFB",   // gray-50
   },
   error: {
-    label: "Error",
-    color: "#ff3860",
-    border: "rgba(255,56,96,0.28)",
-    background: "rgba(255,56,96,0.08)"
-  }
+    label:      "Error",
+    dot:        "#EF4444",   // red-500
+    text:       "#7F1D1D",   // red-900
+    border:     "#FECACA",   // red-200
+    background: "#FEF2F2",   // red-50
+  },
 };
 
 interface WebSocketStatusBadgeProps {
@@ -48,57 +56,75 @@ interface WebSocketStatusBadgeProps {
 export const WebSocketStatusBadge = memo(function WebSocketStatusBadge({
   status,
   message,
-  latencyMs
+  latencyMs,
 }: WebSocketStatusBadgeProps) {
-  const style = STATUS_STYLE[status];
+  const s = STATUS_STYLE[status];
 
   return (
     <div
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 10,
-        padding: "7px 11px",
+        gap: 7,
+        padding: "5px 12px",
         borderRadius: 999,
-        border: `1px solid ${style.border}`,
-        background: style.background
+        border: `1px solid ${s.border}`,
+        background: s.background,
       }}
     >
+      {/* Animated dot for running, static for others */}
       <span
         style={{
-          width: 8,
-          height: 8,
+          width: 7,
+          height: 7,
           borderRadius: "50%",
-          background: style.color,
-          boxShadow: `0 0 10px ${style.color}`,
-          animation: status === "running" ? "pulse-dot 1s ease-in-out infinite" : "none"
+          background: s.dot,
+          flexShrink: 0,
+          animation: status === "running"
+            ? "ws-pulse 1.1s ease-in-out infinite"
+            : "none",
         }}
       />
+
+      {/* Status label */}
       <span
         style={{
           fontFamily: "JetBrains Mono, monospace",
           fontSize: 10,
-          color: style.color,
+          fontWeight: 600,
+          color: s.text,
           letterSpacing: "0.08em",
-          textTransform: "uppercase"
+          textTransform: "uppercase",
         }}
       >
-        {style.label}
+        {s.label}
       </span>
-      {(message || latencyMs !== null) && (
+
+      {/* Optional message / latency */}
+      {(message || latencyMs != null) && (
         <span
           style={{
             fontFamily: "JetBrains Mono, monospace",
-            fontSize: 10,
-            color: "rgba(200,223,242,0.5)"
+            fontSize: 9,
+            color: s.text,
+            opacity: 0.65,
           }}
         >
-          {[message, latencyMs !== null ? `${latencyMs} ms` : null].filter(Boolean).join(" · ")}
+          {[message, latencyMs != null ? `${latencyMs}ms` : null]
+            .filter(Boolean)
+            .join(" · ")}
         </span>
       )}
+
+      {/* Pulse keyframe injected once */}
+      <style>{`
+        @keyframes ws-pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.35; }
+        }
+      `}</style>
     </div>
   );
 });
 
 export default WebSocketStatusBadge;
-

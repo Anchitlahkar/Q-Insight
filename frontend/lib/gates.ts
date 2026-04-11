@@ -14,7 +14,9 @@ export type GateType =
   // Multi-qubit
   | "CNOT" | "CZ" | "SWAP" | "CRX" | "CRY" | "CRZ"
   // Utility
-  | "M" | "I";
+  | "M" | "I"
+  // Composite circuit components
+  | "COMPONENT";
 
 export type GateCategory =
   | "Basic"
@@ -51,11 +53,11 @@ export const CATEGORY_ORDER: GateCategory[] = [
 
 // ── Category accent colors (used for section headers) ─────────────────────────
 export const CATEGORY_COLOR: Record<GateCategory, string> = {
-  Basic:    "#00d4ff",
-  Phase:    "#a259ff",
-  Rotation: "#ff5c7a",
-  Multi:    "#ffb340",
-  Utility:  "#6b7a99",
+  Basic:    "#3B82F6",
+  Phase:    "#3B82F6",
+  Rotation: "#8B5CF6",
+  Multi:    "#F59E0B",
+  Utility:  "#6B7280",
 };
 
 // ── Master gate list ──────────────────────────────────────────────────────────
@@ -66,28 +68,28 @@ export const GATES: GateDefinition[] = [
     label: "H",
     description: "Hadamard",
     category: "Basic",
-    color: "#00d4ff",
+    color: "#3B82F6",
   },
   {
     type: "X",
     label: "X",
     description: "Pauli-X",
     category: "Basic",
-    color: "#00e5a0",
+    color: "#3B82F6",
   },
   {
     type: "Y",
     label: "Y",
     description: "Pauli-Y",
     category: "Basic",
-    color: "#a259ff",
+    color: "#3B82F6",
   },
   {
     type: "Z",
     label: "Z",
     description: "Pauli-Z",
     category: "Basic",
-    color: "#ff5c7a",
+    color: "#3B82F6",
   },
 
   // ── Phase ─────────────────────────────────────────────────────────────────
@@ -96,28 +98,28 @@ export const GATES: GateDefinition[] = [
     label: "S",
     description: "S gate (√Z)",
     category: "Phase",
-    color: "#a259ff",
+    color: "#3B82F6",
   },
   {
     type: "SDG",
     label: "S†",
     description: "S-dagger",
     category: "Phase",
-    color: "#a259ff",
+    color: "#3B82F6",
   },
   {
     type: "T",
     label: "T",
     description: "T gate (π/8)",
     category: "Phase",
-    color: "#c084fc",
+    color: "#3B82F6",
   },
   {
     type: "TDG",
     label: "T†",
     description: "T-dagger",
     category: "Phase",
-    color: "#c084fc",
+    color: "#3B82F6",
   },
 
   // ── Rotation ──────────────────────────────────────────────────────────────
@@ -126,7 +128,7 @@ export const GATES: GateDefinition[] = [
     label: "Rx",
     description: "X-rotation",
     category: "Rotation",
-    color: "#ff5c7a",
+    color: "#8B5CF6",
     hasParameter: true,
     defaultTheta: Math.PI / 2,
   },
@@ -135,7 +137,7 @@ export const GATES: GateDefinition[] = [
     label: "Ry",
     description: "Y-rotation",
     category: "Rotation",
-    color: "#ff8c42",
+    color: "#8B5CF6",
     hasParameter: true,
     defaultTheta: Math.PI / 2,
   },
@@ -144,7 +146,7 @@ export const GATES: GateDefinition[] = [
     label: "Rz",
     description: "Z-rotation",
     category: "Rotation",
-    color: "#ffb340",
+    color: "#8B5CF6",
     hasParameter: true,
     defaultTheta: Math.PI / 2,
   },
@@ -155,7 +157,7 @@ export const GATES: GateDefinition[] = [
     label: "CX",
     description: "Controlled-X",
     category: "Multi",
-    color: "#ffb340",
+    color: "#F59E0B",
     isTwoQubit: true,
   },
   {
@@ -163,7 +165,7 @@ export const GATES: GateDefinition[] = [
     label: "CZ",
     description: "Controlled-Z",
     category: "Multi",
-    color: "#ffd166",
+    color: "#F59E0B",
     isTwoQubit: true,
   },
   {
@@ -171,7 +173,7 @@ export const GATES: GateDefinition[] = [
     label: "SW",
     description: "SWAP",
     category: "Multi",
-    color: "#f4a261",
+    color: "#F59E0B",
     isTwoQubit: true,
   },
   {
@@ -179,7 +181,7 @@ export const GATES: GateDefinition[] = [
     label: "CRx",
     description: "Controlled X-rotation",
     category: "Multi",
-    color: "#FFD166",
+    color: "#F59E0B",
     hasParameter: true,
     isTwoQubit: true,
     defaultTheta: Math.PI / 2,
@@ -189,7 +191,7 @@ export const GATES: GateDefinition[] = [
     label: "CRy",
     description: "Controlled Y-rotation",
     category: "Multi",
-    color: "#FFD166",
+    color: "#F59E0B",
     hasParameter: true,
     isTwoQubit: true,
     defaultTheta: Math.PI / 2,
@@ -199,7 +201,7 @@ export const GATES: GateDefinition[] = [
     label: "CRz",
     description: "Controlled Z-rotation",
     category: "Multi",
-    color: "#FFD166",
+    color: "#F59E0B",
     hasParameter: true,
     isTwoQubit: true,
     defaultTheta: Math.PI / 2,
@@ -211,14 +213,14 @@ export const GATES: GateDefinition[] = [
     label: "M",
     description: "Measure",
     category: "Utility",
-    color: "#ffd166",
+    color: "#16A34A",
   },
   {
     type: "I",
     label: "I",
     description: "Identity",
     category: "Utility",
-    color: "#6b7a99",
+    color: "#6B7280",
   },
 ];
 
@@ -233,6 +235,7 @@ export const GATE_MAP: Map<GateType, GateDefinition> = new Map(
 export const GATE_COLOR: Record<GateType, string> = Object.fromEntries(
   GATES.map((g) => [g.type, g.color])
 ) as Record<GateType, string>;
+GATE_COLOR.COMPONENT = "#3B82F6";
 
 /** Gates grouped by category, in CATEGORY_ORDER sequence */
 export const GATES_BY_CATEGORY: Record<GateCategory, GateDefinition[]> = (() => {
@@ -256,7 +259,12 @@ export function isMeasureGate(type: GateType): boolean {
   return type === "M";
 }
 
+export function isComponentType(type: GateType): boolean {
+  return type === "COMPONENT";
+}
+
 export function getGateLabel(type: GateType): string {
+  if (type === "COMPONENT") return "COMP";
   return GATE_MAP.get(type)?.label ?? type;
 }
 
