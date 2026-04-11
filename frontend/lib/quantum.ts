@@ -19,8 +19,35 @@ interface ComplexNumber {
   im: number;
 }
 
-function toComplex(amplitude: ComplexAmplitude): ComplexNumber {
-  return { re: amplitude.real, im: amplitude.imag };
+type ComplexLike = ComplexAmplitude | { re: number; im: number } | [number, number] | null | undefined;
+
+function toComplex(amplitude: ComplexLike): ComplexNumber {
+  if (!amplitude) {
+    return { re: 0, im: 0 };
+  }
+
+  if (Array.isArray(amplitude)) {
+    return {
+      re: typeof amplitude[0] === "number" ? amplitude[0] : 0,
+      im: typeof amplitude[1] === "number" ? amplitude[1] : 0,
+    };
+  }
+
+  if ("real" in amplitude && "imag" in amplitude) {
+    return {
+      re: typeof amplitude.real === "number" ? amplitude.real : 0,
+      im: typeof amplitude.imag === "number" ? amplitude.imag : 0,
+    };
+  }
+
+  if ("re" in amplitude && "im" in amplitude) {
+    return {
+      re: typeof amplitude.re === "number" ? amplitude.re : 0,
+      im: typeof amplitude.im === "number" ? amplitude.im : 0,
+    };
+  }
+
+  return { re: 0, im: 0 };
 }
 
 function absSquared(value: ComplexNumber) {
@@ -77,8 +104,8 @@ export function getBlochVectors(statevector: ComplexAmplitude[] | null, qubits: 
     for (let index = 0; index < amplitudes.length; index += 1) {
       if ((index & mask) !== 0) continue;
 
-      const alpha = amplitudes[index];
-      const beta = amplitudes[index | mask];
+      const alpha = amplitudes[index] ?? { re: 0, im: 0 };
+      const beta = amplitudes[index | mask] ?? { re: 0, im: 0 };
       const overlap = multiplyConjugate(alpha, beta);
 
       x += 2 * overlap.re;
