@@ -6,189 +6,40 @@ The app is designed around two parallel circuits, `A` and `B`, so you can build 
 
 ## Highlights
 
-- Dual-circuit workspace for `Circuit A` and `Circuit B`
-- Interactive SVG circuit builder with drag-and-drop gate placement
-- Sticky qubit labels, zoom controls, and measurement-aware wire rendering
-- Gate palette with support for single-qubit, controlled, and parametric gates
-- JSON editor with `replace` and `append` import modes
-- Built-in algorithm library with categorized presets
-- Ability to load presets as expanded gates or as reusable circuit components
-- WebSocket-backed simulation with connection state and reconnect control
-- Histogram views for basis-state distributions
-- Probability meter for measured classical bits
-- Comparison table for gate count, depth, measured states, and efficiency score
-- Deterministic explanation engine derived from actual circuit state evolution
-- Circuit explainer panel with tabbed views for:
-  - summary
-  - gate-by-gate explanations
-  - optimization suggestions
-  - backend comparison insights
-- Step-by-step visualization modal with:
-  - gate-by-gate playback
-  - live circuit highlighting
-  - Bloch sphere views
-  - live statevector histogram
-  - speed control and scrubbing
-- Backend support for standard simulation, step simulation, and a variational scan endpoint
+- **Dual-Circuit Workspace**: Build, simulate, and compare `Circuit A` and `Circuit B` side-by-side.
+- **Interactive Builder**: Drag-and-drop SVG canvas with sticky labels, zoom, and measurement-aware rendering.
+- **Deterministic Explainer**: Natural language insights derived from step-by-step state evolution.
+- **Stepwise Visualization**: Animated playback with live Bloch spheres and intermediate statevector histograms.
+- **Deep Analysis**: Automated optimization suggestions and efficiency scoring across circuits.
+- **Hybrid Support**: Integrated variational parameter sweep endpoint.
 
-## Tech Stack
+## System Pipeline
 
-- Frontend: Next.js, React, TypeScript, Zustand, Recharts
-- Backend: FastAPI, WebSocket, Qiskit, Qiskit Aer, NumPy
-- Communication: WebSocket at `/ws`
-- Deployment helpers:
-  - Railway-friendly backend config in `api/`
-  - Vercel-compatible frontend structure in `frontend/`
+1. **Frontend**: Circuit state is managed in Zustand and serialized into a flat gate list (expanding nested components).
+2. **Transport**: A persistent WebSocket connection transmits circuit payloads and receives real-time status/result events.
+3. **Backend**: A FastAPI server dispatches requests to Qiskit Aer for high-performance simulation.
+4. **Analysis**: The `explainer` engine calculates state transitions, detects redundancies, and compares circuit efficiency.
+5. **Visualization**: Step-by-step state capture enables interactive UI scrubbing and Bloch sphere inspection.
 
-## Project Structure
+## Features
 
-```text
-QHack/
-|- api/
-|  |- algorithms/
-|  |- compiler/
-|  |- hybrid/
-|  |- main.py
-|  |- requirements.txt
-|  |- Procfile
-|  `- runtime.txt
-|- frontend/
-|  |- app/
-|  |- components/
-|  |- hooks/
-|  |- lib/
-|  |- store/
-|  |- package.json
-|  `- tsconfig.json
-|- README.md
-|- working.md
-`- working.txt
-```
+### Circuit Builder & Palette
+- Support for 2-6 qubits.
+- Comprehensive gate library: Basic (H, X, Y, Z), Phase (S, T), Parametric (RX, RY, RZ), and Multi-qubit (CNOT, CZ, SWAP).
+- `COMPONENT` system for reusable sub-circuits.
+- Live probability meter and depth/gate-count metrics.
 
-## Frontend Features
+### Explainer & Optimization
+- **Summary Tab**: High-level overview of superposition and entanglement.
+- **Gates Tab**: Technical and intuitive breakdowns of every state transition.
+- **Optimization Tab**: Rule-based detection of redundant or mergeable gates.
+- **Comparison Tab**: Automated scoring and "winner" selection between A and B.
 
-### Circuit Builder
-
-- Switch between `Circuit A` and `Circuit B`
-- Set qubit count from `2` to `6`
-- Place gates by clicking pivots or dragging from the palette
-- Build controlled/two-qubit gates across wires
-- Delete placed operations directly from the canvas
-- Load mock starter circuits
-- Run the active circuit or run `A vs B`
-- View a collapsible explainer panel beside the builder
-- Click gate explanations to highlight matching operations on the canvas
-
-### Circuit Explainer
-
-The frontend includes `frontend/components/CircuitExplainer.tsx`, a reactive side-panel driven by the active circuit result in Zustand.
-
-Tabs:
-
-- `Summary`: circuit-level summary and measurement insight
-- `Gates`: collapsible gate-level explanations with before/after state strings
-- `Optimization`: rule-based cleanup suggestions from the backend
-- `Comparison`: backend comparison result when a `compare_to` circuit is included
-
-Notes:
-
-- The explainer updates from the same WebSocket payload as counts and statevector
-- It does not trigger additional requests
-- `Run A vs B` and single-circuit runs both send a `compare_to` payload so comparison data can be returned
-
-### Gate Palette
-
-Supported gate families:
-
-- Basic: `H`, `X`, `Y`, `Z`
-- Phase: `S`, `SDG`, `T`, `TDG`
-- Rotation: `RX`, `RY`, `RZ`
-- Multi-qubit: `CNOT`, `CZ`, `SWAP`, `CRX`, `CRY`, `CRZ`
-- Utility: `M`, `I`
-- Composite frontend-only canvas item: `COMPONENT`
-
-### JSON Editing
-
-The JSON editor accepts:
-
-- A full circuit object
-- A `{ "gates": [...] }` object
-- A bare array of gates
-- A single gate object
-
-Import modes:
-
-- `Replace`: clears the current circuit and loads the pasted JSON
-- `Append`: keeps the current circuit and appends imported gates after the last column
-
-### Algorithm Library
-
-The frontend includes categorized preset circuits from `frontend/lib/algorithms.json`, including categories such as:
-
-- Quantum Foundations
-- Search Algorithms
-- Fourier Algorithms
-- Variational Algorithms
-- Linear Algebra Algorithms
-- Quantum Communication
-- Post-Quantum Cryptography
-- Hardware Demonstrations
-
-Each preset can be loaded in two ways:
-
-- `Expanded`: convert the preset into regular gates in the active circuit
-- `Component`: add the preset as a reusable circuit block on the canvas
-
-Important distinction:
-
-- The frontend algorithm library is currently loaded client-side from `frontend/lib/algorithms.json`
-- The backend also has an `algorithm` execution mode, but the frontend currently simulates serialized gate lists rather than calling backend algorithm mode directly
-
-### Visualization
-
-The visualization panel supports:
-
-- step simulation over WebSocket
-- modal playback UI
-- animated mini-circuit with active gate highlighting
-- Bloch sphere inspection for each qubit
-- live histogram from stepwise statevectors
-- playback speed adjustment
-- scrubbing to any step
-
-## Backend Features
-
-### WebSocket Simulation
-
-The backend exposes a WebSocket endpoint at `/ws` and supports:
-
-- standard circuit simulation
-- step-by-step circuit simulation
-- error reporting and status events
-- statevector serialization when feasible
-- deterministic circuit explanation and optimization analysis
-- optional circuit-to-circuit comparison analysis
-
-### Explanation Engine
-
-The backend analysis layer lives in:
-
-- `api/analysis/explainer.py`
-
-It provides:
-
-- `explain_circuit(...)`
-- `compare_circuits(...)`
-- `suggest_optimizations(...)`
-
-The explanation flow is based on actual state evolution:
-
-- build the circuit from serialized gates
-- evolve a statevector gate by gate
-- generate per-gate before/after state summaries
-- infer circuit-level superposition and entanglement properties
-- explain dominant measurement outcomes from the observed amplitude distribution
-- detect rule-based optimization opportunities
+### Visualization & Tools
+- Full-screen visualization modal with playback speed control.
+- Per-qubit Bloch sphere rendering.
+- Integrated JSON editor for rapid circuit import/export.
+- Categorized algorithm library with presets for QFT, Grover's, and more.
 
 ### Variational Endpoint
 

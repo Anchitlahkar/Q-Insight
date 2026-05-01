@@ -14,39 +14,76 @@ This file is the Markdown handoff note for the current state of the project. It 
 - Backend explanation/insight engine is implemented
 - Frontend explainer panel is implemented and reads from the same WebSocket result object as the rest of the simulator
 
+## Detailed Project Pipeline
+
+The QHack platform operates as a distributed reactive system where the frontend manages the user-facing circuit state and the backend provides high-fidelity simulation and deep structural analysis.
+
+### 1. Frontend: State and Serialization
+
+- **Local State Management**: Circuit definitions (gates, qubits) are stored in `useCircuitStore.ts` using Zustand.
+- **Trigger**: When a user clicks "Run Circuit" or "Run A vs B", the current active circuit (and optionally the comparison target) is extracted.
+- **Component Expansion**: The `serializeCircuit` function in `frontend/lib/circuit.ts` recursively expands `COMPONENT` type gates into their primitive gate sequences.
+- **Payload Construction**: The final payload includes `qubits`, `gates` (fully serialized list), and an optional `compare_to` object containing the other circuit's definition.
+
+### 2. Communication: WebSocket Transport
+
+- **Channel**: A persistent WebSocket connection at `/ws` is managed by the `useWebSocket.ts` hook.
+- **Lifecycle**:
+  - `status`: Backend acknowledges receipt of the circuit.
+  - `error`: Backend reports validation or execution failures.
+  - `result`: Backend returns the completed simulation and analysis payload.
+- **Normalization**: The frontend ensures the backend URL is correctly formatted (normalizing `http` to `ws`).
+
+### 3. Backend: Compilation and Execution
+
+- **Entry Point**: `api/main.py` parses the incoming JSON.
+- **Gate Compilation**: `api/compiler/gate_compiler.py` performs low-level translations (e.g., decomposing `SWAP` gates) before the circuit is built in Qiskit.
+- **Simulation Modes**:
+  - **Standard (`circuit`)**: Builds a single `QuantumCircuit`, runs it through `AerSimulator` with 1024 shots. If no measurements are present and qubit count is $\le 8$, it captures the full statevector.
+  - **Stepwise (`step_simulation`)**: Iteratively builds circuit prefixes for every gate index, capturing intermediate statevectors at each step to support the frontend playback UI.
+  - **Algorithm (`algorithm`)**: Uses template builders in `api/algorithms/` to generate complex circuits like QFT or Grover's based on input parameters.
+
+### 4. Backend: Analysis and Enrichment
+
+Once simulation completes, the results are passed to the analysis layer in `api/analysis/explainer.py`.
+
+- **Deterministic Explanation**:
+  - The engine evolves a `Statevector` gate-by-gate.
+  - It generates `gate_explanations` with `technical` (state change), `intuitive` (semantic meaning), and `effect` summaries.
+  - It identifies `circuit_summary` properties: superposition, entanglement (via Von Neumann entropy), and dominant basis states.
+- **Optimization Engine**:
+  - Runs rule-based pattern matching on the gate list.
+  - Detects self-inverse pairs (H-H, X-X), inverse pairs (T-TDG), and mergeable rotations (RY(0.1)-RY(0.2)).
+- **Comparison Logic**:
+  - Computes a weighted efficiency score based on `depth`, `gate_count`, `redundancy_penalty`, and `output_similarity`.
+  - Determines a "winner" between Circuit A and B with human-readable reasoning.
+
+### 5. Frontend: Result Processing
+
+- **Zustand Update**: The `result` payload is stored in `useCircuitStore`.
+- **Reactive Re-render**:
+  - `Histogram.tsx`: Renders the probability distribution.
+  - `CircuitExplainer.tsx`: Populates the tabbed analysis panel.
+  - `ComparisonTable.tsx`: Updates side-by-side metrics.
+  - `VisualizationPanel.tsx`: If in step mode, initializes the playback state in `useVisualizationStore`.
+
 ## Main User Flows
 
 ### 1. Build and run a circuit
-
-1. User chooses active circuit `A` or `B`
-2. User places gates from the palette or loads an algorithm preset
-3. Circuit data is stored in Zustand
-4. Frontend serializes the circuit with `serializeCircuit(...)`
-5. Payload is sent over WebSocket
-6. Backend compiles and executes the circuit with Qiskit Aer
-7. Backend enriches the result with explanation, optimization suggestions, and optional comparison data
-8. Frontend receives counts, optional statevector, depth, gate count, explanation, comparison, and suggestions
-9. Histogram, metrics, comparison table, probability meter, and explainer panel update
+(See Pipeline sections 1-5 above)
 
 ### 2. Compare two circuits
-
-1. User edits both circuits in the same workspace
-2. User runs `A vs B`
-3. Each circuit is simulated independently and includes the other circuit as `compare_to`
-4. Results are stored separately in `useCircuitStore`
-5. Histograms, comparison metrics, and backend comparison insight render side by side
+1. User edits both circuits in the same workspace.
+2. User runs `A vs B`.
+3. Frontend sends the active circuit with the other as `compare_to`.
+4. Backend runs analysis on both and computes the comparison score.
+5. Frontend renders side-by-side histograms and the comparison reasoning.
 
 ### 3. Step visualization
-
-1. User opens `VisualizationPanel`
-2. User clicks `Visualize`
-3. Frontend sends a `mode: "step_simulation"` payload
-4. Backend returns a normal result plus a `steps` array
-5. `useVisualizationStore` tracks current step, play state, speed, and payload
-6. Modal playback renders:
-   - mini circuit strip with highlighted active gate
-   - Bloch spheres from the active step statevector
-   - live basis-state histogram from the active step statevector
+1. User clicks `Visualize` in `VisualizationPanel`.
+2. Frontend requests `mode: "step_simulation"`.
+3. Backend returns a list of intermediate statevectors.
+4. Frontend modal allows scrubbing through the circuit with live Bloch spheres.
 
 ## Frontend Architecture
 
