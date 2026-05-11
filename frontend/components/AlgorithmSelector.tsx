@@ -1,8 +1,11 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import algorithms from "@/lib/algorithms.json";
-import type { AlgorithmDefinition } from "@/lib/types";
+import { serializeCircuit } from "@/lib/circuit";
+import { variationalUrl, webSocketUrl } from "@/lib/env";
+import type { AlgorithmDefinition, VariationalRunResponse } from "@/lib/types";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
 type AlgorithmCatalog = Record<string, AlgorithmDefinition[]>;
@@ -39,10 +42,36 @@ function dragPayload(algorithm: AlgorithmDefinition, category: string) {
   });
 }
 
+function isVariationalAlgorithm(category: string, algorithm: AlgorithmDefinition) {
+  return algorithm.executionMode === "backend" || category === "Variational Algorithms";
+}
+
+function buildOptimizedVariationalDefinition(algorithm: AlgorithmDefinition, theta: number): AlgorithmDefinition {
+  const gates = [
+    ...Array.from({ length: algorithm.qubits }, (_, target) => ({ type: "RY" as const, target, theta })),
+    ...Array.from({ length: Math.max(algorithm.qubits - 1, 0) }, (_, control) => ({
+      type: "CNOT" as const,
+      control,
+      target: control + 1,
+    })),
+    ...Array.from({ length: algorithm.qubits }, (_, target) => ({ type: "M" as const, target })),
+  ];
+
+  return {
+    ...algorithm,
+    name: `${algorithm.name} (Optimized)`,
+    gates,
+  };
+}
+
 function AlgorithmSelectorComponent() {
   const activeCircuit          = useCircuitStore((s) => s.activeCircuit);
   const loadAlgorithm          = useCircuitStore((s) => s.loadAlgorithm);
   const loadAlgorithmComponent = useCircuitStore((s) => s.loadAlgorithmComponent);
+  const setResult              = useCircuitStore((s) => s.setResult);
+  const setSocketError         = useCircuitStore((s) => s.setSocketError);
+  const setIsRunning           = useCircuitStore((s) => s.setIsRunning);
+  const { simulateCircuit }    = useWebSocket(webSocketUrl);
 
   // Available categories (those that exist in the JSON)
   const availableCategories = useMemo(
@@ -51,6 +80,7 @@ function AlgorithmSelectorComponent() {
   );
 
   const [selectedCategory, setSelectedCategory] = useState<string>(availableCategories[0] ?? "");
+  const [optimizingId, setOptimizingId] = useState<string | null>(null);
 
   const currentAlgorithms = useMemo(
     () =>
@@ -59,6 +89,57 @@ function AlgorithmSelectorComponent() {
         category: selectedCategory,
       })),
     [selectedCategory]
+  );
+
+  const optimizeAlgorithm = useCallback(
+    async (algorithm: AlgorithmDefinition) => {
+      try {
+        setOptimizingId(algorithm.id);
+        setSocketError(null);
+        setIsRunning(true);
+
+        const response = await fetch(variationalUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            qubits: algorithm.qubits,
+            ...(algorithm.backendParams ?? {}),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Optimization failed with status ${response.status}.`);
+        }
+
+        const payload = (await response.json()) as VariationalRunResponse;
+        const optimized = buildOptimizedVariationalDefinition(algorithm, payload.best.theta);
+
+        loadAlgorithm(activeCircuit, optimized);
+
+        const result = await simulateCircuit(serializeCircuit({
+          qubits: optimized.qubits,
+          gates: optimized.gates.map((gate, index) => ({
+            id: `${optimized.id}-optimized-${index}`,
+            type: gate.type,
+            target: gate.target,
+            ...(gate.control !== undefined ? { control: gate.control } : {}),
+            ...(gate.theta !== undefined ? { theta: gate.theta } : {}),
+            position: { x: index * 68, y: gate.target * 84 },
+          })),
+        }));
+
+        setResult(activeCircuit, {
+          ...result,
+          variational: payload,
+        });
+      } catch (error) {
+        setSocketError(error instanceof Error ? error.message : "Optimization failed.");
+      } finally {
+        setIsRunning(false);
+        setOptimizingId(null);
+      }
+    },
+    [activeCircuit, loadAlgorithm, setIsRunning, setResult, setSocketError, simulateCircuit]
   );
 
   return (
@@ -192,6 +273,21 @@ function AlgorithmSelectorComponent() {
                 }}>
                   {algorithm.qubits}q
                 </span>
+                {isVariationalAlgorithm(selectedCategory, algorithm) && (
+                  <button
+                    type="button"
+                    onClick={() => void optimizeAlgorithm(algorithm)}
+                    disabled={optimizingId === algorithm.id}
+                    style={{
+                      borderRadius: 8, border: "1px solid #FDE68A", background: "#FFFBEB",
+                      color: "#B45309", padding: "4px 10px",
+                      fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: optimizingId === algorithm.id ? "progress" : "pointer",
+                      opacity: optimizingId === algorithm.id ? 0.8 : 1,
+                    }}
+                  >
+                    {optimizingId === algorithm.id ? "Optimizing..." : "Optimize"}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => loadAlgorithmComponent(activeCircuit, algorithm)}

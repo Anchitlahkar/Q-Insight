@@ -6,6 +6,7 @@ import type {
   CircuitExplanation,
   GateExplanation,
   OptimizationSuggestion,
+  VariationalRunResponse,
 } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
@@ -194,6 +195,61 @@ function OptimizationTab({ suggestions }: { suggestions: OptimizationSuggestion[
   );
 }
 
+function formatVariationalTheta(theta: number) {
+  return theta.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function VariationalSummary({ variational }: { variational: VariationalRunResponse }) {
+  return (
+    <article style={{
+      borderRadius: 10, border: `1.5px solid ${T.border}`,
+      background: T.surface, padding: "12px 14px", borderLeft: `3px solid ${T.emerald}`,
+    }}>
+      <SectionLabel color={T.emerald}>Variational Sweep</SectionLabel>
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
+          <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Theta</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.emerald, marginTop: 4 }}>{formatVariationalTheta(variational.best.theta)}</div>
+          </div>
+          <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Cost</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.indigo, marginTop: 4 }}>{variational.best.cost.toFixed(4)}</div>
+          </div>
+          <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Iterations</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.violet, marginTop: 4 }}>{variational.history.length}</div>
+          </div>
+        </div>
+        <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "10px 12px" }}>
+          <SectionLabel color={T.sky}>Sweep History</SectionLabel>
+          <div style={{ display: "grid", gap: 6 }}>
+            {variational.history.map((entry, index) => {
+              const active = entry.theta === variational.best.theta && entry.cost === variational.best.cost;
+              return (
+                <div key={`${entry.theta}-${index}`} style={{
+                  display: "grid",
+                  gridTemplateColumns: "40px 1fr 1fr",
+                  gap: 8,
+                  alignItems: "center",
+                  borderRadius: 7,
+                  padding: "6px 8px",
+                  background: active ? T.emeraldBg : T.surface,
+                  border: `1px solid ${active ? "#a7f3d0" : T.border}`,
+                }}>
+                  <span style={{ fontFamily: T.fontMono, fontSize: 10, color: active ? T.emerald : T.textMuted }}>#{index + 1}</span>
+                  <span style={{ fontFamily: T.fontMono, fontSize: 11, color: T.text }}>theta={formatVariationalTheta(entry.theta)}</span>
+                  <span style={{ fontFamily: T.fontMono, fontSize: 11, color: T.text, textAlign: "right" as const }}>cost={entry.cost.toFixed(4)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 // ─── Comparison tab ────────────────────────────────────────────────────────────
 function MetricRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
@@ -246,6 +302,7 @@ export function CircuitExplainer({
   const explanation   = result?.explanation;
   const comparison    = result?.comparison;
   const suggestions   = result?.suggestions ?? [];
+  const variational   = result?.variational;
 
   const tabs = useMemo<ExplainerTab[]>(
     () => (comparison ? ["summary", "gates", "optimization", "comparison"] : ["summary", "gates", "optimization"]),
@@ -328,7 +385,16 @@ export function CircuitExplainer({
             )
           )}
 
-          {resolvedTab === "optimization" && <OptimizationTab suggestions={suggestions} />}
+          {resolvedTab === "optimization" && (
+            variational || suggestions.length ? (
+              <div style={{ display: "grid", gap: 10 }}>
+                {variational && <VariationalSummary variational={variational} />}
+                <OptimizationTab suggestions={suggestions} />
+              </div>
+            ) : (
+              <EmptyState message="No optimization payload has arrived yet. Run a standard circuit or use Optimize on a variational preset to populate this tab." />
+            )
+          )}
           {resolvedTab === "comparison" && <ComparisonTab comparison={comparison} />}
         </div>
       )}
