@@ -651,7 +651,7 @@ export default function CircuitBuilder() {
       <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden" }}>
 
         {/* Left: Gate Palette — fixed width, scrollable */}
-        <div style={{ width: 252, flexShrink: 0, borderRight: `1.5px solid ${T.border}`, background: T.surface, overflowY: "auto" as const }}>
+        <div style={{padding:5, width: 293, flexShrink: 0, borderRight: `1.5px solid ${T.border}`, background: T.surface, overflowY: "auto" as const }}>
           <GatePalette
             selected={selectedGate}
             controlQubit={controlQubit}

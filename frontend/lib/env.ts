@@ -9,3 +9,12 @@ function normalizeWebSocketUrl(rawUrl: string | undefined) {
 }
 
 export const webSocketUrl = normalizeWebSocketUrl(process.env.NEXT_PUBLIC_WEBSOCKET_URL);
+
+function toHttpUrl(socketUrl: string) {
+  if (socketUrl.startsWith("ws://")) return `http://${socketUrl.slice("ws://".length)}`;
+  if (socketUrl.startsWith("wss://")) return `https://${socketUrl.slice("wss://".length)}`;
+  return socketUrl;
+}
+
+export const apiBaseUrl = toHttpUrl(webSocketUrl).replace(/\/ws\/?$/, "");
+export const variationalUrl = `${apiBaseUrl}/variational/run`;

@@ -87,6 +87,7 @@ export interface SimulationResult {
   explanation?: CircuitExplanation | null;
   comparison?: CircuitComparison | null;
   suggestions?: OptimizationSuggestion[];
+  variational?: VariationalRunResponse | null;
 }
 
 export type SocketStatus = "connecting" | "connected" | "running" | "disconnected" | "error";
@@ -122,6 +123,19 @@ export interface AlgorithmExecutionRequest {
   mode: "algorithm";
   algorithm: string;
   params?: Record<string, unknown>;
+}
+
+export interface VariationalRunEntry {
+  theta: number;
+  counts: Record<string, number>;
+  cost: number;
+  depth: number;
+  gate_count: number;
+}
+
+export interface VariationalRunResponse {
+  best: VariationalRunEntry;
+  history: VariationalRunEntry[];
 }
 
 export interface StepSimulationRequest extends SerializedCircuit {
