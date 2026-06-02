@@ -150,28 +150,28 @@ function AlgorithmSelectorComponent() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.38, ease: "easeOut" }}
       style={{
-      borderRadius: 18,
+      borderRadius: 20,
       border: "1px solid rgba(148,163,184,0.16)",
       background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
-      padding: 20,
+      padding: 24,
       display: "grid",
-      gap: 16,
+      gap: 20,
       boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
       backdropFilter: "blur(18px)",
     }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div>
           <h2 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 18, fontWeight: 700, color: "#E5E7EB" }}>
             Algorithm Library
           </h2>
-          <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.5 }}>
+          <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.6 }}>
             Select a category, then drag or load an algorithm into the active circuit.
           </p>
         </div>
         <div style={{
           borderRadius: 999, border: "1px solid rgba(34,211,238,0.28)", background: "rgba(34,211,238,0.10)",
-          color: "#67E8F9", padding: "5px 12px",
+          color: "#67E8F9", padding: "6px 14px",
           fontFamily: "JetBrains Mono, monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em",
           whiteSpace: "nowrap",
         }}>
@@ -185,7 +185,7 @@ function AlgorithmSelectorComponent() {
         They wrap naturally on small containers.
         No accordion — a single click switches the tile grid below instantly.
       */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {availableCategories.map((cat) => {
           const active = selectedCategory === cat;
           return (
@@ -194,11 +194,11 @@ function AlgorithmSelectorComponent() {
               type="button"
               onClick={() => setSelectedCategory(cat)}
               style={{
-                borderRadius: 8,
+                borderRadius: 10,
                 border: `1px solid ${active ? "rgba(34,211,238,0.36)" : "rgba(148,163,184,0.16)"}`,
                 background: active ? "rgba(34,211,238,0.13)" : "rgba(15,23,42,0.68)",
                 color: active ? "#67E8F9" : "#9CA3AF",
-                padding: "5px 11px",
+                padding: "6px 14px",
                 fontFamily: "JetBrains Mono, monospace",
                 fontSize: 10,
                 cursor: "pointer",
@@ -214,7 +214,7 @@ function AlgorithmSelectorComponent() {
       {/* ── Level 2: Tile grid for the selected category ── */}
       {currentAlgorithms.length === 0 ? (
         <div style={{
-          padding: "24px 0", textAlign: "center",
+          padding: "32px 0", textAlign: "center",
           fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
         }}>
           No algorithms in this category yet.
@@ -222,8 +222,8 @@ function AlgorithmSelectorComponent() {
       ) : (
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-          gap: 10,
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: 12,
         }}>
           {currentAlgorithms.map((algorithm) => (
             <motion.div
@@ -235,13 +235,13 @@ function AlgorithmSelectorComponent() {
                 dragEvent.dataTransfer.setData("application/x-qhack-operation", dragPayload(algorithm, selectedCategory));
               }}
               style={{
-                borderRadius: 14,
+                borderRadius: 16,
                 border: "1px solid rgba(148,163,184,0.16)",
                 background: "rgba(15,23,42,0.72)",
-                padding: "12px 14px",
+                padding: "16px 18px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
+                gap: 8,
                 cursor: "grab",
                 boxShadow: "0 14px 34px rgba(0,0,0,0.22)",
               }}

@@ -86,8 +86,8 @@ function GateButton({
       }}
       onDragEnd={() => onDragPreviewChange?.(null)}
       style={{
-        height: 44,
-        borderRadius: 12,
+        height: 48,
+        borderRadius: 14,
         border: `1px solid ${selected ? borderSel : borderUns}`,
         background: selected ? bgSelected : bgUnselected,
         color: gateColor,
@@ -100,6 +100,7 @@ function GateButton({
         alignItems: "center",
         justifyContent: "center",
       }}
+
       whileHover={{ y: -2, scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
     >
@@ -224,10 +225,10 @@ export const GatePalette = memo(function GatePalette({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       style={{
-      width: 280, minWidth: 280, maxWidth: 280,
-      borderRadius: 16, border: "1px solid rgba(148,163,184,0.16)",
-      background: "linear-gradient(180deg, rgba(15,23,42,0.82), rgba(8,13,27,0.82))", padding: 16,
-      display: "flex", flexDirection: "column", gap: 14,
+      width: 300, minWidth: 300, maxWidth: 300,
+      borderRadius: 18, border: "1px solid rgba(148,163,184,0.16)",
+      background: "linear-gradient(180deg, rgba(15,23,42,0.82), rgba(8,13,27,0.82))", padding: 20,
+      display: "flex", flexDirection: "column", gap: 18,
       /* Cap height and allow internal scroll so palette never pushes layout */
       maxHeight: "calc(100vh - 160px)",
       overflowY: "auto",
@@ -236,21 +237,21 @@ export const GatePalette = memo(function GatePalette({
       {/* Header */}
       <div>
         <h3 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 16, fontWeight: 700, color: "#E5E7EB" }}>Gate Palette</h3>
-        <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.5 }}>
+        <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.6 }}>
           Drag to circuit or click to select, then click a pivot.
         </p>
       </div>
 
       {/* Status hint */}
       <div style={{
-        borderRadius: 12, border: "1px solid rgba(34,211,238,0.18)", background: "rgba(34,211,238,0.08)",
-        padding: "8px 10px", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#BAE6FD", lineHeight: 1.5,
+        borderRadius: 14, border: "1px solid rgba(34,211,238,0.18)", background: "rgba(34,211,238,0.08)",
+        padding: "10px 12px", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#BAE6FD", lineHeight: 1.5,
       }}>
         {selectedSummary}
       </div>
 
       {/* Gate sections */}
-      <div style={{ display: "grid", gap: 14 }}>
+      <div style={{ display: "grid", gap: 18 }}>
         {PALETTE_SECTIONS.map((section) => (
           <section key={section.title} style={{ display: "grid", gap: 6 }}>
             {/* Category label with colour accent */}
@@ -324,3 +325,4 @@ export const GatePalette = memo(function GatePalette({
 });
 
 export default GatePalette;
+

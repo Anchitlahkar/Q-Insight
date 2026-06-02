@@ -10,7 +10,7 @@ export default function HomePage() {
     <main className="qhack-app-shell">
       <div className="qhack-shell-inner">
         <header className="qhack-header">
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
             <div className="qhack-header-logo">
               <Image src="/logo.png" alt="Quantum Lab logo" width={40} height={40} priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
@@ -26,8 +26,8 @@ export default function HomePage() {
         <CircuitBuilder />
         <VisualizationPanel />
 
-        <footer style={{ display: "grid", gap: 16 }}>
-          <section style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+        <footer style={{ display: "grid", gap: 24 }}>
+          <section style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 24 }}>
             <Histogram circuitKey="A" title="Circuit A Distribution" />
             <Histogram circuitKey="B" title="Circuit B Distribution" />
           </section>

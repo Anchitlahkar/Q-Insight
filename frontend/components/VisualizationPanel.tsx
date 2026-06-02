@@ -939,31 +939,31 @@ export default function VisualizationPanel() {
       <div style={{
         background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
         border: "1px solid rgba(148,163,184,0.16)",
-        borderRadius: 18,
+        borderRadius: 20,
         overflow: "hidden",
         boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
         backdropFilter: "blur(18px)",
       }}>
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
-          padding: "14px 18px",
+          padding: "18px 24px",
           borderBottom: collapsed ? "none" : "1px solid rgba(148,163,184,0.16)",
           background: "rgba(11,17,32,0.78)",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#E5E7EB" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 16, color: "#E5E7EB" }}>
               Visualization
             </span>
             <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: isVisualizing ? "#67E8F9" : "#9CA3AF" }}>
               {isVisualizing ? `step ${Math.max(currentStep + 1, 0)}/${steps.length}` : "idle"}
             </span>
           </div>
-          <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", gap: 10 }}>
             <button
               type="button"
               onClick={startVisualization}
               style={{
-                borderRadius: 8, padding: "6px 14px",
+                borderRadius: 10, padding: "8px 18px",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10, fontWeight: 600,
                 cursor: "pointer", border: "1px solid rgba(34,211,238,0.32)",
                 background: "rgba(34,211,238,0.12)", color: "#67E8F9",
@@ -975,7 +975,7 @@ export default function VisualizationPanel() {
               type="button"
               onClick={() => setCollapsed((v) => !v)}
               style={{
-                borderRadius: 8, padding: "6px 12px",
+                borderRadius: 10, padding: "8px 16px",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10,
                 cursor: "pointer", border: "1px solid rgba(148,163,184,0.16)",
                 color: "#9CA3AF", background: "rgba(15,23,42,0.72)",
@@ -987,7 +987,7 @@ export default function VisualizationPanel() {
         </div>
 
         {!collapsed && (
-          <div style={{ padding: 16 }}>
+          <div style={{ padding: 24 }}>
             {blochVectors.length === 0 ? (
               <div style={{
                 textAlign: "center", padding: "20px 0",

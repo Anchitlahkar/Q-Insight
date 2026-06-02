@@ -60,16 +60,16 @@ const T = {
 };
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
-const COL_W = 72;
-const LANE_H = 72;
-const TOP_PAD = 28;
-const BOT_PAD = 110;
+const COL_W = 80;
+const LANE_H = 80;
+const TOP_PAD = 36;
+const BOT_PAD = 120;
 const GATE_W = 48;
 const GATE_H = 38;
 const PIVOT_R = 7;
 const MIN_COLS = 10;
 const MAX_QUBITS = 6;
-const LABEL_COL_W = 72;
+const LABEL_COL_W = 80;
 
 const wireY = (q: number) => TOP_PAD + q * LANE_H + LANE_H / 2;
 const colX = (c: number) => c * COL_W + COL_W / 2;
@@ -619,23 +619,23 @@ export default function CircuitBuilder() {
 
       {/* ── Top toolbar ── */}
       <div style={{
-        display: "flex", alignItems: "center", padding: "12px 20px",
+        display: "flex", alignItems: "center", padding: "16px 24px",
         background: "rgba(11,17,32,0.86)", borderBottom: `1px solid ${T.border}`,
-        gap: 10, flexWrap: "wrap" as const,
+        gap: 12, flexWrap: "wrap" as const,
         backdropFilter: "blur(16px)",
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <h2 style={{ margin: 0, fontFamily: T.fontDisplay, fontSize: 20, fontWeight: 800, color: T.text, letterSpacing: "-0.02em" }}>
             Circuit Builder
           </h2>
-          <p style={{ margin: 0, fontFamily: T.fontMono, fontSize: 10, color: T.textMuted, marginTop: 2 }}>
+          <p style={{ margin: 0, fontFamily: T.fontMono, fontSize: 10, color: T.textMuted, marginTop: 4 }}>
             {selectedGate
               ? isTwoQubitGate(selectedGate) ? `${selectedGate} · connect two pivots` : `${selectedGate} selected · click or drop onto a pivot`
               : "Select a gate, click a wire to place, and click a gate to delete"}
           </p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" as const }}>
           {(["A", "B"] as CircuitKey[]).map((key) => (
             <TopBtn key={key} onClick={() => setActiveCircuit(key)}
               color={activeCircuit === key ? T.indigo : T.textMid}
@@ -670,7 +670,7 @@ export default function CircuitBuilder() {
       <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden" }}>
 
         {/* Left: Gate Palette — fixed width, scrollable */}
-        <div style={{padding:5, width: 293, flexShrink: 0, borderRight: `1px solid ${T.border}`, background: "rgba(8,13,27,0.78)", overflowY: "auto" as const }}>
+        <div style={{padding:12, width: 320, flexShrink: 0, borderRight: `1px solid ${T.border}`, background: "rgba(8,13,27,0.78)", overflowY: "auto" as const }}>
           <GatePalette
             selected={selectedGate}
             controlQubit={controlQubit}
@@ -690,11 +690,11 @@ export default function CircuitBuilder() {
         {/* Center: Circuit canvas — grows */}
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" as const, background: "radial-gradient(circle at 50% 0%, rgba(34,211,238,0.08), transparent 34rem), #050816" }}>
           {/* Sub-toolbar */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "8px 14px", borderBottom: `1px solid ${T.border}`, background: "rgba(11,17,32,0.72)", gap: 10, backdropFilter: "blur(14px)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "12px 20px", borderBottom: `1px solid ${T.border}`, background: "rgba(11,17,32,0.72)", gap: 12, backdropFilter: "blur(14px)" }}>
             <ZoomBar zoom={zoom} onChange={setZoom} />
           </div>
           {/* Canvas + probability meter */}
-          <div style={{ flex: 1, overflowY: "auto" as const, padding: 16, display: "grid", gap: 12, alignContent: "start" }}>
+          <div style={{ flex: 1, overflowY: "auto" as const, padding: 24, display: "grid", gap: 20, alignContent: "start" }}>
             <CircuitSVG
               circuit={circuit}
               selectedGate={selectedGate}
@@ -718,7 +718,7 @@ export default function CircuitBuilder() {
             />
             <ProbabilityMeter circuit={circuit} counts={results[activeCircuit]?.counts ?? null} />
 
-            <div style={{ padding: "0 16px 16px" }}>
+            <div style={{ padding: "0 24px 24px" }}>
               <CircuitExplainer
                 collapsed={explainerCollapsed}
                 onToggleCollapsed={() => setExplainerCollapsed((c) => !c)}
@@ -730,30 +730,30 @@ export default function CircuitBuilder() {
         </div>
 
         {/* Right: Inspector — fixed width, scrollable */}
-        <div style={{ width: 300, flexShrink: 0, borderLeft: `1px solid ${T.border}`, background: "rgba(8,13,27,0.84)", overflowY: "auto" as const, display: "flex", flexDirection: "column" as const }}>
+        <div style={{ width: 340, flexShrink: 0, borderLeft: `1px solid ${T.border}`, background: "rgba(8,13,27,0.84)", overflowY: "auto" as const, display: "flex", flexDirection: "column" as const }}>
 
           {/* Circuit JSON */}
-          <div style={{ padding: 16, borderBottom: `1px solid ${T.border}` }}>
+          <div style={{ padding: 20, borderBottom: `1px solid ${T.border}` }}>
             <CircuitJsonEditor circuitKey={activeCircuit} />
           </div>
 
           {/* Live Summary */}
-          <div style={{ padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 4, height: 18, borderRadius: 3, background: T.indigo }} />
-              <span style={{ fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 700, color: T.text }}>Live Summary</span>
+          <div style={{ padding: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+              <div style={{ width: 4, height: 20, borderRadius: 3, background: T.indigo }} />
+              <span style={{ fontFamily: T.fontDisplay, fontSize: 15, fontWeight: 700, color: T.text }}>Live Summary</span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <MetricCard label="Gate Count" value={metrics.gateCount} color={T.indigo} />
               <MetricCard label="Depth" value={metrics.depth} color={T.violet} />
               <MetricCard label="States · A" value={results["A"] ? Object.keys(results["A"]!.counts).length : "—"} color={T.emerald} />
               <MetricCard label="States · B" value={results["B"] ? Object.keys(results["B"]!.counts).length : "—"} color={T.amber} />
             </div>
 
-            <div style={{ marginTop: 8, borderRadius: 12, border: `1px solid ${T.border}`, background: "rgba(15,23,42,0.66)", padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+            <div style={{ marginTop: 12, borderRadius: 14, border: `1px solid ${T.border}`, background: "rgba(15,23,42,0.66)", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
               <span style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.14em" }}>Components</span>
-              <span style={{ fontFamily: T.fontDisplay, fontSize: 22, fontWeight: 800, color: T.teal }}>
+              <span style={{ fontFamily: T.fontDisplay, fontSize: 24, fontWeight: 800, color: T.teal }}>
                 {circuit.gates.filter((g) => isComponentType(g.type)).length}
               </span>
             </div>
