@@ -1,19 +1,5 @@
 "use client";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CircuitJsonEditor.tsx  — white design system colour scheme
-//
-// Accepts:
-//   • Full circuit  : { "qubits": 3, "gates": [...] }
-//   • Gates-only    : { "gates": [...] }
-//   • Bare array    : [ { "type": "H", "target": 0 }, ... ]
-//   • Single gate   : { "type": "H", "target": 0 }
-//
-// Two commit modes:
-//   Replace — clears the circuit, sets qubit count, loads all gates
-//   Append  — leaves existing gates, adds new ones after them
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { GATE_MAP, GateType, isParametricGate, isTwoQubitGate } from "@/lib/gates";
 import { CircuitKey, GateOperation } from "@/lib/types";
@@ -352,46 +338,48 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div style={{
-      background: T.bg,
-      border: `1px solid ${T.border}`,
-      borderRadius: 14,
-      padding: 14,
+      background: "var(--panel)",
+      border: "1px solid var(--border)",
+      borderRadius: 18,
+      padding: 18,
       display: "flex",
       flexDirection: "column",
-      gap: 10,
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+      gap: 12,
+      boxShadow: "var(--shadow-panel)",
+      backdropFilter: "blur(20px)",
     }}>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-          <h3 style={{ fontFamily: T.head, fontWeight: 700, fontSize: 13, color: T.text, margin: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <h3 style={{ fontFamily: T.head, fontWeight: 800, fontSize: 13, color: "var(--foreground)", margin: 0, textTransform: "uppercase", letterSpacing: "0.1em" }}>
             Circuit JSON
           </h3>
           {/* Circuit key badge */}
           <span style={{
-            fontFamily: T.mono, fontSize: 9,
-            color: T.accent, background: T.accentLight,
-            border: `1px solid ${T.accentBorder}`,
-            borderRadius: 999, padding: "1px 7px",
-            letterSpacing: "0.08em",
+            fontFamily: T.mono, fontSize: 9, fontWeight: 700,
+            color: "var(--accent)", background: "var(--hover)",
+            border: "1px solid var(--border-primary)",
+            borderRadius: 999, padding: "1px 8px",
+            letterSpacing: "0.1em",
           }}>
             {circuitKey}
           </span>
           {/* Dirty indicator */}
           {isDirty && (
             <span style={{
-              fontFamily: T.mono, fontSize: 8,
-              color: T.warn, background: T.warnLight,
-              border: `1px solid ${T.warnBorder}`,
-              borderRadius: 5, padding: "1px 6px", letterSpacing: "0.06em",
+              fontFamily: T.mono, fontSize: 8, fontWeight: 700,
+              color: "var(--warning)", background: "rgba(245,158,11,0.12)",
+              border: "1px solid rgba(245,158,11,0.28)",
+              borderRadius: 6, padding: "1px 7px", letterSpacing: "0.08em",
+              textTransform: "uppercase",
             }}>
               edited
             </span>
           )}
         </div>
 
-        <div style={{ display: "flex", gap: 5 }}>
+        <div style={{ display: "flex", gap: 6 }}>
           <IconBtn label="copy"  title="Copy JSON to clipboard" onClick={handleCopy} />
           {isDirty && (
             <IconBtn label="reset" title="Discard edits" onClick={handleReset} danger />
@@ -401,8 +389,8 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
 
       {/* Hint */}
       {!isDirty && (
-        <p style={{ fontFamily: T.mono, fontSize: 9, color: T.muted, margin: 0, lineHeight: 1.5 }}>
-          Edit or paste JSON · <kbd style={{ color: T.accent, fontStyle: "normal" }}>⌘/Ctrl+Enter</kbd> to replace · Append to merge
+        <p style={{ fontFamily: T.mono, fontSize: 9, color: "var(--muted)", margin: 0, lineHeight: 1.5 }}>
+          Edit or paste JSON · <kbd style={{ color: "var(--accent)", fontStyle: "normal" }}>⌘/Ctrl+Enter</kbd> to replace · Append to merge
         </p>
       )}
 
@@ -422,12 +410,12 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
             maxHeight: 320,
             resize: "vertical",
             background: T.bgSurface,
-            border: `1px solid ${isDirty ? T.accentBorder : T.border}`,
+            border: `1px solid ${isDirty ? T.accentBorder : "var(--border)"}`,
             borderRadius: 12,
             padding: "10px 12px",
             fontFamily: T.mono,
             fontSize: 10,
-            color: T.text,
+            color: "var(--foreground)",
             lineHeight: 1.7,
             outline: "none",
             boxSizing: "border-box",
@@ -438,7 +426,7 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
             display: "block",
           }}
           onFocus={(e) => { e.currentTarget.style.borderColor = T.borderFocus; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(34,211,238,0.10), 0 0 26px rgba(34,211,238,0.12)"; }}
-          onBlur={(e)  => { e.currentTarget.style.borderColor = isDirty ? T.accentBorder : T.border; e.currentTarget.style.boxShadow = "none"; }}
+          onBlur={(e)  => { e.currentTarget.style.borderColor = isDirty ? T.accentBorder : "var(--border)"; e.currentTarget.style.boxShadow = "none"; }}
         />
       </div>
 
@@ -446,7 +434,7 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
       {toast && <Toast kind={toast.kind} message={toast.msg} />}
 
       {/* Action buttons */}
-      <div style={{ display: "flex", gap: 7 }}>
+      <div style={{ display: "flex", gap: 8 }}>
         {/* Replace — primary */}
         <button
           type="button"
@@ -454,17 +442,33 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
           title="Clear circuit and load this JSON (Ctrl+Enter)"
           style={{
             flex: 1,
-            borderRadius: 10,
-            padding: "8px 0",
+            borderRadius: 12,
+            padding: "10px 0",
             fontFamily: T.head,
-            fontWeight: 700,
+            fontWeight: 800,
             fontSize: 11,
-            letterSpacing: "0.04em",
+            letterSpacing: "0.05em",
             cursor: "pointer",
-            border: `1px solid ${isDirty ? T.accentBorder : T.border}`,
-            background: isDirty ? "linear-gradient(135deg, rgba(34,211,238,0.18), rgba(139,92,246,0.16))" : "rgba(15,23,42,0.72)",
-            color: isDirty ? T.accent : T.muted,
-            transition: "all 0.15s",
+            border: isDirty ? `1px solid ${T.accentBorder}` : "1px solid var(--border)",
+            background: isDirty ? "linear-gradient(135deg, var(--hover), rgba(34,211,238,0.12))" : "var(--panel-secondary)",
+            color: isDirty ? "var(--accent)" : "var(--muted)",
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            boxShadow: isDirty ? "0 4px 12px rgba(34,211,238,0.12), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+            textTransform: "uppercase",
+          }}
+          onMouseEnter={(e) => {
+            if (isDirty) {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 6px 16px rgba(34,211,238,0.18), inset 0 1px 0 rgba(255,255,255,0.06)";
+              e.currentTarget.style.borderColor = "var(--accent)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (isDirty) {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(34,211,238,0.12), inset 0 1px 0 rgba(255,255,255,0.04)";
+              e.currentTarget.style.borderColor = T.accentBorder;
+            }
           }}
         >
           ↺ Replace
@@ -477,17 +481,33 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
           title="Keep existing gates and append new ones"
           style={{
             flex: 1,
-            borderRadius: 9,
-            padding: "8px 0",
+            borderRadius: 12,
+            padding: "10px 0",
             fontFamily: T.head,
-            fontWeight: 700,
+            fontWeight: 800,
             fontSize: 11,
-            letterSpacing: "0.04em",
+            letterSpacing: "0.05em",
             cursor: "pointer",
-            border: `1px solid ${isDirty ? "rgba(167,139,250,0.36)" : T.border}`,
-            background: isDirty ? "rgba(139,92,246,0.14)" : "rgba(15,23,42,0.72)",
-            color: isDirty ? "#C4B5FD" : T.muted,
-            transition: "all 0.15s",
+            border: isDirty ? "1px solid rgba(139,92,246,0.35)" : "1px solid var(--border)",
+            background: isDirty ? "rgba(139,92,246,0.12)" : "var(--panel-secondary)",
+            color: isDirty ? "var(--accent-secondary)" : "var(--muted)",
+            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            boxShadow: isDirty ? "0 4px 12px rgba(139,92,246,0.1), inset 0 1px 0 rgba(255,255,255,0.04)" : "none",
+            textTransform: "uppercase",
+          }}
+          onMouseEnter={(e) => {
+            if (isDirty) {
+              e.currentTarget.style.transform = "translateY(-1px)";
+              e.currentTarget.style.boxShadow = "0 6px 16px rgba(139,92,246,0.15), inset 0 1px 0 rgba(255,255,255,0.06)";
+              e.currentTarget.style.borderColor = "var(--accent-secondary)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (isDirty) {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(139,92,246,0.1), inset 0 1px 0 rgba(255,255,255,0.04)";
+              e.currentTarget.style.borderColor = "rgba(139,92,246,0.35)";
+            }
           }}
         >
           + Append

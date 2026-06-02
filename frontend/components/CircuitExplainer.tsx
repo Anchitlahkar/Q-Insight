@@ -10,30 +10,21 @@ import type {
 } from "@/lib/types";
 import { useCircuitStore } from "@/store/useCircuitStore";
 
-// ─── Design tokens (light vibrant) ────────────────────────────────────────────
+// ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
-  bg:          "#050816",
-  surface:     "rgba(15,23,42,0.78)",
-  panel:       "rgba(2,6,23,0.52)",
-  border:      "rgba(148,163,184,0.16)",
-  borderMid:   "rgba(34,211,238,0.30)",
-  text:        "#e5e7eb",
-  textMid:     "#cbd5e1",
-  textMuted:   "#9ca3af",
-  indigo:      "#22d3ee",
-  indigoBg:    "rgba(34,211,238,0.12)",
-  violet:      "#a78bfa",
-  violetBg:    "rgba(139,92,246,0.14)",
-  emerald:     "#34d399",
-  emeraldBg:   "rgba(52,211,153,0.12)",
-  amber:       "#f59e0b",
-  amberBg:     "rgba(245,158,11,0.12)",
-  rose:        "#f87171",
-  roseBg:      "rgba(248,113,113,0.12)",
-  sky:         "#38bdf8",
-  skyBg:       "rgba(56,189,248,0.12)",
-  fontMono:    "JetBrains Mono, ui-monospace, monospace",
-  fontDisplay: "Syne, ui-sans-serif, sans-serif",
+  bg:          "var(--panel)",
+  surface:     "var(--card)",
+  border:      "var(--border)",
+  text:        "var(--foreground)",
+  muted:       "var(--muted)",
+  accent:      "var(--accent)",
+  fontMono:    "JetBrains Mono, monospace",
+  fontDisplay: "Syne, sans-serif",
+  indigo:      "var(--accent)",
+  sky:         "var(--accent-secondary)",
+  emerald:     "var(--success)",
+  violet:      "var(--accent-secondary)",
+  amber:       "var(--warning)",
 };
 
 type ExplainerTab = "summary" | "gates" | "optimization" | "comparison";
@@ -49,20 +40,20 @@ interface CircuitExplainerProps {
 function EmptyState({ message }: { message: string }) {
   return (
     <div style={{
-      border: `1px dashed ${T.borderMid}`, borderRadius: 12, background: T.panel,
-      padding: "16px 14px", fontFamily: T.fontMono, fontSize: 11,
-      color: T.textMuted, lineHeight: 1.7,
+      border: "1px dashed var(--border)", borderRadius: 14, background: "var(--row-alt)",
+      padding: "20px 18px", fontFamily: T.fontMono, fontSize: 11,
+      color: "var(--muted)", lineHeight: 1.7, textAlign: "center",
     }}>
       {message}
     </div>
   );
 }
 
-function SectionLabel({ children, color = T.textMuted }: { children: React.ReactNode; color?: string }) {
+function SectionLabel({ children, color = "var(--muted)" }: { children: React.ReactNode; color?: string }) {
   return (
     <div style={{
-      fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
-      color, textTransform: "uppercase" as const, letterSpacing: "0.18em", marginBottom: 5,
+      fontFamily: T.fontMono, fontSize: 9, fontWeight: 800,
+      color, textTransform: "uppercase" as const, letterSpacing: "0.2em", marginBottom: 6,
     }}>
       {children}
     </div>
@@ -72,12 +63,15 @@ function SectionLabel({ children, color = T.textMuted }: { children: React.React
 function InfoCard({ title, body, accent = T.indigo }: { title: string; body: string; accent?: string }) {
   return (
     <article style={{
-      borderRadius: 12, border: `1px solid ${T.border}`, background: T.surface,
-      padding: "12px 14px", borderLeft: `3px solid ${accent}`,
-      boxShadow: `0 14px 34px rgba(0,0,0,0.20), 0 0 20px ${accent}12`,
+      borderRadius: 14,
+      border: "1px solid var(--border)",
+      background: "var(--card)",
+      padding: "14px 16px",
+      borderLeft: `4px solid ${accent}`,
+      boxShadow: "var(--shadow-card)",
     }}>
       <SectionLabel color={accent}>{title}</SectionLabel>
-      <p style={{ fontFamily: T.fontDisplay, fontSize: 13, lineHeight: 1.75, color: T.text, margin: 0 }}>{body}</p>
+      <p style={{ fontFamily: T.fontDisplay, fontSize: 13, lineHeight: 1.75, color: "var(--foreground)", margin: 0 }}>{body}</p>
     </article>
   );
 }
@@ -110,47 +104,48 @@ function GateExplanationItem({
 
   return (
     <article style={{
-      overflow: "hidden", borderRadius: 10,
-      border: `1px solid ${highlighted ? T.indigo : T.border}`,
-      background: highlighted ? T.indigoBg : T.surface,
-      transition: "border-color 0.2s, background 0.2s",
-      boxShadow: highlighted ? "0 0 0 3px rgba(34,211,238,0.12), 0 0 26px rgba(34,211,238,0.16)" : "none",
+      overflow: "hidden", borderRadius: 12,
+      border: highlighted ? `1px solid ${T.accent}` : "1px solid var(--border)",
+      background: highlighted ? "var(--hover)" : "var(--card)",
+      transition: "all 0.2s ease",
+      boxShadow: highlighted ? "var(--glow-cyan)" : "var(--shadow-card)",
     }}>
       <button type="button" onClick={handleToggle} style={{
         display: "flex", width: "100%", alignItems: "center",
-        justifyContent: "space-between", gap: 12, padding: "10px 14px",
+        justifyContent: "space-between", gap: 12, padding: "12px 16px",
         background: "transparent", border: "none", cursor: "pointer", textAlign: "left" as const,
       }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.indigo, letterSpacing: "0.15em", textTransform: "uppercase" as const }}>Gate {gateIndex+1}</div>
-          <div style={{ fontFamily: T.fontMono, fontSize: 12, fontWeight: 700, color: T.text, marginTop: 3 }}>{label}</div>
-          <div style={{ fontFamily: T.fontDisplay, fontSize: 11, color: T.textMid, marginTop: 2 }}>{gate.effect}</div>
+          <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.accent, letterSpacing: "0.15em", textTransform: "uppercase" as const, fontWeight: 700 }}>Gate {gateIndex+1}</div>
+          <div style={{ fontFamily: T.fontMono, fontSize: 12, fontWeight: 800, color: "var(--foreground)", marginTop: 4 }}>{label}</div>
+          <div style={{ fontFamily: T.fontDisplay, fontSize: 11, color: "var(--muted)", marginTop: 3 }}>{gate.effect}</div>
         </div>
         <span style={{
-          flexShrink: 0, borderRadius: 8, border: `1px solid ${open ? T.indigo : T.border}`,
-          background: open ? T.indigoBg : T.panel, padding: "3px 10px",
-          fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
-          color: open ? T.indigo : T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.1em",
+          flexShrink: 0, borderRadius: 8, border: "1px solid var(--border)",
+          background: open ? "var(--hover)" : "var(--panel-secondary)", padding: "4px 12px",
+          fontFamily: T.fontMono, fontSize: 9, fontWeight: 800,
+          color: open ? T.accent : "var(--muted)", textTransform: "uppercase" as const, letterSpacing: "0.08em",
+          transition: "all 0.15s ease",
         }}>
-          {open ? "Hide" : "View"}
+          {open ? "Hide" : "Details"}
         </span>
       </button>
 
-      <div style={{ display: "grid", gridTemplateRows: open ? "1fr" : "0fr", transition: "grid-template-rows 0.22s ease" }}>
+      <div style={{ display: "grid", gridTemplateRows: open ? "1fr" : "0fr", transition: "grid-template-rows 0.22s cubic-bezier(0.4, 0, 0.2, 1)" }}>
         <div style={{ overflow: "hidden" }}>
-          <div style={{ display: "grid", gap: 8, borderTop: `1px solid ${T.border}`, background: T.panel, padding: "12px 14px" }}>
+          <div style={{ display: "grid", gap: 10, borderTop: "1px solid var(--border)", background: "var(--panel-secondary)", padding: "14px 16px" }}>
             {([
-              { label: "Before",    content: gate.before_state, mono: true,  color: T.indigo  },
-              { label: "After",     content: gate.after_state,  mono: true,  color: T.emerald },
-              { label: "Technical", content: gate.technical,    mono: false, color: T.violet  },
-              { label: "Intuitive", content: gate.intuitive,    mono: false, color: T.sky     },
+              { label: "State Before", content: gate.before_state, mono: true,  color: T.indigo  },
+              { label: "State After",  content: gate.after_state,  mono: true,  color: T.emerald },
+              { label: "Technical",    content: gate.technical,    mono: false, color: T.violet  },
+              { label: "Interpretation", content: gate.intuitive,    mono: false, color: T.sky     },
             ] as const).map(({ label, content, mono, color }) => (
-              <div key={label} style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, padding: "10px 12px" }}>
+              <div key={label} style={{ borderRadius: 10, border: "1px solid var(--border)", background: "var(--card)", padding: "12px 14px", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)" }}>
                 <SectionLabel color={color}>{label}</SectionLabel>
                 <div style={{
                   fontFamily: mono ? T.fontMono : T.fontDisplay,
                   fontSize: mono ? 11 : 12, lineHeight: 1.7,
-                  color: mono ? color : T.text, wordBreak: "break-all" as const,
+                  color: mono ? color : "var(--foreground)", wordBreak: "break-all" as const,
                 }}>{content}</div>
               </div>
             ))}
@@ -184,12 +179,13 @@ function OptimizationTab({ suggestions }: { suggestions: OptimizationSuggestion[
     <div style={{ display: "grid", gap: 8 }}>
       {suggestions.map((s, index) => (
         <article key={`${s.issue}-${index}`} style={{
-          borderRadius: 12, border: `1px solid ${T.border}`,
-          background: T.amberBg, padding: "12px 14px", borderLeft: `3px solid ${T.amber}`,
+          borderRadius: 14, border: "1px solid var(--border)",
+          background: "var(--card)", padding: "14px 16px", borderLeft: `4px solid var(--warning)`,
+          boxShadow: "var(--shadow-card)",
         }}>
-          <div style={{ fontFamily: T.fontMono, fontSize: 11, fontWeight: 700, color: T.amber, marginBottom: 4 }}>{s.issue}</div>
-          <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, letterSpacing: "0.12em", textTransform: "uppercase" as const, marginBottom: 8 }}>{s.location}</div>
-          <p style={{ fontFamily: T.fontDisplay, fontSize: 12, lineHeight: 1.7, color: T.text, margin: 0 }}>{s.fix}</p>
+          <div style={{ fontFamily: T.fontMono, fontSize: 11, fontWeight: 700, color: "var(--warning)", marginBottom: 4 }}>{s.issue}</div>
+          <div style={{ fontFamily: T.fontMono, fontSize: 9, color: "var(--muted)", letterSpacing: "0.12em", textTransform: "uppercase" as const, marginBottom: 8 }}>{s.location}</div>
+          <p style={{ fontFamily: T.fontDisplay, fontSize: 12, lineHeight: 1.7, color: "var(--foreground)", margin: 0 }}>{s.fix}</p>
         </article>
       ))}
     </div>
@@ -203,27 +199,28 @@ function formatVariationalTheta(theta: number) {
 function VariationalSummary({ variational }: { variational: VariationalRunResponse }) {
   return (
     <article style={{
-      borderRadius: 12, border: `1px solid ${T.border}`,
-      background: T.surface, padding: "12px 14px", borderLeft: `3px solid ${T.emerald}`,
+      borderRadius: 14, border: "1px solid var(--border)",
+      background: "var(--card)", padding: "14px 16px", borderLeft: `4px solid var(--success)`,
+      boxShadow: "var(--shadow-card)",
     }}>
-      <SectionLabel color={T.emerald}>Variational Sweep</SectionLabel>
+      <SectionLabel color="var(--success)">Variational Sweep</SectionLabel>
       <div style={{ display: "grid", gap: 8 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
-          <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
-            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Theta</div>
-            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.emerald, marginTop: 4 }}>{formatVariationalTheta(variational.best.theta)}</div>
+          <div style={{ borderRadius: 10, border: "1px solid var(--border)", background: "var(--panel-secondary)", padding: "8px 10px" }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: "var(--muted)", textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Theta</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: "var(--success)", marginTop: 4 }}>{formatVariationalTheta(variational.best.theta)}</div>
           </div>
-          <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
-            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Cost</div>
-            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.indigo, marginTop: 4 }}>{variational.best.cost.toFixed(4)}</div>
+          <div style={{ borderRadius: 10, border: "1px solid var(--border)", background: "var(--panel-secondary)", padding: "8px 10px" }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: "var(--muted)", textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Cost</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: "var(--accent)", marginTop: 4 }}>{variational.best.cost.toFixed(4)}</div>
           </div>
-          <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
-            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Iterations</div>
-            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.violet, marginTop: 4 }}>{variational.history.length}</div>
+          <div style={{ borderRadius: 10, border: "1px solid var(--border)", background: "var(--panel-secondary)", padding: "8px 10px" }}>
+            <div style={{ fontFamily: T.fontMono, fontSize: 9, color: "var(--muted)", textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Iterations</div>
+            <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: "var(--accent-secondary)", marginTop: 4 }}>{variational.history.length}</div>
           </div>
         </div>
-        <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "10px 12px" }}>
-          <SectionLabel color={T.sky}>Sweep History</SectionLabel>
+        <div style={{ borderRadius: 10, border: "1px solid var(--border)", background: "var(--panel-secondary)", padding: "10px 12px" }}>
+          <SectionLabel color="var(--accent-secondary)">Sweep History</SectionLabel>
           <div style={{ display: "grid", gap: 6 }}>
             {variational.history.map((entry, index) => {
               const active = entry.theta === variational.best.theta && entry.cost === variational.best.cost;
@@ -235,12 +232,12 @@ function VariationalSummary({ variational }: { variational: VariationalRunRespon
                   alignItems: "center",
                   borderRadius: 7,
                   padding: "6px 8px",
-                  background: active ? T.emeraldBg : T.surface,
-                  border: `1px solid ${active ? "rgba(52,211,153,0.34)" : T.border}`,
+                  background: active ? "var(--hover)" : "var(--card)",
+                  border: `1px solid ${active ? "var(--border-primary)" : "var(--border)"}`,
                 }}>
-                  <span style={{ fontFamily: T.fontMono, fontSize: 10, color: active ? T.emerald : T.textMuted }}>#{index + 1}</span>
-                  <span style={{ fontFamily: T.fontMono, fontSize: 11, color: T.text }}>theta={formatVariationalTheta(entry.theta)}</span>
-                  <span style={{ fontFamily: T.fontMono, fontSize: 11, color: T.text, textAlign: "right" as const }}>cost={entry.cost.toFixed(4)}</span>
+                  <span style={{ fontFamily: T.fontMono, fontSize: 10, color: active ? "var(--success)" : "var(--muted)" }}>#{index + 1}</span>
+                  <span style={{ fontFamily: T.fontMono, fontSize: 11, color: "var(--foreground)" }}>theta={formatVariationalTheta(entry.theta)}</span>
+                  <span style={{ fontFamily: T.fontMono, fontSize: 11, color: "var(--foreground)", textAlign: "right" as const }}>cost={entry.cost.toFixed(4)}</span>
                 </div>
               );
             })}
@@ -256,10 +253,10 @@ function MetricRow({ label, value, accent }: { label: string; value: string; acc
   return (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, padding: "7px 12px",
+      borderRadius: 10, border: "1px solid var(--border)", background: "var(--card)", padding: "7px 12px",
     }}>
-      <span style={{ fontFamily: T.fontDisplay, fontSize: 12, color: T.textMid }}>{label}</span>
-      <span style={{ fontFamily: T.fontMono, fontSize: 12, fontWeight: 700, color: accent ? T.indigo : T.text }}>{value}</span>
+      <span style={{ fontFamily: T.fontDisplay, fontSize: 12, color: "var(--muted)" }}>{label}</span>
+      <span style={{ fontFamily: T.fontMono, fontSize: 12, fontWeight: 700, color: accent ? "var(--accent)" : "var(--foreground)" }}>{value}</span>
     </div>
   );
 }
@@ -283,8 +280,8 @@ function ComparisonTab({ comparison }: { comparison: CircuitComparison | null | 
   return (
     <div style={{ display: "grid", gap: 10 }}>
       <InfoCard title="Comparison Reasoning" body={comparison.reasoning} accent={T.emerald} />
-      <article style={{ borderRadius: 10, border: `1.5px solid ${T.border}`, background: T.surface, padding: "12px 14px" }}>
-        <SectionLabel color={T.indigo}>Key Metrics</SectionLabel>
+      <article style={{ borderRadius: 14, border: "1px solid var(--border)", background: "var(--card)", padding: "12px 14px", boxShadow: "var(--shadow-card)" }}>
+        <SectionLabel color="var(--accent)">Key Metrics</SectionLabel>
         <div style={{ display: "grid", gap: 6 }}>
           {rows.map((r) => <MetricRow key={r.label} label={r.label} value={r.value} accent={r.accent} />)}
         </div>
@@ -313,31 +310,38 @@ export function CircuitExplainer({
   const resolvedTab = tabs.includes(activeTab) ? activeTab : tabs[0];
 
   const tabConfig: Record<ExplainerTab, { label: string; color: string; bg: string }> = {
-    summary:      { label: "Summary",  color: T.indigo,  bg: T.indigoBg  },
-    gates:        { label: "Gates",    color: T.violet,  bg: T.violetBg  },
-    optimization: { label: "Optimize", color: T.amber,   bg: T.amberBg   },
-    comparison:   { label: "A vs B",   color: T.emerald, bg: T.emeraldBg },
+    summary:      { label: "Summary",  color: "var(--accent)",           bg: "var(--hover)"  },
+    gates:        { label: "Gates",    color: "var(--accent-secondary)", bg: "rgba(139,92,246,0.14)"  },
+    optimization: { label: "Optimize", color: "var(--warning)",          bg: "rgba(245,158,11,0.12)"   },
+    comparison:   { label: "A vs B",   color: "var(--success)",          bg: "rgba(52,211,153,0.12)" },
   };
 
   return (
-    <aside style={{ borderRadius: 16, border: `1px solid ${T.border}`, background: "linear-gradient(180deg, rgba(15,23,42,0.78), rgba(8,13,27,0.78))", overflow: "hidden", boxShadow: "0 18px 48px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+    <aside style={{
+      borderRadius: 16,
+      border: "1px solid var(--border)",
+      background: "var(--panel)",
+      overflow: "hidden",
+      boxShadow: "var(--shadow-panel)",
+      backdropFilter: "blur(20px)",
+    }}>
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        gap: 12, borderBottom: `1px solid ${T.border}`, padding: "12px 16px",
-        background: "linear-gradient(90deg, rgba(34,211,238,0.12), rgba(139,92,246,0.10))",
+        gap: 12, borderBottom: "1px solid var(--border)", padding: "14px 18px",
+        background: "rgba(15, 23, 42, 0.4)",
       }}>
         <div>
-          <div style={{ fontFamily: T.fontMono, fontSize: 9, fontWeight: 700, color: T.indigo, textTransform: "uppercase" as const, letterSpacing: "0.18em" }}>
+          <div style={{ fontFamily: T.fontMono, fontSize: 9, fontWeight: 700, color: "var(--accent)", textTransform: "uppercase" as const, letterSpacing: "0.2em" }}>
             Insight Engine
           </div>
-          <div style={{ marginTop: 2, fontFamily: T.fontDisplay, fontSize: 13, fontWeight: 700, color: T.text }}>
-            Circuit {activeCircuit} explainer
+          <div style={{ marginTop: 3, fontFamily: T.fontDisplay, fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>
+            Circuit {activeCircuit} analysis
           </div>
         </div>
-        <button type="button" onClick={onToggleCollapsed} style={{
-          borderRadius: 8, border: `1px solid ${T.borderMid}`, background: "rgba(15,23,42,0.76)",
-          color: T.indigo, padding: "4px 12px", fontFamily: T.fontMono,
+        <button type="button" onClick={onToggleCollapsed} className="quantum-button" style={{
+          borderRadius: 8, border: "1px solid var(--border)", background: "var(--card)",
+          color: "var(--accent)", padding: "5px 14px", fontFamily: T.fontMono,
           fontSize: 9, fontWeight: 700, cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase" as const,
         }}>
           {collapsed ? "Expand" : "Collapse"}
@@ -345,19 +349,23 @@ export function CircuitExplainer({
       </div>
 
       {!collapsed && (
-        <div style={{ padding: 14, display: "grid", gap: 12 }}>
+        <div style={{ padding: 16, display: "grid", gap: 14 }}>
           {/* Tabs */}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, padding: 3, background: "var(--row-alt)", borderRadius: 12, border: "1px solid var(--border)" }}>
             {tabs.map((tab) => {
               const cfg = tabConfig[tab];
               const active = resolvedTab === tab;
               return (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)} style={{
-                  borderRadius: 9, border: `1px solid ${active ? cfg.color : T.border}`,
-                  background: active ? `linear-gradient(135deg, ${cfg.bg}, rgba(15,23,42,0.70))` : T.panel,
-                  color: active ? cfg.color : T.textMid,
-                  padding: "5px 13px", fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
-                  cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase" as const,
+                  flex: 1,
+                  borderRadius: 9,
+                  border: active ? `1px solid ${cfg.color}55` : "1px solid transparent",
+                  background: active ? "var(--card)" : "transparent",
+                  color: active ? cfg.color : "var(--muted)",
+                  padding: "6px 12px", fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
+                  cursor: "pointer", letterSpacing: "0.08em", textTransform: "uppercase" as const,
+                  transition: "all 0.15s ease",
+                  boxShadow: active ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
                 }}>
                   {cfg.label}
                 </button>

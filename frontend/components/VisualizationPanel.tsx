@@ -575,7 +575,7 @@ function VisualizationModal({
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
         display: "flex", alignItems: "center", justifyContent: "center",
-        background: "rgba(2,6,23,0.76)",
+        background: "rgba(2,6,23,0.45)",
         backdropFilter: "blur(18px)",
         animation: "vizIn 0.18s ease",
       }}
@@ -589,10 +589,10 @@ function VisualizationModal({
       <div style={{
         width: "min(96vw, 1340px)",
         height: "min(94vh, 920px)",
-        background: "linear-gradient(180deg, rgba(11,17,32,0.96), rgba(5,8,22,0.96))",
-        border: "1px solid rgba(148,163,184,0.18)",
+        background: "var(--panel)",
+        border: "1px solid var(--border)",
         borderRadius: 22,
-        boxShadow: "0 44px 120px rgba(0,0,0,0.62), 0 0 60px rgba(34,211,238,0.10), inset 0 1px 0 rgba(255,255,255,0.05)",
+        boxShadow: "var(--shadow-panel)",
         display: "flex", flexDirection: "column",
         overflow: "hidden",
       }}>
@@ -602,27 +602,27 @@ function VisualizationModal({
           flexShrink: 0, display: "flex", alignItems: "center",
           justifyContent: "space-between",
           padding: "12px 18px",
-          borderBottom: "1px solid rgba(148,163,184,0.16)",
-          background: "rgba(11,17,32,0.84)",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--panel)",
           backdropFilter: "blur(16px)",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             {/* Live indicator dot */}
             <span style={{
               width: 9, height: 9, borderRadius: "50%", flexShrink: 0,
-              background: isPlaying ? "#22D3EE" : "rgba(148,163,184,0.42)",
+              background: isPlaying ? "var(--accent)" : "var(--muted)",
               display: "inline-block",
-              boxShadow: isPlaying ? "0 0 0 3px rgba(59,130,246,0.2)" : "none",
+              boxShadow: isPlaying ? "var(--glow-cyan)" : "none",
               animation: isPlaying ? "live-dot 1.1s ease-in-out infinite" : "none",
               transition: "all 0.3s",
             }} />
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#E5E7EB" }}>
+            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>
               Circuit Visualization
             </span>
             <span style={{
               fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-              color: "#9CA3AF", padding: "2px 8px",
-              borderRadius: 6, border: "1px solid rgba(148,163,184,0.16)",
+              color: "var(--muted)", padding: "2px 8px",
+              borderRadius: 6, border: "1px solid var(--border)",
             }}>
               {circuit.qubits}q · {circuit.gates.length} gates
             </span>
@@ -632,7 +632,7 @@ function VisualizationModal({
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10,
                 color: gateColor, padding: "3px 10px", borderRadius: 6,
                 border: `1px solid ${gateColor}40`,
-                background: `${gateColor}12`,
+                background: "var(--hover)",
               }}>
                 ▶ {gateLabel}
               </span>
@@ -640,7 +640,7 @@ function VisualizationModal({
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF" }}>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)" }}>
               {isVisualizing
                 ? `step ${Math.max(currentStep + 1, 0)} / ${steps.length}`
                 : "idle"} · ESC to close
@@ -649,20 +649,20 @@ function VisualizationModal({
               type="button" onClick={onClose}
               style={{
                 width: 30, height: 30, borderRadius: 7,
-                border: "1px solid rgba(148,163,184,0.16)",
-                background: "rgba(15,23,42,0.72)", color: "#9CA3AF",
+                border: "1px solid var(--border)",
+                background: "var(--card)", color: "var(--muted)",
                 cursor: "pointer", fontSize: 15,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 transition: "all 0.12s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(248,113,113,0.12)"; e.currentTarget.style.color = "#F87171"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15,23,42,0.72)"; e.currentTarget.style.color = "#9CA3AF"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--hover)"; e.currentTarget.style.color = "var(--danger)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "var(--card)"; e.currentTarget.style.color = "var(--muted)"; }}
             >✕</button>
           </div>
         </div>
 
         {/* ── Progress bar ── */}
-        <div style={{ flexShrink: 0, height: 3, background: "rgba(148,163,184,0.10)" }}>
+        <div style={{ flexShrink: 0, height: 3, background: "var(--row-alt)" }}>
           <div style={{
             height: "100%",
             width: `${progress}%`,
@@ -675,8 +675,8 @@ function VisualizationModal({
         {/* ── Playback controls ── */}
         <div style={{
           flexShrink: 0, display: "flex", alignItems: "center", gap: 10,
-          padding: "9px 18px", borderBottom: "1px solid rgba(148,163,184,0.16)",
-          background: "rgba(8,13,27,0.78)", flexWrap: "wrap",
+          padding: "9px 18px", borderBottom: "1px solid var(--border)",
+          background: "var(--panel-secondary)", flexWrap: "wrap",
         }}>
           <button
             type="button"
@@ -686,9 +686,9 @@ function VisualizationModal({
               borderRadius: 8, padding: "6px 16px",
               fontFamily: "JetBrains Mono, monospace", fontSize: 11, fontWeight: 600,
               cursor: steps.length === 0 ? "not-allowed" : "pointer",
-              border: isPlaying ? "1px solid rgba(245,158,11,0.36)" : "1px solid rgba(34,211,238,0.32)",
-              color: isPlaying ? "#FCD34D" : "#67E8F9",
-              background: isPlaying ? "rgba(245,158,11,0.12)" : "rgba(34,211,238,0.12)",
+              border: isPlaying ? "1px solid var(--warning)" : "1px solid var(--border-primary)",
+              color: isPlaying ? "var(--warning)" : "var(--accent)",
+              background: "var(--hover)",
               opacity: steps.length === 0 ? 0.5 : 1, transition: "all 0.15s",
             }}
           >
@@ -701,21 +701,21 @@ function VisualizationModal({
             value={Math.max(0, currentStep)}
             onChange={(e) => { onPause(); onStepChange(Number(e.target.value)); }}
             disabled={steps.length === 0}
-            style={{ flex: 1, accentColor: "#22D3EE", cursor: "pointer" }}
+            style={{ flex: 1, accentColor: "var(--accent)", cursor: "pointer" }}
           />
 
           {/* Speed */}
           <label style={{
             display: "flex", alignItems: "center", gap: 7,
-            fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
+            fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
           }}>
             Speed
             <input
               type="range" min="100" max="1500" step="100" value={speedMs}
               onChange={(e) => onSpeedChange(Number(e.target.value))}
-              style={{ width: 72, accentColor: "#22D3EE" }}
+              style={{ width: 72, accentColor: "var(--accent)" }}
             />
-            <span style={{ minWidth: 42, color: "#374151" }}>{speedMs}ms</span>
+            <span style={{ minWidth: 42, color: "var(--foreground)" }}>{speedMs}ms</span>
           </label>
         </div>
 
@@ -725,15 +725,15 @@ function VisualizationModal({
           {/* Circuit strip */}
           <div style={{
             flexShrink: 0,
-            borderBottom: "1px solid rgba(148,163,184,0.16)",
-            background: "rgba(2,6,23,0.42)",
+            borderBottom: "1px solid var(--border)",
+            background: "var(--canvas)",
             overflow: "auto",
             padding: "10px 16px",
             maxHeight: "44%",
           }}>
             <div style={{
               fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-              color: "#9CA3AF", letterSpacing: "0.08em",
+              color: "var(--muted)", letterSpacing: "0.08em",
               textTransform: "uppercase", marginBottom: 6,
             }}>
               Circuit · step {currentStep >= 0 ? currentStep + 1 : "—"} highlighted
@@ -746,12 +746,12 @@ function VisualizationModal({
           </div>
 
           {/* Visualization panel */}
-          <div style={{ flex: 1, overflow: "auto", padding: "14px 18px" }}>
+          <div style={{ flex: 1, overflow: "auto", padding: "14px 18px", background: "var(--background)" }}>
 
             {/* ── Tab strip ── */}
             <div style={{
               display: "flex", gap: 4, marginBottom: 14,
-              borderBottom: "1px solid rgba(148,163,184,0.16)", paddingBottom: 10,
+              borderBottom: "1px solid var(--border)", paddingBottom: 10,
               alignItems: "center", justifyContent: "space-between",
             }}>
               <div style={{ display: "flex", gap: 4 }}>
@@ -764,9 +764,9 @@ function VisualizationModal({
                       onClick={() => setVizTab(tab)}
                       style={{
                         borderRadius: 8,
-                        border: `1px solid ${active ? "rgba(34,211,238,0.32)" : "rgba(148,163,184,0.16)"}`,
-                        background: active ? "rgba(34,211,238,0.12)" : "rgba(15,23,42,0.72)",
-                        color: active ? "#67E8F9" : "#9CA3AF",
+                        border: `1px solid ${active ? "var(--border-primary)" : "var(--border)"}`,
+                        background: active ? "var(--hover)" : "var(--card)",
+                        color: active ? "var(--accent)" : "var(--muted)",
                         padding: "5px 16px",
                         fontFamily: "JetBrains Mono, monospace",
                         fontSize: 10, fontWeight: active ? 600 : 400,
@@ -784,7 +784,7 @@ function VisualizationModal({
               {activeGate && (
                 <div style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)",
                 }}>
                   <span style={{
                     width: 7, height: 7, borderRadius: "50%",
@@ -806,8 +806,8 @@ function VisualizationModal({
               blochVectors.length === 0 ? (
                 <div style={{
                   height: 160, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
-                  border: "1px dashed rgba(148,163,184,0.18)", borderRadius: 12,
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
+                  border: "1px dashed var(--border)", borderRadius: 12,
                 }}>
                   Run "Visualize" to see live qubit states
                 </div>
@@ -821,7 +821,7 @@ function VisualizationModal({
                     <div key={i}>
                       <div style={{
                         fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-                        color: "#9CA3AF", textAlign: "center",
+                        color: "var(--muted)", textAlign: "center",
                         marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.04em",
                       }}>
                         q[{i}]
@@ -990,11 +990,17 @@ export default function VisualizationPanel() {
           <div style={{ padding: 24 }}>
             {blochVectors.length === 0 ? (
               <div style={{
-                textAlign: "center", padding: "30px 0",
+                textAlign: "center", padding: "40px 0",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
-                border: "1px dashed var(--border)", borderRadius: 14, background: "var(--row-alt)",
+                border: "1px dashed var(--border)", borderRadius: 16, background: "var(--row-alt)",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
               }}>
-                Click "Visualize" to open the step-by-step visualizer with gate glow and histogram
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.4 }}>
+                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                  <path d="M2 12h20" />
+                </svg>
+                <span>Click "Visualize" to initiate real-time state analysis</span>
               </div>
             ) : (
               <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 4 }}>

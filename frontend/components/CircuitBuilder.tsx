@@ -366,7 +366,7 @@ function CircuitSVG(props: {
             {Array.from({ length: numCols }, (_, col) => (
               <rect key={`band-${col}`} x={col * COL_W} y={0} width={COL_W}
                 height={TOP_PAD + circuit.qubits * LANE_H + 22}
-                fill={col % 2 === 0 ? "rgba(15,23,42,0.03)" : "transparent"} />
+                fill={col % 2 === 0 ? "var(--row-alt)" : "transparent"} />
             ))}
 
             {/* Column lines */}
@@ -383,8 +383,8 @@ function CircuitSVG(props: {
               const endX = colX(meas ? meas.column : numCols - 1) + COL_W / 2;
               return (
                 <g key={`wire-${q}`}>
-                  <line x1={0} y1={y} x2={endX} y2={y} stroke={T.wire} strokeWidth="5" opacity="0.09" />
-                  <line x1={0} y1={y} x2={endX} y2={y} stroke={T.wire} strokeWidth="1.8" opacity="0.78" />
+                  <line x1={0} y1={y} x2={endX} y2={y} stroke="var(--accent)" strokeWidth="4" opacity="0.06" />
+                  <line x1={0} y1={y} x2={endX} y2={y} stroke="var(--accent)" strokeWidth="1.2" opacity="0.65" />
                 </g>
               );
             })}
@@ -392,7 +392,7 @@ function CircuitSVG(props: {
             {/* Classical wires */}
             {Array.from({ length: circuit.qubits }, (_, q) => {
               const y = TOP_PAD + circuit.qubits * LANE_H + 34 + q * 18;
-              return <line key={`cw-${q}`} x1={0} y1={y} x2={svgWidth - 24} y2={y} stroke={T.borderMid} strokeDasharray="5 4" strokeWidth="1.5" />;
+              return <line key={`cw-${q}`} x1={0} y1={y} x2={svgWidth - 24} y2={y} stroke="var(--border)" strokeDasharray="4 6" strokeWidth="1.2" />;
             })}
 
             {/* Pivot dots */}

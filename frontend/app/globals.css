@@ -67,6 +67,12 @@
   --canvas: #050816;
   --hover: rgba(0, 212, 255, 0.08);
 
+  /* Simulation Elements - Dark */
+  --sim-box-bg: rgba(2, 6, 23, 0.52);
+  --sim-box-border: rgba(148, 163, 184, 0.16);
+  --sim-text-dim: #9ca3af;
+  --sim-wire: var(--accent);
+
   /* Semantic Aliases - Dark Mode */
   --color-background: var(--background);
   --color-text: #e5e7eb;
