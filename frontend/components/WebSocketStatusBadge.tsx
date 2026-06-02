@@ -1,47 +1,45 @@
-﻿"use client";
+"use client";
 
 import { memo } from "react";
 import { SocketStatus } from "@/lib/types";
 
 // ── Status colour map — white design system ───────────────────────────────────
-// All colours use opaque values that are readable on white backgrounds.
-// No neon / dark-mode colours.
 const STATUS_STYLE: Record<
   SocketStatus,
   { label: string; dot: string; text: string; border: string; background: string }
 > = {
   connecting: {
     label:      "Connecting",
-    dot:        "#F59E0B",
-    text:       "#FCD34D",
+    dot:        "var(--color-warning)",
+    text:       "var(--color-warning)",
     border:     "rgba(245,158,11,0.34)",
     background: "rgba(245,158,11,0.10)",
   },
   connected: {
     label:      "Connected",
-    dot:        "#34D399",
-    text:       "#A7F3D0",
+    dot:        "var(--color-success)",
+    text:       "var(--color-success)",
     border:     "rgba(52,211,153,0.34)",
     background: "rgba(52,211,153,0.10)",
   },
   running: {
     label:      "Running",
-    dot:        "#22D3EE",
-    text:       "#BAE6FD",
+    dot:        "var(--color-primary)",
+    text:       "var(--color-primary)",
     border:     "rgba(34,211,238,0.34)",
     background: "rgba(34,211,238,0.10)",
   },
   disconnected: {
     label:      "Disconnected",
-    dot:        "#F87171",
-    text:       "#FCA5A5",
+    dot:        "var(--color-danger)",
+    text:       "var(--color-danger)",
     border:     "rgba(248,113,113,0.32)",
     background: "rgba(248,113,113,0.10)",
   },
   error: {
     label:      "Error",
-    dot:        "#F87171",
-    text:       "#FCA5A5",
+    dot:        "var(--color-danger)",
+    text:       "var(--color-danger)",
     border:     "rgba(248,113,113,0.34)",
     background: "rgba(248,113,113,0.12)",
   },
