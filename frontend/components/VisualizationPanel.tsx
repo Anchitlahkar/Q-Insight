@@ -368,8 +368,8 @@ function LiveHistogram({
       <div style={{
         height: 200,
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
-        border: "1px dashed rgba(34,211,238,0.24)", borderRadius: 14, background: "rgba(15,23,42,0.62)",
+        fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
+        border: "1px dashed var(--border)", borderRadius: 14, background: "var(--row-alt)",
       }}>
         Statevector updates as each gate is applied — press Play or scrub the slider
       </div>
@@ -389,13 +389,13 @@ function LiveHistogram({
       <div style={{
         display: "flex", alignItems: "center", gap: 8, marginBottom: 10,
         fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-        color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em",
+        color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em",
       }}>
         Basis-state probabilities · live
         {isPlaying && (
           <span style={{
             width: 7, height: 7, borderRadius: "50%",
-            background: "#22D3EE", display: "inline-block",
+            background: "var(--accent)", display: "inline-block",
             animation: "live-dot 1s ease-in-out infinite",
           }} />
         )}
@@ -408,22 +408,22 @@ function LiveHistogram({
             <defs>
               {/* Dominant state gradient */}
               <linearGradient id="lh-dominant" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#22D3EE" stopOpacity={1}    />
-                <stop offset="100%" stopColor="#A78BFA" stopOpacity={0.45} />
+                <stop offset="0%"   stopColor="var(--accent)" stopOpacity={1}    />
+                <stop offset="100%" stopColor="var(--accent-secondary)" stopOpacity={0.45} />
               </linearGradient>
               {/* Normal state gradient */}
               <linearGradient id="lh-normal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#67E8F9" stopOpacity={0.74} />
+                <stop offset="0%"   stopColor="var(--accent)" stopOpacity={0.74} />
                 <stop offset="100%" stopColor="#164E63" stopOpacity={0.32} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid stroke="rgba(148,163,184,0.10)" horizontal vertical={false} />
+            <CartesianGrid stroke="var(--border)" horizontal vertical={false} opacity={0.4} />
 
             <XAxis
               dataKey="state"
-              stroke="rgba(148,163,184,0.22)" tickLine={false} axisLine={false}
-              tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#9CA3AF" }}
+              stroke="var(--border)" tickLine={false} axisLine={false}
+              tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "var(--muted)" }}
               tickFormatter={(v: string) => `|${v}⟩`}
               interval={0}
               angle={data.length > 8 ? -30 : 0}
@@ -432,34 +432,34 @@ function LiveHistogram({
             />
 
             <YAxis
-              stroke="rgba(148,163,184,0.22)" tickLine={false} axisLine={false}
+              stroke="var(--border)" tickLine={false} axisLine={false}
               domain={[0, 1]}
-              tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#9CA3AF" }}
+              tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "var(--muted)" }}
               tickFormatter={(v: number) => `${Math.round(v * 100)}%`}
             />
 
             <Tooltip
-              cursor={{ fill: "rgba(34,211,238,0.06)" }}
+              cursor={{ fill: "var(--hover)" }}
               animationDuration={120}
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null;
                 const prob = (payload[0]?.value as number) ?? 0;
                 return (
                   <div style={{
-                    background: "rgba(11,17,32,0.94)",
-                    border: "1px solid rgba(34,211,238,0.28)",
+                    background: "var(--panel)",
+                    border: "1px solid var(--border-primary)",
                     borderRadius: 10,
                     padding: "8px 14px",
-                    boxShadow: "0 18px 42px rgba(0,0,0,0.34), 0 0 22px rgba(34,211,238,0.12)",
+                    boxShadow: "var(--shadow-panel)",
                     backdropFilter: "blur(14px)",
                   }}>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#67E8F9", marginBottom: 3 }}>
+                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--accent)", marginBottom: 3 }}>
                       |{label}⟩
                     </div>
-                    <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 20, color: "#E5E7EB" }}>
+                    <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 20, color: "var(--foreground)" }}>
                       {(prob * 100).toFixed(2)}%
                     </div>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", marginTop: 2 }}>
+                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", marginTop: 2 }}>
                       amplitude² = {prob.toFixed(4)}
                     </div>
                   </div>
@@ -484,7 +484,7 @@ function LiveHistogram({
                   }
                   stroke={
                     entry.probability >= maxProb * 0.95
-                      ? "#22D3EE"
+                      ? "var(--accent)"
                       : "transparent"
                   }
                   strokeWidth={entry.probability >= maxProb * 0.95 ? 1.5 : 0}
@@ -500,13 +500,13 @@ function LiveHistogram({
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
           {topStates.map((d) => (
             <div key={d.state} style={{
-              background: d.probability >= maxProb * 0.95 ? "rgba(34,211,238,0.12)" : "rgba(15,23,42,0.62)",
-              border: `1px solid ${d.probability >= maxProb * 0.95 ? "rgba(34,211,238,0.28)" : "rgba(148,163,184,0.16)"}`,
+              background: d.probability >= maxProb * 0.95 ? "var(--hover)" : "var(--row-alt)",
+              border: `1px solid ${d.probability >= maxProb * 0.95 ? "var(--border-primary)" : "var(--border)"}`,
               borderRadius: 999,
               padding: "3px 10px",
               fontFamily: "JetBrains Mono, monospace",
               fontSize: 9,
-              color: d.probability >= maxProb * 0.95 ? "#67E8F9" : "#9CA3AF",
+              color: d.probability >= maxProb * 0.95 ? "var(--accent)" : "var(--muted)",
             }}>
               |{d.state}⟩ {(d.probability * 100).toFixed(1)}%
             </div>
@@ -937,24 +937,24 @@ export default function VisualizationPanel() {
 
       {/* ── Inline panel (compact) ── */}
       <div style={{
-        background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
-        border: "1px solid rgba(148,163,184,0.16)",
+        background: "var(--panel)",
+        border: "1px solid var(--border)",
         borderRadius: 20,
         overflow: "hidden",
-        boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
+        boxShadow: "var(--shadow-panel)",
         backdropFilter: "blur(18px)",
       }}>
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "18px 24px",
-          borderBottom: collapsed ? "none" : "1px solid rgba(148,163,184,0.16)",
-          background: "rgba(11,17,32,0.78)",
+          borderBottom: collapsed ? "none" : "1px solid var(--border)",
+          background: "var(--panel)",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 16, color: "#E5E7EB" }}>
+            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 16, color: "var(--foreground)" }}>
               Visualization
             </span>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: isVisualizing ? "#67E8F9" : "#9CA3AF" }}>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: isVisualizing ? "var(--accent)" : "var(--muted)" }}>
               {isVisualizing ? `step ${Math.max(currentStep + 1, 0)}/${steps.length}` : "idle"}
             </span>
           </div>
@@ -965,8 +965,8 @@ export default function VisualizationPanel() {
               style={{
                 borderRadius: 10, padding: "8px 18px",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10, fontWeight: 600,
-                cursor: "pointer", border: "1px solid rgba(34,211,238,0.32)",
-                background: "rgba(34,211,238,0.12)", color: "#67E8F9",
+                cursor: "pointer", border: "1px solid var(--border-primary)",
+                background: "var(--hover)", color: "var(--accent)",
               }}
             >
               ▶ Visualize
@@ -977,8 +977,8 @@ export default function VisualizationPanel() {
               style={{
                 borderRadius: 10, padding: "8px 16px",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10,
-                cursor: "pointer", border: "1px solid rgba(148,163,184,0.16)",
-                color: "#9CA3AF", background: "rgba(15,23,42,0.72)",
+                cursor: "pointer", border: "1px solid var(--border)",
+                color: "var(--muted)", background: "var(--card)",
               }}
             >
               {collapsed ? "Expand ▾" : "Collapse ▴"}
@@ -990,8 +990,9 @@ export default function VisualizationPanel() {
           <div style={{ padding: 24 }}>
             {blochVectors.length === 0 ? (
               <div style={{
-                textAlign: "center", padding: "20px 0",
-                fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
+                textAlign: "center", padding: "30px 0",
+                fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
+                border: "1px dashed var(--border)", borderRadius: 14, background: "var(--row-alt)",
               }}>
                 Click "Visualize" to open the step-by-step visualizer with gate glow and histogram
               </div>

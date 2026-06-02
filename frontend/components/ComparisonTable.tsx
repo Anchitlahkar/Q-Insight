@@ -324,7 +324,7 @@ function ComparisonTableComponent() {
                 key={row.label}
                 style={{
                   borderTop: index === 0 ? "none" : `1px solid ${T.borderRow}`,
-                  background: index % 2 === 0 ? "rgba(11,17,32,0.62)" : T.surface,
+                  background: index % 2 === 0 ? "var(--row-alt)" : "transparent",
                 }}
               >
                 {/* Metric label + description */}

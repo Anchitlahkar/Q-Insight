@@ -69,9 +69,9 @@ function EmptyState({ accent }: { accent: typeof ACCENT[CircuitKey] }) {
     <div style={{
       height: 240,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12,
-      border: `1px dashed ${accent.badgeBorder}`,
+      border: `1px dashed var(--border)`,
       borderRadius: 14,
-      background: accent.badge,
+      background: "var(--row-alt)",
     }}>
       <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
         <circle cx="18" cy="18" r="6" stroke={accent.primary} strokeWidth="1.4" />
@@ -81,9 +81,8 @@ function EmptyState({ accent }: { accent: typeof ACCENT[CircuitKey] }) {
         <circle cx="18" cy="18" r="2" fill={accent.primary} />
       </svg>
       <div style={{
-        fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: accent.primary,
+        fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
         textAlign: "center", lineHeight: 1.6,
-        opacity: 0.86,
       }}>
         Run a simulation to reveal<br />basis-state outcomes
       </div>
@@ -160,11 +159,11 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
 
   return (
     <section style={{
-      background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
-      border: "1px solid rgba(148,163,184,0.16)",
+      background: "var(--panel)",
+      border: "1px solid var(--border)",
       borderRadius: 18,
       padding: 18,
-      boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
+      boxShadow: "var(--shadow-panel)",
       backdropFilter: "blur(18px)",
     }}>
       {/* Header */}
@@ -173,7 +172,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
             {/* Circuit colour dot */}
             <span style={{ width: 10, height: 10, borderRadius: "50%", background: accent.dot, flexShrink: 0 }} />
-            <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#E5E7EB", margin: 0 }}>
+            <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "var(--foreground)", margin: 0 }}>
               {title}
             </h2>
             {/* Circuit key badge */}
@@ -186,7 +185,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
               {circuitKey}
             </span>
           </div>
-          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", margin: 0 }}>
+          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", margin: 0 }}>
             {qubits}q full basis · dominant |{dominantState.state}⟩
           </p>
         </div>
@@ -195,7 +194,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
           {/* Mode toggle */}
           <div style={{
             display: "inline-flex", padding: 3,
-            borderRadius: 999, background: "rgba(15,23,42,0.72)", border: "1px solid rgba(148,163,184,0.16)",
+            borderRadius: 999, background: "var(--row-alt)", border: "1px solid var(--border)",
           }}>
             {(["probability", "counts"] as const).map((item) => (
               <button
@@ -204,8 +203,8 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
                 onClick={() => setMode(item)}
                 style={{
                   borderRadius: 999, border: "none",
-                  background: mode === item ? accent.badge : "transparent",
-                  color: mode === item ? accent.primary : "#9CA3AF",
+                  background: mode === item ? "var(--card)" : "transparent",
+                  color: mode === item ? accent.primary : "var(--muted)",
                   padding: "4px 10px", cursor: "pointer",
                   fontFamily: "JetBrains Mono, monospace", fontSize: 9,
                   letterSpacing: "0.06em", textTransform: "uppercase",
@@ -221,9 +220,9 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
           {/* State count pill */}
           <div style={{
             fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-            color: hasData ? accent.primary : "#9CA3AF",
-            background: hasData ? accent.badge : "rgba(15,23,42,0.72)",
-            border: `1px solid ${hasData ? accent.badgeBorder : "rgba(148,163,184,0.16)"}`,
+            color: hasData ? accent.primary : "var(--muted)",
+            background: hasData ? accent.badge : "var(--row-alt)",
+            border: `1px solid ${hasData ? accent.badgeBorder : "var(--border)"}`,
             borderRadius: 999, padding: "4px 11px", letterSpacing: "0.06em",
           }}>
             {hasData ? `${data.length} states` : "no data"}
@@ -232,7 +231,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, marginBottom: 14, background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.28), transparent)" }} />
+      <div style={{ height: 1, marginBottom: 14, background: "linear-gradient(90deg, transparent, var(--border-primary), transparent)" }} />
 
       {/* Chart area */}
       {isRunning && !hasData ? (

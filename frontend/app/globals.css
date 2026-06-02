@@ -16,16 +16,17 @@
   --warning: #f59e0b;
 
   /* Theme Tokens - Light Mode (Professional/Linear style) */
-  --background: #f8fafc;
+  --background: #fdfdfe;
   --foreground: #0f172a;
   --muted: #64748b;
-  --panel: rgba(255, 255, 255, 0.85);
-  --panel-secondary: #f1f5f9;
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-secondary: #f8fafc;
   --card: #ffffff;
-  --border: rgba(148, 163, 184, 0.24);
+  --border: rgba(148, 163, 184, 0.2);
   --input: #ffffff;
-  --canvas: #ffffff;
+  --canvas: #fcfdfe;
   --hover: rgba(34, 211, 238, 0.05);
+  --row-alt: rgba(148, 163, 184, 0.03);
   
   /* Semantic Aliases */
   --color-primary: var(--accent);
@@ -37,15 +38,15 @@
   --color-muted: var(--muted);
   --color-panel: var(--panel);
   --color-panel-secondary: var(--panel-secondary);
-  --color-surface: #e2e8f0;
+  --color-surface: #f1f5f9;
   --color-card: var(--card);
   --color-input: var(--input);
   --color-border: var(--border);
-  --color-border-subtle: rgba(148, 163, 184, 0.12);
-  --border-primary: rgba(34, 211, 238, 0.45);
-  --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 20px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
-  --glow-cyan: 0 0 12px rgba(34, 211, 238, 0.08);
-  --glow-violet: 0 0 12px rgba(139, 92, 246, 0.08);
+  --color-border-subtle: rgba(148, 163, 184, 0.1);
+  --border-primary: rgba(34, 211, 238, 0.4);
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 16px -4px rgba(15, 23, 42, 0.04);
+  --glow-cyan: 0 0 12px rgba(34, 211, 238, 0.06);
+  --glow-violet: 0 0 12px rgba(139, 92, 246, 0.06);
 
   /* Layout */
   --topbar-h: 64px;
