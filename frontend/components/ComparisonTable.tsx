@@ -6,21 +6,21 @@ import { useCircuitStore } from "@/store/useCircuitStore";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  bg:        "rgba(11,17,32,0.78)",
-  surface:   "rgba(15,23,42,0.74)",
-  border:    "rgba(148,163,184,0.16)",
-  borderRow: "rgba(148,163,184,0.10)",
-  text:      "#E5E7EB",
-  muted:     "#9CA3AF",
-  hint:      "#64748B",
+  bg:        "var(--panel)",
+  surface:   "var(--panel-secondary)",
+  border:    "var(--border)",
+  borderRow: "var(--border)",
+  text:      "var(--foreground)",
+  muted:     "var(--muted)",
+  hint:      "var(--muted)",
   mono:      "JetBrains Mono, monospace",
   head:      "Syne, sans-serif",
   // Circuit A = blue
-  a:         { text: "#67E8F9", light: "rgba(34,211,238,0.10)", border: "rgba(34,211,238,0.28)", strong: "#22D3EE" },
+  a:         { text: "var(--accent)", light: "var(--hover)", border: "var(--border-primary)", strong: "var(--accent)" },
   // Circuit B = violet (distinct from blue, avoids neon purple)
-  b:         { text: "#C4B5FD", light: "rgba(139,92,246,0.12)", border: "rgba(167,139,250,0.30)", strong: "#A78BFA" },
+  b:         { text: "var(--accent-secondary)", light: "rgba(139,92,246,0.12)", border: "rgba(167,139,250,0.30)", strong: "var(--accent-secondary)" },
   // Win = green tint, lose = none, tie = gray
-  win:       { text: "#A7F3D0", light: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.34)" },
+  win:       { text: "var(--success)", light: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.34)" },
 } as const;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

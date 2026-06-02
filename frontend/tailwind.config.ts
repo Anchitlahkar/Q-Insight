@@ -11,15 +11,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--color-background)",
-        panel: "var(--color-panel)",
-        surface: "var(--color-surface)",
-        primary: "var(--color-primary)",
-        secondary: "var(--color-secondary)",
-        success: "var(--color-success)",
-        danger: "var(--color-danger)",
-        text: "var(--color-text)",
-        muted: "var(--color-muted)"
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        muted: "var(--muted)",
+        panel: "var(--panel)",
+        "panel-secondary": "var(--panel-secondary)",
+        card: "var(--card)",
+        border: "var(--border)",
+        input: "var(--input)",
+        canvas: "var(--canvas)",
+        hover: "var(--hover)",
+        accent: "var(--accent)",
+        "accent-secondary": "var(--accent-secondary)",
+        // Aliases for transition
+        primary: "var(--accent)",
+        secondary: "var(--accent-secondary)",
+        success: "var(--success)",
+        danger: "var(--danger)",
       },
       boxShadow: {
         panel: "var(--shadow-panel)",

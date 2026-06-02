@@ -18,7 +18,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="qhack-title-gradient" style={{ margin: 0, fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.65rem", letterSpacing: 0 }}>Quantum Lab</h1>
-                <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "var(--color-muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "var(--muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Cinematic Quantum Composer OS
                 </p>
               </div>

@@ -9,32 +9,43 @@
 ───────────────────────────────────────────────────────────── */
 :root {
   /* Common Palette */
-  --color-primary: #22d3ee;
-  --color-secondary: #8b5cf6;
-  --color-success: #34d399;
-  --color-danger: #f87171;
-  --color-warning: #f59e0b;
+  --accent: #22d3ee;
+  --accent-secondary: #8b5cf6;
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #f59e0b;
 
-  /* Theme Tokens - Light Mode */
-  --color-background: #f1f5f9;
-  --color-foreground: #334155;
-  --color-text: #0f172a;
-  --color-muted: #64748b;
-  --color-panel: rgba(255, 255, 255, 0.82);
-  --color-panel-secondary: #f8fafc;
+  /* Theme Tokens - Light Mode (Professional/Linear style) */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --panel: rgba(255, 255, 255, 0.85);
+  --panel-secondary: #f1f5f9;
+  --card: #ffffff;
+  --border: rgba(148, 163, 184, 0.24);
+  --input: #ffffff;
+  --canvas: #ffffff;
+  --hover: rgba(34, 211, 238, 0.05);
+  
+  /* Semantic Aliases */
+  --color-primary: var(--accent);
+  --color-secondary: var(--accent-secondary);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-background: var(--background);
+  --color-text: var(--foreground);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-secondary: var(--panel-secondary);
   --color-surface: #e2e8f0;
-  --color-surface-strong: #ffffff;
-  --color-card: #ffffff;
-  --color-input: #ffffff;
-  --color-node: #94a3b8;
-  --color-gate-bg: #ffffff;
-  --color-hover: rgba(34, 211, 238, 0.08);
-  --color-border: rgba(148, 163, 184, 0.3);
-  --color-border-subtle: rgba(148, 163, 184, 0.18);
+  --color-card: var(--card);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-border-subtle: rgba(148, 163, 184, 0.12);
   --border-primary: rgba(34, 211, 238, 0.45);
-  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
-  --glow-cyan: 0 0 12px rgba(34, 211, 238, 0.06);
-  --glow-violet: 0 0 12px rgba(139, 92, 246, 0.06);
+  --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 20px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+  --glow-cyan: 0 0 12px rgba(34, 211, 238, 0.08);
+  --glow-violet: 0 0 12px rgba(139, 92, 246, 0.08);
 
   /* Layout */
   --topbar-h: 64px;
@@ -44,20 +55,27 @@
 
 .dark {
   /* Theme Tokens - Dark Mode (Preserved from existing visuals) */
-  --color-background: #050816;
-  --color-foreground: #e2e8f0;
+  --background: #050816;
+  --foreground: #e2e8f0;
+  --muted: #9ca3af;
+  --panel: rgba(11, 17, 32, 0.82);
+  --panel-secondary: rgba(8, 13, 27, 0.78);
+  --card: rgba(15, 23, 42, 0.72);
+  --border: rgba(148, 163, 184, 0.16);
+  --input: #020617;
+  --canvas: #050816;
+  --hover: rgba(0, 212, 255, 0.08);
+
+  /* Semantic Aliases - Dark Mode */
+  --color-background: var(--background);
   --color-text: #e5e7eb;
-  --color-muted: #9ca3af;
-  --color-panel: rgba(11, 17, 32, 0.82);
-  --color-panel-secondary: rgba(8, 13, 27, 0.78);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-secondary: var(--panel-secondary);
   --color-surface: rgba(17, 24, 39, 0.76);
-  --color-surface-strong: #111827;
-  --color-card: rgba(15, 23, 42, 0.72);
-  --color-input: #020617;
-  --color-node: var(--color-primary);
-  --color-gate-bg: var(--color-input);
-  --color-hover: rgba(0, 212, 255, 0.08);
-  --color-border: rgba(148, 163, 184, 0.16);
+  --color-card: var(--card);
+  --color-input: var(--input);
+  --color-border: var(--border);
   --color-border-subtle: rgba(148, 163, 184, 0.14);
   --border-primary: rgba(34, 211, 238, 0.24);
   --shadow-panel: 0 24px 70px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255,255,255,0.04);
@@ -151,8 +169,8 @@ body::after {
   align-items: center;
   gap: 12px;
   padding: 0 16px;
-  background: rgba(6, 13, 26, 0.95);
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(12px);
   z-index: 10;
 }
@@ -162,7 +180,7 @@ body::after {
   height: 32px;
   border-radius: 9px;
   background: linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(162,89,255,0.15) 100%);
-  border: 1px solid rgba(0,212,255,0.2);
+  border: 1px solid var(--border-primary);
   box-shadow: 0 0 16px rgba(0,212,255,0.12), inset 0 0 12px rgba(0,212,255,0.06);
   display: flex;
   align-items: center;
@@ -182,17 +200,21 @@ body::after {
   font-weight: 800;
   font-size: 14px;
   letter-spacing: -0.01em;
-  background: linear-gradient(90deg, #c8dff2 0%, rgba(0,212,255,0.85) 60%, rgba(162,89,255,0.7) 100%);
+  background: linear-gradient(90deg, #0f172a 0%, #0891b2 60%, #7c3aed 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1.2;
 }
 
+.dark .qhack-title {
+  background: linear-gradient(90deg, #c8dff2 0%, rgba(0,212,255,0.85) 60%, rgba(162,89,255,0.7) 100%);
+}
+
 .qhack-subtitle {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  color: var(--color-muted);
+  color: var(--muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -246,11 +268,11 @@ body::after {
 .qhack-pane--left {
   flex: 0 0 var(--left-pane-w);
   max-width: var(--left-pane-w);
-  border-right: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 24px;
-  background: rgba(6,13,26,0.6);
+  background: var(--panel-secondary);
 }
 
 /* Inner wrapper so CircuitBuilder doesn't overflow */
@@ -266,7 +288,7 @@ body::after {
 .qhack-pane--right {
   flex: 1;
   overflow: hidden;
-  background: var(--color-background);
+  background: var(--background);
 }
 
 /* ─────────────────────────────────────────────────────────────

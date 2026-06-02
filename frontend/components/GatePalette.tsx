@@ -67,10 +67,11 @@ function GateButton({
 }) {
   const gateColor = GATE_COLOR[gate] ?? sectionColor;
 
-  const bgSelected   = `linear-gradient(180deg, ${gateColor}26, rgba(15,23,42,0.82))`;
-  const bgUnselected = "rgba(15,23,42,0.72)";
+  // For opacity, we'll keep using the gateColor but rely on var(--card) for background
+  const bgSelected   = `linear-gradient(180deg, ${gateColor}26, var(--card))`;
+  const bgUnselected = "var(--card)";
   const borderSel    = gateColor;
-  const borderUns    = "rgba(148,163,184,0.16)";
+  const borderUns    = "var(--border)";
 
   return (
     <motion.button
@@ -95,7 +96,7 @@ function GateButton({
         fontSize: gate.length > 3 ? 9 : 11,
         fontWeight: 700,
         cursor: "grab",
-        boxShadow: selected ? `0 0 0 3px ${gateColor}18, 0 0 22px ${gateColor}30` : "0 8px 18px rgba(0,0,0,0.16)",
+        boxShadow: selected ? `0 0 0 3px ${gateColor}18, 0 0 22px ${gateColor}30` : "0 4px 10px rgba(0,0,0,0.05)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -124,8 +125,8 @@ function ThetaPanel({ theta, onChange }: { theta: number; onChange: (v: number) 
   };
 
   return (
-    <div style={{ borderTop: "1px solid rgba(148,163,184,0.16)", marginTop: 2, paddingTop: 12, display: "grid", gap: 8 }}>
-      <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+    <div style={{ borderTop: "1px solid var(--border)", marginTop: 2, paddingTop: 12, display: "grid", gap: 8 }}>
+      <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
         θ Parameter
       </div>
       <input
@@ -135,8 +136,8 @@ function ThetaPanel({ theta, onChange }: { theta: number; onChange: (v: number) 
         onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
         style={{
           width: "100%",
-          borderRadius: 10, border: `1px solid ${error ? "rgba(248,113,113,0.58)" : "rgba(148,163,184,0.18)"}`,
-          background: "rgba(2,6,23,0.62)", color: error ? "#F87171" : "#E5E7EB",
+          borderRadius: 10, border: `1px solid ${error ? "var(--danger)" : "var(--border)"}`,
+          background: "var(--input)", color: error ? "var(--danger)" : "var(--foreground)",
           padding: "8px 10px", fontFamily: "JetBrains Mono, monospace", fontSize: 11, outline: "none",
         }}
       />
@@ -144,9 +145,9 @@ function ThetaPanel({ theta, onChange }: { theta: number; onChange: (v: number) 
         {[Math.PI / 4, Math.PI / 2, Math.PI, 2 * Math.PI].map((v) => (
           <button key={v} type="button" onClick={() => onChange(v)}
             style={{
-              borderRadius: 9, border: "1px solid rgba(34,211,238,0.22)",
-              background: Math.abs(theta - v) < 0.001 ? "rgba(34,211,238,0.18)" : "rgba(15,23,42,0.72)",
-              color: "#67E8F9", padding: "5px 0",
+              borderRadius: 9, border: `1px solid ${Math.abs(theta - v) < 0.001 ? "var(--accent)" : "var(--border)"}`,
+              background: Math.abs(theta - v) < 0.001 ? "var(--hover)" : "var(--card)",
+              color: "var(--accent)", padding: "5px 0",
               fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: "pointer",
             }}>
             {formatTheta(v)}
@@ -170,18 +171,18 @@ function MultiQubitPanel({
       : [["Control", controlQubit, onControlChange], ["Target",  targetQubit, onTargetChange]];
 
   return (
-    <div style={{ borderTop: "1px solid rgba(148,163,184,0.16)", marginTop: 2, paddingTop: 12, display: "grid", gap: 8 }}>
-      <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+    <div style={{ borderTop: "1px solid var(--border)", marginTop: 2, paddingTop: 12, display: "grid", gap: 8 }}>
+      <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
         Connection Defaults
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
         {labels.map(([label, value, onChange]) => (
           <label key={label} style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF" }}>{label}</span>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)" }}>{label}</span>
             <select
               value={value}
               onChange={(e) => onChange(Number(e.target.value))}
-              style={{ borderRadius: 9, border: "1px solid rgba(148,163,184,0.18)", background: "rgba(2,6,23,0.62)", color: "#E5E7EB", padding: "7px 8px", fontFamily: "JetBrains Mono, monospace", fontSize: 10 }}>
+              style={{ borderRadius: 9, border: "1px solid var(--border)", background: "var(--input)", color: "var(--foreground)", padding: "7px 8px", fontFamily: "JetBrains Mono, monospace", fontSize: 10 }}>
               {Array.from({ length: qubits }, (_, i) => (
                 <option key={i} value={i}>q[{i}]</option>
               ))}
@@ -226,26 +227,26 @@ export const GatePalette = memo(function GatePalette({
       transition={{ duration: 0.35, ease: "easeOut" }}
       style={{
       width: 300, minWidth: 300, maxWidth: 300,
-      borderRadius: 18, border: "1px solid rgba(148,163,184,0.16)",
-      background: "linear-gradient(180deg, rgba(15,23,42,0.82), rgba(8,13,27,0.82))", padding: 20,
+      borderRadius: 18, border: "1px solid var(--border)",
+      background: "var(--panel)", padding: 20,
       display: "flex", flexDirection: "column", gap: 18,
       /* Cap height and allow internal scroll so palette never pushes layout */
       maxHeight: "calc(100vh - 160px)",
       overflowY: "auto",
-      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 22px 54px rgba(0,0,0,0.28)",
+      boxShadow: "var(--shadow-panel)",
     }}>
       {/* Header */}
       <div>
-        <h3 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 16, fontWeight: 700, color: "#E5E7EB" }}>Gate Palette</h3>
-        <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.6 }}>
+        <h3 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>Gate Palette</h3>
+        <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", lineHeight: 1.6 }}>
           Drag to circuit or click to select, then click a pivot.
         </p>
       </div>
 
       {/* Status hint */}
       <div style={{
-        borderRadius: 14, border: "1px solid rgba(34,211,238,0.18)", background: "rgba(34,211,238,0.08)",
-        padding: "10px 12px", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#BAE6FD", lineHeight: 1.5,
+        borderRadius: 14, border: "1px solid var(--border-primary)", background: "var(--hover)",
+        padding: "10px 12px", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--accent)", lineHeight: 1.5,
       }}>
         {selectedSummary}
       </div>
@@ -261,11 +262,11 @@ export const GatePalette = memo(function GatePalette({
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
                 fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-                color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em",
+                color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em",
                 background: "transparent", border: "none", padding: 0, cursor: "pointer",
               }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 7, height: 7, borderRadius: "50%", background: section.color, flexShrink: 0, boxShadow: `0 0 14px ${section.color}` }} />
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: section.color, flexShrink: 0, boxShadow: `0 0 14px ${section.color}88` }} />
                 {section.title}
               </span>
               <span style={{ color: section.color }}>{collapsedSections[section.title] ? "+" : "-"}</span>

@@ -151,27 +151,27 @@ function AlgorithmSelectorComponent() {
       transition={{ duration: 0.38, ease: "easeOut" }}
       style={{
       borderRadius: 20,
-      border: "1px solid rgba(148,163,184,0.16)",
-      background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
+      border: "1px solid var(--border)",
+      background: "var(--panel)",
       padding: 24,
       display: "grid",
       gap: 20,
-      boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
+      boxShadow: "var(--shadow-panel)",
       backdropFilter: "blur(18px)",
     }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div>
-          <h2 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 18, fontWeight: 700, color: "#E5E7EB" }}>
+          <h2 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 18, fontWeight: 700, color: "var(--foreground)" }}>
             Algorithm Library
           </h2>
-          <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.6 }}>
+          <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", lineHeight: 1.6 }}>
             Select a category, then drag or load an algorithm into the active circuit.
           </p>
         </div>
         <div style={{
-          borderRadius: 999, border: "1px solid rgba(34,211,238,0.28)", background: "rgba(34,211,238,0.10)",
-          color: "#67E8F9", padding: "6px 14px",
+          borderRadius: 999, border: "1px solid var(--border-primary)", background: "var(--hover)",
+          color: "var(--accent)", padding: "6px 14px",
           fontFamily: "JetBrains Mono, monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em",
           whiteSpace: "nowrap",
         }}>
@@ -180,11 +180,6 @@ function AlgorithmSelectorComponent() {
       </div>
 
       {/* ── Level 1: Category tab strip ── */}
-      {/*
-        All categories rendered as compact pill buttons.
-        They wrap naturally on small containers.
-        No accordion — a single click switches the tile grid below instantly.
-      */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {availableCategories.map((cat) => {
           const active = selectedCategory === cat;
@@ -195,9 +190,9 @@ function AlgorithmSelectorComponent() {
               onClick={() => setSelectedCategory(cat)}
               style={{
                 borderRadius: 10,
-                border: `1px solid ${active ? "rgba(34,211,238,0.36)" : "rgba(148,163,184,0.16)"}`,
-                background: active ? "rgba(34,211,238,0.13)" : "rgba(15,23,42,0.68)",
-                color: active ? "#67E8F9" : "#9CA3AF",
+                border: `1px solid ${active ? "var(--border-primary)" : "var(--border)"}`,
+                background: active ? "var(--hover)" : "var(--card)",
+                color: active ? "var(--accent)" : "var(--muted)",
                 padding: "6px 14px",
                 fontFamily: "JetBrains Mono, monospace",
                 fontSize: 10,
@@ -215,7 +210,7 @@ function AlgorithmSelectorComponent() {
       {currentAlgorithms.length === 0 ? (
         <div style={{
           padding: "32px 0", textAlign: "center",
-          fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
+          fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
         }}>
           No algorithms in this category yet.
         </div>
@@ -236,21 +231,21 @@ function AlgorithmSelectorComponent() {
               }}
               style={{
                 borderRadius: 16,
-                border: "1px solid rgba(148,163,184,0.16)",
-                background: "rgba(15,23,42,0.72)",
+                border: "1px solid var(--border)",
+                background: "var(--panel-secondary)",
                 padding: "16px 18px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 8,
                 cursor: "grab",
-                boxShadow: "0 14px 34px rgba(0,0,0,0.22)",
+                boxShadow: "0 10px 20px rgba(0,0,0,0.08)",
               }}
-              whileHover={{ y: -2, borderColor: "rgba(34,211,238,0.36)", boxShadow: "0 18px 44px rgba(0,0,0,0.30), 0 0 24px rgba(34,211,238,0.10)" }}
+              whileHover={{ y: -2, borderColor: "var(--accent)", boxShadow: "0 14px 30px rgba(0,0,0,0.12), 0 0 16px var(--glow-cyan)" }}
               whileTap={{ scale: 0.99 }}
             >
               {/* Algorithm name */}
               <div style={{
-                fontFamily: "Syne, sans-serif", fontSize: 14, fontWeight: 700, color: "#E5E7EB",
+                fontFamily: "Syne, sans-serif", fontSize: 14, fontWeight: 700, color: "var(--foreground)",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>
                 {algorithm.name}
@@ -259,7 +254,7 @@ function AlgorithmSelectorComponent() {
               {/* Description */}
               {algorithm.description && (
                 <div style={{
-                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", lineHeight: 1.5,
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", lineHeight: 1.5,
                   display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
                 }}>
                   {algorithm.description}
@@ -269,7 +264,7 @@ function AlgorithmSelectorComponent() {
               {/* Qubit badge + action buttons */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2, flexWrap: "wrap" }}>
                 <span style={{
-                  borderRadius: 999, background: "rgba(148,163,184,0.10)", color: "#CBD5E1",
+                  borderRadius: 999, background: "var(--hover)", color: "var(--muted)",
                   padding: "2px 8px", fontFamily: "JetBrains Mono, monospace", fontSize: 8,
                 }}>
                   {algorithm.qubits}q
@@ -281,7 +276,7 @@ function AlgorithmSelectorComponent() {
                     disabled={optimizingId === algorithm.id}
                     style={{
                       borderRadius: 8, border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.12)",
-                      color: "#FCD34D", padding: "4px 10px",
+                      color: "var(--warning)", padding: "4px 10px",
                       fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: optimizingId === algorithm.id ? "progress" : "pointer",
                       opacity: optimizingId === algorithm.id ? 0.8 : 1,
                     }}
@@ -293,8 +288,8 @@ function AlgorithmSelectorComponent() {
                   type="button"
                   onClick={() => loadAlgorithmComponent(activeCircuit, algorithm)}
                   style={{
-                    borderRadius: 8, border: "1px solid rgba(34,211,238,0.28)", background: "rgba(34,211,238,0.10)",
-                    color: "#67E8F9", padding: "4px 10px",
+                    borderRadius: 8, border: "1px solid var(--border-primary)", background: "var(--hover)",
+                    color: "var(--accent)", padding: "4px 10px",
                     fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: "pointer",
                   }}>
                   Component
@@ -303,8 +298,8 @@ function AlgorithmSelectorComponent() {
                   type="button"
                   onClick={() => loadAlgorithm(activeCircuit, algorithm)}
                   style={{
-                    borderRadius: 8, border: "1px solid rgba(148,163,184,0.16)", background: "rgba(15,23,42,0.84)",
-                    color: "#E5E7EB", padding: "4px 10px",
+                    borderRadius: 8, border: "1px solid var(--border)", background: "var(--card)",
+                    color: "var(--foreground)", padding: "4px 10px",
                     fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: "pointer",
                   }}>
                   Expanded
