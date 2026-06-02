@@ -1,49 +1,47 @@
-﻿"use client";
+"use client";
 
 import { memo } from "react";
 import { SocketStatus } from "@/lib/types";
 
 // ── Status colour map — white design system ───────────────────────────────────
-// All colours use opaque values that are readable on white backgrounds.
-// No neon / dark-mode colours.
 const STATUS_STYLE: Record<
   SocketStatus,
   { label: string; dot: string; text: string; border: string; background: string }
 > = {
   connecting: {
     label:      "Connecting",
-    dot:        "#F59E0B",   // amber-400
-    text:       "#92400E",   // amber-800
-    border:     "#FDE68A",   // amber-200
-    background: "#FFFBEB",   // amber-50
+    dot:        "var(--warning)",
+    text:       "var(--warning)",
+    border:     "rgba(245,158,11,0.34)",
+    background: "rgba(245,158,11,0.10)",
   },
   connected: {
     label:      "Connected",
-    dot:        "#10B981",   // emerald-500
-    text:       "#065F46",   // emerald-800
-    border:     "#A7F3D0",   // emerald-200
-    background: "#ECFDF5",   // emerald-50
+    dot:        "var(--success)",
+    text:       "var(--success)",
+    border:     "rgba(52,211,153,0.34)",
+    background: "rgba(52,211,153,0.10)",
   },
   running: {
     label:      "Running",
-    dot:        "#3B82F6",   // blue-500
-    text:       "#1E3A8A",   // blue-900
-    border:     "#BFDBFE",   // blue-200
-    background: "#EFF6FF",   // blue-50
+    dot:        "var(--accent)",
+    text:       "var(--accent)",
+    border:     "rgba(34,211,238,0.34)",
+    background: "rgba(34,211,238,0.10)",
   },
   disconnected: {
     label:      "Disconnected",
-    dot:        "#9CA3AF",   // gray-400
-    text:       "#374151",   // gray-700
-    border:     "#E5E7EB",   // gray-200
-    background: "#F9FAFB",   // gray-50
+    dot:        "var(--danger)",
+    text:       "var(--danger)",
+    border:     "rgba(248,113,113,0.32)",
+    background: "rgba(248,113,113,0.10)",
   },
   error: {
     label:      "Error",
-    dot:        "#EF4444",   // red-500
-    text:       "#7F1D1D",   // red-900
-    border:     "#FECACA",   // red-200
-    background: "#FEF2F2",   // red-50
+    dot:        "var(--danger)",
+    text:       "var(--danger)",
+    border:     "rgba(248,113,113,0.34)",
+    background: "rgba(248,113,113,0.12)",
   },
 };
 
@@ -70,6 +68,8 @@ export const WebSocketStatusBadge = memo(function WebSocketStatusBadge({
         borderRadius: 999,
         border: `1px solid ${s.border}`,
         background: s.background,
+        boxShadow: status === "connected" ? "0 0 18px rgba(52,211,153,0.16)" : status === "running" ? "0 0 18px rgba(34,211,238,0.18)" : "none",
+        backdropFilter: "blur(10px)",
       }}
     >
       {/* Animated dot for running, static for others */}
@@ -80,7 +80,8 @@ export const WebSocketStatusBadge = memo(function WebSocketStatusBadge({
           borderRadius: "50%",
           background: s.dot,
           flexShrink: 0,
-          animation: status === "running"
+          boxShadow: `0 0 12px ${s.dot}`,
+          animation: status === "running" || status === "connected"
             ? "ws-pulse 1.1s ease-in-out infinite"
             : "none",
         }}

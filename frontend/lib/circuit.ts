@@ -168,4 +168,23 @@ export const getOccupiedColumns = (circuit: Circuit) => {
   return columns;
 };
 
+export const getStatevectorsAtEachStep = async (
+  circuit: Circuit,
+  simulateCircuit: (serialized: SerializedCircuit) => Promise<any>
+): Promise<any[]> => {
+  const expanded = expandCircuit(circuit);
+  const steps: any[] = [];
+
+  for (let i = 0; i < expanded.length; i++) {
+    const prefixGates = expanded.slice(0, i + 1);
+    const result = await simulateCircuit({
+      qubits: circuit.qubits,
+      gates: prefixGates.map(({ sourceOperationId: _, ...g }) => g),
+    });
+    steps.push(result);
+  }
+
+  return steps;
+};
+
 export const gateTouchesQubit = touchesQubit;

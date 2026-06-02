@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useCallback, useMemo, useState } from "react";
 import { CircuitJsonEditor } from "./CircuitJsonEditor";
 import { CircuitExplainer } from "./CircuitExplainer";
@@ -31,44 +32,44 @@ import { useVisualizationStore } from "@/store/useVisualizationStore";
 
 // ─── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  bg: "#f0f4ff",
-  surface: "#ffffff",
-  canvasBg: "#fafbff",
-  labelBg: "#f5f7ff",
-  border: "#dde3f5",
-  borderMid: "#c7d2fe",
-  text: "#1e293b",
-  textMid: "#475569",
-  textMuted: "#94a3b8",
-  indigo: "#4f46e5",
-  indigoBg: "#eef2ff",
-  violet: "#7c3aed",
-  violetBg: "#f5f3ff",
-  emerald: "#059669",
-  emeraldBg: "#ecfdf5",
-  amber: "#d97706",
-  amberBg: "#fffbeb",
-  rose: "#e11d48",
-  roseBg: "#fff1f2",
-  teal: "#0d9488",
-  tealBg: "#f0fdfa",
-  sky: "#0284c7",
-  wire: "#6366f1",
+  bg: "var(--background)",
+  surface: "var(--panel)",
+  canvasBg: "var(--canvas)",
+  labelBg: "var(--panel-secondary)",
+  border: "var(--border)",
+  borderMid: "var(--border-primary)",
+  text: "var(--foreground)",
+  textMid: "var(--foreground)",
+  textMuted: "var(--muted)",
+  indigo: "var(--accent)",
+  indigoBg: "var(--hover)",
+  violet: "var(--accent-secondary)",
+  violetBg: "rgba(139,92,246,0.14)",
+  emerald: "var(--success)",
+  emeraldBg: "rgba(52,211,153,0.12)",
+  amber: "var(--warning)",
+  amberBg: "rgba(245,158,11,0.12)",
+  rose: "var(--danger)",
+  roseBg: "rgba(248,113,113,0.12)",
+  teal: "#2DD4BF",
+  tealBg: "rgba(45,212,191,0.12)",
+  sky: "#38BDF8",
+  wire: "var(--accent)",
   fontMono: "JetBrains Mono, ui-monospace, monospace",
   fontDisplay: "Syne, ui-sans-serif, sans-serif",
 };
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
-const COL_W = 72;
-const LANE_H = 72;
-const TOP_PAD = 28;
-const BOT_PAD = 110;
+const COL_W = 80;
+const LANE_H = 80;
+const TOP_PAD = 36;
+const BOT_PAD = 120;
 const GATE_W = 48;
 const GATE_H = 38;
 const PIVOT_R = 7;
 const MIN_COLS = 10;
 const MAX_QUBITS = 6;
-const LABEL_COL_W = 72;
+const LABEL_COL_W = 80;
 
 const wireY = (q: number) => TOP_PAD + q * LANE_H + LANE_H / 2;
 const colX = (c: number) => c * COL_W + COL_W / 2;
@@ -112,13 +113,14 @@ function createComponentOperation(alg: AlgorithmDefinition, startQubit: number, 
 function MetricCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
     <div style={{
-      borderRadius: 10, border: `1.5px solid ${T.border}`,
-      background: T.surface, padding: "12px 14px",
+      borderRadius: 12, border: `1px solid var(--border)`,
+      background: "var(--card)", padding: "12px 14px",
       position: "relative" as const, overflow: "hidden",
+      boxShadow: "var(--shadow-panel)",
     }}>
       <div style={{
         position: "absolute" as const, top: 0, left: 0, right: 0,
-        height: 3, background: color, borderRadius: "10px 10px 0 0",
+        height: 2, background: `linear-gradient(90deg, transparent, ${color}, transparent)`, borderRadius: "10px 10px 0 0",
       }} />
       <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.16em", marginBottom: 5, marginTop: 3 }}>
         {label}
@@ -145,7 +147,7 @@ function ProbabilityMeter({ circuit, counts }: {
   if (!orderedBits.length) {
     return (
       <div style={{
-        border: `1.5px dashed ${T.border}`, borderRadius: 10, background: T.surface,
+        border: `1px dashed var(--border)`, borderRadius: 12, background: "var(--hover)",
         padding: "12px 14px", fontFamily: T.fontMono, fontSize: 10, color: T.textMuted,
       }}>
         Add measurement gates to reveal classical registers.
@@ -155,7 +157,7 @@ function ProbabilityMeter({ circuit, counts }: {
 
   const cols = [T.indigo, T.violet, T.emerald, T.amber, T.rose, T.teal];
   return (
-    <div style={{ border: `1.5px solid ${T.border}`, borderRadius: 10, background: T.surface, padding: "12px 14px", display: "grid", gap: 8 }}>
+    <div style={{ border: `1px solid var(--border)`, borderRadius: 12, background: "var(--panel)", padding: "12px 14px", display: "grid", gap: 8, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
       <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.indigo, textTransform: "uppercase" as const, letterSpacing: "0.16em", fontWeight: 700 }}>
         Probability Meter
       </div>
@@ -165,8 +167,8 @@ function ProbabilityMeter({ circuit, counts }: {
         return (
           <div key={classicalBit} style={{ display: "grid", gridTemplateColumns: "36px 1fr 44px", gap: 8, alignItems: "center" }}>
             <span style={{ fontFamily: T.fontMono, fontSize: 11, fontWeight: 700, color: c }}>C{classicalBit}</span>
-            <div style={{ height: 8, borderRadius: 999, background: T.bg, overflow: "hidden", border: `1px solid ${T.border}` }}>
-              <div style={{ width: `${p * 100}%`, height: "100%", background: c, transition: "width 0.4s", borderRadius: 999 }} />
+            <div style={{ height: 8, borderRadius: 999, background: "var(--input)", overflow: "hidden", border: `1px solid var(--border)` }}>
+              <div style={{ width: `${p * 100}%`, height: "100%", background: `linear-gradient(90deg, ${c}, ${T.violet})`, transition: "width 0.4s", borderRadius: 999, boxShadow: `0 0 18px ${c}66` }} />
             </div>
             <span style={{ fontFamily: T.fontMono, fontSize: 11, fontWeight: 700, color: c, textAlign: "right" as const }}>{p.toFixed(2)}</span>
           </div>
@@ -188,7 +190,9 @@ function OperationRenderer({ gate, active }: { gate: GateOperation; active: bool
     return (
       <g>
         <rect x={x - GATE_W / 2} y={top} width={GATE_W} height={bottom - top} rx={12}
-          fill={active ? T.indigoBg : "#f8f9ff"} stroke={T.indigo} strokeWidth={active ? 2.5 : 1.5} />
+          fill={active ? T.indigoBg : "var(--card)"} stroke={T.indigo} strokeWidth={active ? 2.5 : 1.5}
+          strokeDasharray={active ? "5 3" : undefined}
+          style={{ filter: active ? `drop-shadow(0 0 12px ${T.indigo})` : "none", animation: active ? "border-shimmer 1.4s ease-in-out infinite" : "none" }} />
         <text x={x} y={(top + bottom) / 2} textAnchor="middle" dominantBaseline="middle"
           fontFamily={T.fontMono} fontSize="10" fontWeight="700" fill={T.indigo}>
           [{(gate.label ?? "COMP").toUpperCase()}]
@@ -207,10 +211,10 @@ function OperationRenderer({ gate, active }: { gate: GateOperation; active: bool
           <>{[cy, ty].map((y) => (<g key={y}><line x1={x - 9} y1={y - 9} x2={x + 9} y2={y + 9} stroke={color} strokeWidth={2} /><line x1={x + 9} y1={y - 9} x2={x - 9} y2={y + 9} stroke={color} strokeWidth={2} /></g>))}</>
         ) : (
           <>
-            <circle cx={x} cy={cy} r={6} fill={color} />
+            <circle cx={x} cy={cy} r={6} fill={color} style={{ filter: active ? `drop-shadow(0 0 10px ${color})` : "none" }} />
             {gate.type === "CNOT" ? (
               <>
-                <circle cx={x} cy={ty} r={16} fill={T.surface} stroke={color} strokeWidth={2} />
+                <circle cx={x} cy={ty} r={16} fill="var(--input)" stroke={color} strokeWidth={2} style={{ filter: active ? `drop-shadow(0 0 12px ${color})` : "none" }} />
                 <line x1={x - 11} y1={ty} x2={x + 11} y2={ty} stroke={color} strokeWidth={2} />
                 <line x1={x} y1={ty - 11} x2={x} y2={ty + 11} stroke={color} strokeWidth={2} />
               </>
@@ -218,7 +222,7 @@ function OperationRenderer({ gate, active }: { gate: GateOperation; active: bool
               <circle cx={x} cy={ty} r={6} fill={color} />
             ) : (
               <>
-                <rect x={x - GATE_W / 2} y={ty - GATE_H / 2} width={GATE_W} height={GATE_H} rx={10} fill={T.surface} stroke={color} strokeWidth={2} />
+                <rect x={x - GATE_W / 2} y={ty - GATE_H / 2} width={GATE_W} height={GATE_H} rx={10} fill="var(--input)" stroke={color} strokeWidth={2} style={{ filter: active ? `drop-shadow(0 0 12px ${color})` : "none" }} />
                 <text x={x} y={ty} textAnchor="middle" dominantBaseline="middle" fontFamily={T.fontDisplay} fontSize="12" fontWeight="700" fill={color}>{gate.type}</text>
               </>
             )}
@@ -231,7 +235,9 @@ function OperationRenderer({ gate, active }: { gate: GateOperation; active: bool
   return (
     <g>
       <rect x={x - GATE_W / 2} y={ty - GATE_H / 2} width={GATE_W} height={GATE_H} rx={10}
-        fill={active ? T.indigoBg : T.surface} stroke={color} strokeWidth={active ? 2.5 : 1.5} />
+        fill={active ? T.indigoBg : "var(--input)"} stroke={color} strokeWidth={active ? 2.5 : 1.5}
+        strokeDasharray={active ? "5 3" : undefined}
+        style={{ filter: active ? `drop-shadow(0 0 13px ${color})` : "drop-shadow(0 4px 10px rgba(0,0,0,0.1))", transition: "filter 160ms ease" }} />
       {isMeasureGate(gate.type) ? (
         <>
           <path d={`M ${x - 10} ${ty + 5} A 10 10 0 0 1 ${x + 10} ${ty + 5}`} stroke={color} strokeWidth="2" fill="none" />
@@ -274,7 +280,8 @@ function GhostPreview({ preview, qubit, column }: { preview: PreviewItem; qubit:
   return (
     <g opacity="0.55" style={{ pointerEvents: "none" }}>
       <rect x={x - GATE_W / 2} y={y - GATE_H / 2} width={GATE_W} height={GATE_H}
-        rx={10} fill={T.surface} stroke={color} strokeWidth={2} strokeDasharray="6 4" />
+        rx={10} fill="var(--input)" stroke={color} strokeWidth={2} strokeDasharray="6 4"
+        style={{ filter: `drop-shadow(0 0 12px ${color})` }} />
       <text x={x} y={y} textAnchor="middle" dominantBaseline="middle"
         fontFamily={T.fontDisplay} fontSize="12" fontWeight="700" fill={color}>
         {preview.gateType === "CNOT" ? "CX" : preview.gateType}
@@ -287,8 +294,8 @@ function GhostPreview({ preview, qubit, column }: { preview: PreviewItem; qubit:
 function StickyLabelColumn({ qubits, svgHeight }: { qubits: number; svgHeight: number }) {
   return (
     <svg width={LABEL_COL_W} height={svgHeight}
-      style={{ display: "block", flexShrink: 0, borderRight: `1.5px solid ${T.border}` }}>
-      <rect width={LABEL_COL_W} height={svgHeight} fill={T.labelBg} />
+      style={{ display: "block", flexShrink: 0, borderRight: `1px solid var(--border)` }}>
+      <rect width={LABEL_COL_W} height={svgHeight} fill="var(--panel-secondary)" />
       {Array.from({ length: qubits }, (_, q) => {
         const y = wireY(q);
         return (
@@ -346,27 +353,27 @@ function CircuitSVG(props: {
   return (
     <div style={{
       display: "flex", alignItems: "stretch", overflow: "hidden",
-      borderRadius: 12, border: `1.5px solid ${T.border}`,
-      background: T.surface, boxShadow: "0 2px 12px rgba(99,102,241,0.07)",
+      borderRadius: 16, border: `1px solid var(--border)`,
+      background: "var(--input)", boxShadow: "var(--shadow-panel)",
     }}>
       <StickyLabelColumn qubits={circuit.qubits} svgHeight={svgHeight} />
       <div style={{ overflowX: "auto", overflowY: "hidden", flex: 1 }}>
         <div style={{ transform: `scale(${zoom})`, transformOrigin: "top left", width: svgWidth * zoom, height: svgHeight * zoom }}>
           <svg width={svgWidth} height={svgHeight} style={{ display: "block" }}>
-            <rect width={svgWidth} height={svgHeight} fill={T.canvasBg} />
+            <rect width={svgWidth} height={svgHeight} fill="var(--canvas)" />
 
             {/* Alternating column bands */}
             {Array.from({ length: numCols }, (_, col) => (
               <rect key={`band-${col}`} x={col * COL_W} y={0} width={COL_W}
                 height={TOP_PAD + circuit.qubits * LANE_H + 22}
-                fill={col % 2 === 0 ? "#fafbff" : "#f5f7ff"} />
+                fill={col % 2 === 0 ? "var(--row-alt)" : "transparent"} />
             ))}
 
             {/* Column lines */}
             {Array.from({ length: numCols }, (_, col) => (
               <line key={`col-${col}`} x1={col * COL_W} y1={TOP_PAD - 10}
                 x2={col * COL_W} y2={TOP_PAD + circuit.qubits * LANE_H + 22}
-                stroke={T.border} strokeWidth="1" />
+                stroke="var(--border)" strokeWidth="1" />
             ))}
 
             {/* Quantum wires */}
@@ -374,13 +381,18 @@ function CircuitSVG(props: {
               const y = wireY(q);
               const meas = measurementMap.get(q);
               const endX = colX(meas ? meas.column : numCols - 1) + COL_W / 2;
-              return <line key={`wire-${q}`} x1={0} y1={y} x2={endX} y2={y} stroke={T.wire} strokeWidth="2" />;
+              return (
+                <g key={`wire-${q}`}>
+                  <line x1={0} y1={y} x2={endX} y2={y} stroke="var(--accent)" strokeWidth="4" opacity="0.06" />
+                  <line x1={0} y1={y} x2={endX} y2={y} stroke="var(--accent)" strokeWidth="1.2" opacity="0.65" />
+                </g>
+              );
             })}
 
             {/* Classical wires */}
             {Array.from({ length: circuit.qubits }, (_, q) => {
               const y = TOP_PAD + circuit.qubits * LANE_H + 34 + q * 18;
-              return <line key={`cw-${q}`} x1={0} y1={y} x2={svgWidth - 24} y2={y} stroke={T.borderMid} strokeDasharray="5 4" strokeWidth="1.5" />;
+              return <line key={`cw-${q}`} x1={0} y1={y} x2={svgWidth - 24} y2={y} stroke="var(--border)" strokeDasharray="4 6" strokeWidth="1.2" />;
             })}
 
             {/* Pivot dots */}
@@ -390,9 +402,9 @@ function CircuitSVG(props: {
                 const over = dragOverKey === key;
                 return (
                   <circle key={`pv-${key}`} cx={colX(col)} cy={wireY(q)} r={PIVOT_R}
-                    fill={over ? T.indigoBg : selectedGate ? "#eef2ff" : T.surface}
+                    fill={over ? T.indigo : selectedGate ? "var(--hover)" : "var(--panel)"}
                     stroke={over ? T.indigo : T.borderMid} strokeWidth={over ? 2 : 1.5}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", filter: over ? `drop-shadow(0 0 12px ${T.indigo})` : "none", transition: "filter 150ms ease" }}
                     onMouseEnter={() => onPivotHover(q, col)}
                     onMouseLeave={onPivotLeave}
                     onClick={() => onPivotClick(q, col)}
@@ -410,7 +422,7 @@ function CircuitSVG(props: {
             {connectionDraft && (
               <line x1={colX(connectionDraft.column)} y1={wireY(connectionDraft.controlQubit)}
                 x2={colX(connectionDraft.column)} y2={wireY(connectionDraft.previewQubit)}
-                stroke={GATE_COLOR[connectionDraft.gateType]} strokeWidth="2.5" strokeDasharray="5 4" />
+                stroke={GATE_COLOR[connectionDraft.gateType]} strokeWidth="2.5" strokeDasharray="5 4" style={{ filter: `drop-shadow(0 0 10px ${GATE_COLOR[connectionDraft.gateType]})` }} />
             )}
 
             {/* Gates */}
@@ -446,8 +458,9 @@ function CircuitSVG(props: {
 function ZoomBar({ zoom, onChange }: { zoom: number; onChange: (z: number) => void }) {
   const levels = [0.5, 0.75, 1, 1.25, 1.5];
   const base: React.CSSProperties = {
-    borderRadius: 6, border: `1.5px solid ${T.border}`, background: T.surface,
-    color: T.text, fontFamily: T.fontMono, fontSize: 11, cursor: "pointer", padding: "4px 10px",
+    borderRadius: 8, border: `1px solid var(--border)`, background: "var(--card)",
+    color: "var(--foreground)", fontFamily: T.fontMono, fontSize: 11, cursor: "pointer", padding: "4px 10px",
+    transition: "all 150ms ease",
   };
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -458,10 +471,11 @@ function ZoomBar({ zoom, onChange }: { zoom: number; onChange: (z: number) => vo
         {levels.map((l) => (
           <button key={l} type="button" onClick={() => onChange(l)} style={{
             ...base, fontSize: 9, padding: "3px 7px",
-            background: zoom === l ? T.indigoBg : T.surface,
-            color: zoom === l ? T.indigo : T.textMuted,
-            border: `1.5px solid ${zoom === l ? T.indigo : T.border}`,
+            background: zoom === l ? "var(--hover)" : "var(--card)",
+            color: zoom === l ? "var(--accent)" : "var(--muted)",
+            border: `1px solid ${zoom === l ? "var(--accent)" : "var(--border)"}`,
             fontWeight: zoom === l ? 700 : 400,
+            boxShadow: zoom === l ? `0 0 18px var(--glow-cyan)` : "none",
           }}>{Math.round(l * 100)}%</button>
         ))}
       </div>
@@ -475,10 +489,10 @@ function TopBtn({ children, onClick, color, bg, border }: {
   color: string; bg: string; border: string;
 }) {
   return (
-    <button type="button" onClick={onClick} style={{
-      borderRadius: 8, border: `1.5px solid ${border}`, background: bg, color,
+    <button type="button" onClick={onClick} className="quantum-button" style={{
+      borderRadius: 10, border: `1px solid ${border}`, background: bg, color,
       padding: "7px 18px", fontFamily: T.fontMono, fontSize: 11, fontWeight: 700,
-      cursor: "pointer", letterSpacing: "0.04em", transition: "all 0.15s",
+      cursor: "pointer", letterSpacing: "0.04em",
       whiteSpace: "nowrap" as const,
     }}>{children}</button>
   );
@@ -592,56 +606,61 @@ export default function CircuitBuilder() {
   }, [setIsRunning, setResult, setSocketError, simulateCircuit]);
 
   return (
-    <section style={{
-      background: T.bg, borderRadius: 16, border: `1.5px solid ${T.border}`,
-      boxShadow: "0 4px 32px rgba(99,102,241,0.10)", overflow: "hidden",
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      style={{
+      background: "var(--panel)", borderRadius: 20, border: "1px solid var(--border)",
+      boxShadow: "var(--shadow-panel)", overflow: "hidden",
       display: "flex", flexDirection: "column" as const,
       minHeight: "100vh",
     }}>
 
       {/* ── Top toolbar ── */}
       <div style={{
-        display: "flex", alignItems: "center", padding: "12px 20px",
-        background: T.surface, borderBottom: `1.5px solid ${T.border}`,
-        gap: 10, flexWrap: "wrap" as const,
+        display: "flex", alignItems: "center", padding: "16px 24px",
+        background: "var(--panel)", borderBottom: "1px solid var(--border)",
+        gap: 12, flexWrap: "wrap" as const,
+        backdropFilter: "blur(16px)",
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h2 style={{ margin: 0, fontFamily: T.fontDisplay, fontSize: 20, fontWeight: 800, color: T.text, letterSpacing: "-0.02em" }}>
+          <h2 style={{ margin: 0, fontFamily: T.fontDisplay, fontSize: 20, fontWeight: 800, color: "var(--foreground)", letterSpacing: "-0.02em" }}>
             Circuit Builder
           </h2>
-          <p style={{ margin: 0, fontFamily: T.fontMono, fontSize: 10, color: T.textMuted, marginTop: 2 }}>
+          <p style={{ margin: 0, fontFamily: T.fontMono, fontSize: 10, color: "var(--muted)", marginTop: 4 }}>
             {selectedGate
               ? isTwoQubitGate(selectedGate) ? `${selectedGate} · connect two pivots` : `${selectedGate} selected · click or drop onto a pivot`
               : "Select a gate, click a wire to place, and click a gate to delete"}
           </p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" as const }}>
           {(["A", "B"] as CircuitKey[]).map((key) => (
             <TopBtn key={key} onClick={() => setActiveCircuit(key)}
-              color={activeCircuit === key ? T.indigo : T.textMid}
-              bg={activeCircuit === key ? T.indigoBg : T.surface}
-              border={activeCircuit === key ? T.indigo : T.border}>
+              color={activeCircuit === key ? T.indigo : "var(--foreground)"}
+              bg={activeCircuit === key ? "var(--hover)" : "var(--card)"}
+              border={activeCircuit === key ? T.indigo : "var(--border)"}>
               Circuit {key}
             </TopBtn>
           ))}
-          <div style={{ width: 1, height: 22, background: T.border }} />
-          <TopBtn onClick={() => void runSingleCircuit(activeCircuit)} color="#fff" bg={T.indigo} border={T.indigo}>
+          <div style={{ width: 1, height: 22, background: "var(--border)" }} />
+          <TopBtn onClick={() => void runSingleCircuit(activeCircuit)} color="#06111F" bg="linear-gradient(135deg, #67E8F9, #A78BFA)" border="rgba(103,232,249,0.55)">
             ▶ Run {activeCircuit}
           </TopBtn>
           <TopBtn onClick={() => { void runSingleCircuit("A"); void runSingleCircuit("B"); }}
-            color={T.violet} bg={T.violetBg} border={T.violet}>A vs B</TopBtn>
-          <TopBtn onClick={loadMockData} color={T.textMid} bg={T.surface} border={T.border}>Load Mock</TopBtn>
-          <div style={{ width: 1, height: 22, background: T.border }} />
-          <label style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: T.fontMono, fontSize: 10, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.1em" }}>
+            color={T.violet} bg="var(--hover)" border={T.violet}>A vs B</TopBtn>
+          <TopBtn onClick={loadMockData} color="var(--foreground)" bg="var(--card)" border="var(--border)">Load Mock</TopBtn>
+          <div style={{ width: 1, height: 22, background: "var(--border)" }} />
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: T.fontMono, fontSize: 10, color: "var(--muted)", textTransform: "uppercase" as const, letterSpacing: "0.1em" }}>
             Qubits
             <select value={circuit.qubits} onChange={(e) => setQubitCount(activeCircuit, Number(e.target.value))}
-              style={{ borderRadius: 7, border: `1.5px solid ${T.border}`, background: T.surface, color: T.text, padding: "5px 8px", fontFamily: T.fontMono, fontSize: 11, fontWeight: 700 }}>
+              style={{ borderRadius: 8, border: "1px solid var(--border)", background: "var(--input)", color: "var(--foreground)", padding: "5px 8px", fontFamily: T.fontMono, fontSize: 11, fontWeight: 700 }}>
               {Array.from({ length: MAX_QUBITS - 1 }, (_, i) => i + 2).map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
           </label>
           <WebSocketStatusBadge status={status as never} message={error ?? null} latencyMs={null} />
-          <button type="button" onClick={reconnect} style={{ borderRadius: 7, border: `1.5px solid ${T.border}`, background: T.surface, color: T.textMid, padding: "6px 12px", fontFamily: T.fontMono, fontSize: 10, cursor: "pointer" }}>
+          <button type="button" onClick={reconnect} className="quantum-button" style={{ borderRadius: 8, border: "1px solid var(--border)", background: "var(--card)", color: "var(--foreground)", padding: "6px 12px", fontFamily: T.fontMono, fontSize: 10, cursor: "pointer" }}>
             reconnect
           </button>
         </div>
@@ -651,7 +670,7 @@ export default function CircuitBuilder() {
       <div style={{ display: "flex", flex: 1, minHeight: 0, overflow: "hidden" }}>
 
         {/* Left: Gate Palette — fixed width, scrollable */}
-        <div style={{padding:5, width: 293, flexShrink: 0, borderRight: `1.5px solid ${T.border}`, background: T.surface, overflowY: "auto" as const }}>
+        <div style={{padding:12, width: 320, flexShrink: 0, borderRight: "1px solid var(--border)", background: "var(--panel-secondary)", overflowY: "auto" as const }}>
           <GatePalette
             selected={selectedGate}
             controlQubit={controlQubit}
@@ -669,13 +688,13 @@ export default function CircuitBuilder() {
         </div>
 
         {/* Center: Circuit canvas — grows */}
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" as const, background: T.bg }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" as const, background: "var(--canvas)" }}>
           {/* Sub-toolbar */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "8px 14px", borderBottom: `1.5px solid ${T.border}`, background: T.surface, gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", padding: "12px 20px", borderBottom: "1px solid var(--border)", background: "var(--panel)", gap: 12, backdropFilter: "blur(14px)" }}>
             <ZoomBar zoom={zoom} onChange={setZoom} />
           </div>
           {/* Canvas + probability meter */}
-          <div style={{ flex: 1, overflowY: "auto" as const, padding: 16, display: "grid", gap: 12, alignContent: "start" }}>
+          <div style={{ flex: 1, overflowY: "auto" as const, padding: 24, display: "grid", gap: 20, alignContent: "start" }}>
             <CircuitSVG
               circuit={circuit}
               selectedGate={selectedGate}
@@ -699,7 +718,7 @@ export default function CircuitBuilder() {
             />
             <ProbabilityMeter circuit={circuit} counts={results[activeCircuit]?.counts ?? null} />
 
-            <div style={{ padding: "0 16px 16px" }}>
+            <div style={{ padding: "0 24px 24px" }}>
               <CircuitExplainer
                 collapsed={explainerCollapsed}
                 onToggleCollapsed={() => setExplainerCollapsed((c) => !c)}
@@ -711,36 +730,36 @@ export default function CircuitBuilder() {
         </div>
 
         {/* Right: Inspector — fixed width, scrollable */}
-        <div style={{ width: 300, flexShrink: 0, borderLeft: `1.5px solid ${T.border}`, background: T.surface, overflowY: "auto" as const, display: "flex", flexDirection: "column" as const }}>
+        <div style={{ width: 340, flexShrink: 0, borderLeft: "1px solid var(--border)", background: "var(--panel-secondary)", overflowY: "auto" as const, display: "flex", flexDirection: "column" as const }}>
 
           {/* Circuit JSON */}
-          <div style={{ padding: 16, borderBottom: `1.5px solid ${T.border}` }}>
+          <div style={{ padding: 20, borderBottom: "1px solid var(--border)" }}>
             <CircuitJsonEditor circuitKey={activeCircuit} />
           </div>
 
           {/* Live Summary */}
-          <div style={{ padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 4, height: 18, borderRadius: 3, background: T.indigo }} />
-              <span style={{ fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 700, color: T.text }}>Live Summary</span>
+          <div style={{ padding: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+              <div style={{ width: 4, height: 20, borderRadius: 3, background: T.indigo }} />
+              <span style={{ fontFamily: T.fontDisplay, fontSize: 15, fontWeight: 700, color: "var(--foreground)" }}>Live Summary</span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               <MetricCard label="Gate Count" value={metrics.gateCount} color={T.indigo} />
               <MetricCard label="Depth" value={metrics.depth} color={T.violet} />
               <MetricCard label="States · A" value={results["A"] ? Object.keys(results["A"]!.counts).length : "—"} color={T.emerald} />
               <MetricCard label="States · B" value={results["B"] ? Object.keys(results["B"]!.counts).length : "—"} color={T.amber} />
             </div>
 
-            <div style={{ marginTop: 8, borderRadius: 10, border: `1.5px solid ${T.border}`, background: T.bg, padding: "10px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.14em" }}>Components</span>
-              <span style={{ fontFamily: T.fontDisplay, fontSize: 22, fontWeight: 800, color: T.teal }}>
+            <div style={{ marginTop: 12, borderRadius: 14, border: "1px solid var(--border)", background: "var(--card)", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+              <span style={{ fontFamily: T.fontMono, fontSize: 9, color: "var(--muted)", textTransform: "uppercase" as const, letterSpacing: "0.14em" }}>Components</span>
+              <span style={{ fontFamily: T.fontDisplay, fontSize: 24, fontWeight: 800, color: T.teal }}>
                 {circuit.gates.filter((g) => isComponentType(g.type)).length}
               </span>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

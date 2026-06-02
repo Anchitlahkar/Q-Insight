@@ -42,6 +42,7 @@ interface CircuitActions {
   loadMockData: () => void;
   loadAlgorithm: (key: CircuitKey, algorithm: AlgorithmDefinition) => void;
   loadAlgorithmComponent: (key: CircuitKey, algorithm: AlgorithmDefinition, startQubit?: number) => void;
+  replaceCircuit: (key: CircuitKey, circuit: Circuit) => void;
 }
 
 type CircuitStore = CircuitState & CircuitActions;
@@ -292,5 +293,14 @@ export const useCircuitStore = create<CircuitStore>()(
         state.results[key] = null;
       });
     },
+
+    replaceCircuit: (key, circuit) =>
+      set((state) => {
+        state.circuits[key] = {
+          qubits: circuit.qubits,
+          gates: circuit.gates.map(normalizeGate),
+        };
+        state.results[key] = null;
+      }),
   }))
 );

@@ -1,6 +1,8 @@
 "use client";
 
 import { memo, useCallback, useMemo, useState } from "react";
+import type { DragEvent } from "react";
+import { motion } from "framer-motion";
 import algorithms from "@/lib/algorithms.json";
 import { serializeCircuit } from "@/lib/circuit";
 import { variationalUrl, webSocketUrl } from "@/lib/env";
@@ -143,27 +145,33 @@ function AlgorithmSelectorComponent() {
   );
 
   return (
-    <section style={{
-      borderRadius: 12,
-      border: "1px solid #E5E7EB",
-      background: "#FFFFFF",
-      padding: 20,
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.38, ease: "easeOut" }}
+      style={{
+      borderRadius: 20,
+      border: "1px solid var(--border)",
+      background: "var(--panel)",
+      padding: 24,
       display: "grid",
-      gap: 16,
+      gap: 20,
+      boxShadow: "var(--shadow-panel)",
+      backdropFilter: "blur(18px)",
     }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div>
-          <h2 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 18, fontWeight: 700, color: "#1F2937" }}>
+          <h2 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontSize: 18, fontWeight: 700, color: "var(--foreground)" }}>
             Algorithm Library
           </h2>
-          <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#6B7280", lineHeight: 1.5 }}>
+          <p style={{ margin: "6px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", lineHeight: 1.6 }}>
             Select a category, then drag or load an algorithm into the active circuit.
           </p>
         </div>
         <div style={{
-          borderRadius: 999, border: "1px solid #DBEAFE", background: "#EFF6FF",
-          color: "#3B82F6", padding: "5px 12px",
+          borderRadius: 999, border: "1px solid var(--border-primary)", background: "var(--hover)",
+          color: "var(--accent)", padding: "6px 14px",
           fontFamily: "JetBrains Mono, monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em",
           whiteSpace: "nowrap",
         }}>
@@ -172,12 +180,7 @@ function AlgorithmSelectorComponent() {
       </div>
 
       {/* ── Level 1: Category tab strip ── */}
-      {/*
-        All categories rendered as compact pill buttons.
-        They wrap naturally on small containers.
-        No accordion — a single click switches the tile grid below instantly.
-      */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {availableCategories.map((cat) => {
           const active = selectedCategory === cat;
           return (
@@ -186,11 +189,11 @@ function AlgorithmSelectorComponent() {
               type="button"
               onClick={() => setSelectedCategory(cat)}
               style={{
-                borderRadius: 8,
-                border: `1px solid ${active ? "#DBEAFE" : "#E5E7EB"}`,
-                background: active ? "#EFF6FF" : "#FFFFFF",
-                color: active ? "#3B82F6" : "#6B7280",
-                padding: "5px 11px",
+                borderRadius: 10,
+                border: `1px solid ${active ? "var(--border-primary)" : "var(--border)"}`,
+                background: active ? "var(--hover)" : "var(--card)",
+                color: active ? "var(--accent)" : "var(--muted)",
+                padding: "6px 14px",
                 fontFamily: "JetBrains Mono, monospace",
                 fontSize: 10,
                 cursor: "pointer",
@@ -206,50 +209,43 @@ function AlgorithmSelectorComponent() {
       {/* ── Level 2: Tile grid for the selected category ── */}
       {currentAlgorithms.length === 0 ? (
         <div style={{
-          padding: "24px 0", textAlign: "center",
-          fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#94a3b8",
+          padding: "32px 0", textAlign: "center",
+          fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "var(--muted)",
         }}>
           No algorithms in this category yet.
         </div>
       ) : (
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-          gap: 10,
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gap: 12,
         }}>
           {currentAlgorithms.map((algorithm) => (
-            <div
+            <motion.div
               key={algorithm.id}
               draggable
-              onDragStart={(e) => {
-                e.dataTransfer.effectAllowed = "copy";
-                e.dataTransfer.setData("application/x-qhack-operation", dragPayload(algorithm, selectedCategory));
+              onDragStartCapture={(e) => {
+                const dragEvent = e as unknown as DragEvent<HTMLDivElement>;
+                dragEvent.dataTransfer.effectAllowed = "copy";
+                dragEvent.dataTransfer.setData("application/x-qhack-operation", dragPayload(algorithm, selectedCategory));
               }}
               style={{
-                borderRadius: 12,
-                border: "1px solid #E5E7EB",
-                background: "#FFFFFF",
-                padding: "12px 14px",
+                borderRadius: 16,
+                border: "1px solid var(--border)",
+                background: "var(--panel-secondary)",
+                padding: "16px 18px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 6,
+                gap: 8,
                 cursor: "grab",
-                transition: "all 0.13s",
+                boxShadow: "0 10px 20px rgba(0,0,0,0.08)",
               }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "#DBEAFE";
-                (e.currentTarget as HTMLDivElement).style.background  = "#F8FBFF";
-                (e.currentTarget as HTMLDivElement).style.transform   = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = "#E5E7EB";
-                (e.currentTarget as HTMLDivElement).style.background  = "#FFFFFF";
-                (e.currentTarget as HTMLDivElement).style.transform   = "none";
-              }}
+              whileHover={{ y: -2, borderColor: "var(--accent)", boxShadow: "0 14px 30px rgba(0,0,0,0.12), 0 0 16px var(--glow-cyan)" }}
+              whileTap={{ scale: 0.99 }}
             >
               {/* Algorithm name */}
               <div style={{
-                fontFamily: "Syne, sans-serif", fontSize: 14, fontWeight: 700, color: "#1F2937",
+                fontFamily: "Syne, sans-serif", fontSize: 14, fontWeight: 700, color: "var(--foreground)",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>
                 {algorithm.name}
@@ -258,7 +254,7 @@ function AlgorithmSelectorComponent() {
               {/* Description */}
               {algorithm.description && (
                 <div style={{
-                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#6B7280", lineHeight: 1.5,
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "var(--muted)", lineHeight: 1.5,
                   display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
                 }}>
                   {algorithm.description}
@@ -268,7 +264,7 @@ function AlgorithmSelectorComponent() {
               {/* Qubit badge + action buttons */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2, flexWrap: "wrap" }}>
                 <span style={{
-                  borderRadius: 999, background: "#F1F5F9", color: "#475569",
+                  borderRadius: 999, background: "var(--hover)", color: "var(--muted)",
                   padding: "2px 8px", fontFamily: "JetBrains Mono, monospace", fontSize: 8,
                 }}>
                   {algorithm.qubits}q
@@ -279,8 +275,8 @@ function AlgorithmSelectorComponent() {
                     onClick={() => void optimizeAlgorithm(algorithm)}
                     disabled={optimizingId === algorithm.id}
                     style={{
-                      borderRadius: 8, border: "1px solid #FDE68A", background: "#FFFBEB",
-                      color: "#B45309", padding: "4px 10px",
+                      borderRadius: 8, border: "1px solid rgba(245,158,11,0.35)", background: "rgba(245,158,11,0.12)",
+                      color: "var(--warning)", padding: "4px 10px",
                       fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: optimizingId === algorithm.id ? "progress" : "pointer",
                       opacity: optimizingId === algorithm.id ? 0.8 : 1,
                     }}
@@ -292,8 +288,8 @@ function AlgorithmSelectorComponent() {
                   type="button"
                   onClick={() => loadAlgorithmComponent(activeCircuit, algorithm)}
                   style={{
-                    borderRadius: 8, border: "1px solid #DBEAFE", background: "#EFF6FF",
-                    color: "#3B82F6", padding: "4px 10px",
+                    borderRadius: 8, border: "1px solid var(--border-primary)", background: "var(--hover)",
+                    color: "var(--accent)", padding: "4px 10px",
                     fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: "pointer",
                   }}>
                   Component
@@ -302,18 +298,18 @@ function AlgorithmSelectorComponent() {
                   type="button"
                   onClick={() => loadAlgorithm(activeCircuit, algorithm)}
                   style={{
-                    borderRadius: 8, border: "1px solid #E5E7EB", background: "#FFFFFF",
-                    color: "#1F2937", padding: "4px 10px",
+                    borderRadius: 8, border: "1px solid var(--border)", background: "var(--card)",
+                    color: "var(--foreground)", padding: "4px 10px",
                     fontFamily: "JetBrains Mono, monospace", fontSize: 9, cursor: "pointer",
                   }}>
                   Expanded
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
-    </section>
+    </motion.section>
   );
 }
 

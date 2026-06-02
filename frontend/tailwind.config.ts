@@ -12,16 +12,26 @@ const config: Config = {
     extend: {
       colors: {
         background: "var(--background)",
+        foreground: "var(--foreground)",
+        muted: "var(--muted)",
         panel: "var(--panel)",
-        primary: "var(--primary)",
-        secondary: "var(--secondary)",
+        "panel-secondary": "var(--panel-secondary)",
+        card: "var(--card)",
+        border: "var(--border)",
+        input: "var(--input)",
+        canvas: "var(--canvas)",
+        hover: "var(--hover)",
+        accent: "var(--accent)",
+        "accent-secondary": "var(--accent-secondary)",
+        // Aliases for transition
+        primary: "var(--accent)",
+        secondary: "var(--accent-secondary)",
         success: "var(--success)",
         danger: "var(--danger)",
-        text: "var(--text)",
-        muted: "var(--muted)"
       },
       boxShadow: {
-        panel: "0 20px 45px rgba(0, 0, 0, 0.28)"
+        panel: "var(--shadow-panel)",
+        glow: "var(--glow-cyan)"
       }
     }
   },

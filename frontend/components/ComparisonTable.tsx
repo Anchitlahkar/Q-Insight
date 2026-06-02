@@ -6,21 +6,21 @@ import { useCircuitStore } from "@/store/useCircuitStore";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  bg:        "#FFFFFF",
-  surface:   "#F9FAFB",
-  border:    "#E5E7EB",
-  borderRow: "#F3F4F6",
-  text:      "#1F2937",
-  muted:     "#6B7280",
-  hint:      "#9CA3AF",
+  bg:        "var(--panel)",
+  surface:   "var(--panel-secondary)",
+  border:    "var(--border)",
+  borderRow: "var(--border)",
+  text:      "var(--foreground)",
+  muted:     "var(--muted)",
+  hint:      "var(--muted)",
   mono:      "JetBrains Mono, monospace",
   head:      "Syne, sans-serif",
   // Circuit A = blue
-  a:         { text: "#1D4ED8", light: "#EFF6FF", border: "#BFDBFE", strong: "#1E40AF" },
+  a:         { text: "var(--accent)", light: "var(--hover)", border: "var(--border-primary)", strong: "var(--accent)" },
   // Circuit B = violet (distinct from blue, avoids neon purple)
-  b:         { text: "#6D28D9", light: "#F5F3FF", border: "#C4B5FD", strong: "#5B21B6" },
+  b:         { text: "var(--accent-secondary)", light: "rgba(139,92,246,0.12)", border: "rgba(167,139,250,0.30)", strong: "var(--accent-secondary)" },
   // Win = green tint, lose = none, tie = gray
-  win:       { text: "#065F46", light: "#ECFDF5", border: "#6EE7B7" },
+  win:       { text: "var(--success)", light: "rgba(52,211,153,0.12)", border: "rgba(52,211,153,0.34)" },
 } as const;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ function WinnerBadge({ winner }: { winner: "A" | "B" | "tie" }) {
   return (
     <span style={{
       display: "inline-block",
-      background: style.bg,
+      background: winner === "tie" ? style.bg : `linear-gradient(135deg, ${style.bg}, rgba(34,211,238,0.08))`,
       border: `1px solid ${style.border}`,
       color: style.color,
       borderRadius: 999,
@@ -106,6 +106,7 @@ function ValueCell({
   value: number; delta: string; isWinner: boolean; circuit: "A" | "B";
 }) {
   const palette = circuit === "A" ? T.a : T.b;
+  const width = `${Math.max(8, Math.min(100, value === 0 ? 8 : value * 12))}%`;
   return (
     <td style={{ padding: "13px 16px", verticalAlign: "top" }}>
       <div style={{
@@ -128,6 +129,16 @@ function ValueCell({
           ✓ better
         </div>
       )}
+      <div style={{ height: 4, borderRadius: 999, background: "rgba(148,163,184,0.10)", overflow: "hidden", marginTop: 7 }}>
+        <div style={{
+          width,
+          height: "100%",
+          borderRadius: 999,
+          background: `linear-gradient(90deg, ${palette.strong}, ${isWinner ? "#34D399" : palette.text})`,
+          boxShadow: `0 0 14px ${palette.strong}55`,
+          transition: "width 420ms ease",
+        }} />
+      </div>
       {!isWinner && (
         <div style={{ fontFamily: T.mono, fontSize: 9, color: T.hint }}>
           {delta}
@@ -228,9 +239,10 @@ function ComparisonTableComponent() {
     <section style={{
       background: T.bg,
       border: `1px solid ${T.border}`,
-      borderRadius: 16,
+      borderRadius: 18,
       padding: 20,
-      boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+      boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
+      backdropFilter: "blur(18px)",
     }}>
       {/* ── Header ── */}
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
@@ -276,7 +288,7 @@ function ComparisonTableComponent() {
       </div>
 
       {/* ── Divider ── */}
-      <div style={{ height: 1, marginBottom: 16, background: T.borderRow }} />
+      <div style={{ height: 1, marginBottom: 16, background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.26), transparent)" }} />
 
       {/* ── Table ── */}
       <div style={{ overflow: "hidden", borderRadius: 12, border: `1px solid ${T.border}` }}>
@@ -312,7 +324,7 @@ function ComparisonTableComponent() {
                 key={row.label}
                 style={{
                   borderTop: index === 0 ? "none" : `1px solid ${T.borderRow}`,
-                  background: index % 2 === 0 ? T.bg : T.surface,
+                  background: index % 2 === 0 ? "var(--row-alt)" : "transparent",
                 }}
               >
                 {/* Metric label + description */}
