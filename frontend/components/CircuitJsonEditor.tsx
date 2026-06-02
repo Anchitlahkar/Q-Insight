@@ -21,27 +21,27 @@ import { useCircuitStore } from "@/store/useCircuitStore";
 
 // ── Design tokens (matches the white system used in CircuitBuilder) ───────────
 const T = {
-  bg:           "#FFFFFF",
-  bgSurface:    "#F9FAFB",
-  border:       "#E5E7EB",
-  borderFocus:  "#93C5FD",
-  text:         "#1F2937",
-  muted:        "#6B7280",
-  accent:       "#3B82F6",
-  accentLight:  "#EFF6FF",
-  accentBorder: "#DBEAFE",
-  success:      "#10B981",
-  successLight: "#ECFDF5",
-  successBorder:"#A7F3D0",
-  error:        "#EF4444",
-  errorLight:   "#FEF2F2",
-  errorBorder:  "#FECACA",
+  bg:           "rgba(11,17,32,0.78)",
+  bgSurface:    "#020617",
+  border:       "rgba(148,163,184,0.16)",
+  borderFocus:  "rgba(34,211,238,0.62)",
+  text:         "#E5E7EB",
+  muted:        "#9CA3AF",
+  accent:       "#67E8F9",
+  accentLight:  "rgba(34,211,238,0.12)",
+  accentBorder: "rgba(34,211,238,0.28)",
+  success:      "#34D399",
+  successLight: "rgba(52,211,153,0.12)",
+  successBorder:"rgba(52,211,153,0.34)",
+  error:        "#F87171",
+  errorLight:   "rgba(248,113,113,0.12)",
+  errorBorder:  "rgba(248,113,113,0.34)",
   warn:         "#F59E0B",
-  warnLight:    "#FFFBEB",
-  warnBorder:   "#FDE68A",
-  info:         "#3B82F6",
-  infoLight:    "#EFF6FF",
-  infoBorder:   "#DBEAFE",
+  warnLight:    "rgba(245,158,11,0.12)",
+  warnBorder:   "rgba(245,158,11,0.34)",
+  info:         "#67E8F9",
+  infoLight:    "rgba(34,211,238,0.12)",
+  infoBorder:   "rgba(34,211,238,0.28)",
   mono:         "JetBrains Mono, monospace",
   head:         "Syne, sans-serif",
 } as const;
@@ -354,11 +354,12 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
     <div style={{
       background: T.bg,
       border: `1px solid ${T.border}`,
-      borderRadius: 12,
+      borderRadius: 14,
       padding: 14,
       display: "flex",
       flexDirection: "column",
       gap: 10,
+      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
     }}>
 
       {/* Header */}
@@ -422,7 +423,7 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
             resize: "vertical",
             background: T.bgSurface,
             border: `1px solid ${isDirty ? T.accentBorder : T.border}`,
-            borderRadius: 9,
+            borderRadius: 12,
             padding: "10px 12px",
             fontFamily: T.mono,
             fontSize: 10,
@@ -430,14 +431,14 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
             lineHeight: 1.7,
             outline: "none",
             boxSizing: "border-box",
-            transition: "border-color 0.15s",
+            transition: "border-color 0.15s, box-shadow 0.15s",
             whiteSpace: "pre",
             overflowX: "auto",
             overflowY: "auto",
             display: "block",
           }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = T.borderFocus; }}
-          onBlur={(e)  => { e.currentTarget.style.borderColor = isDirty ? T.accentBorder : T.border; }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = T.borderFocus; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(34,211,238,0.10), 0 0 26px rgba(34,211,238,0.12)"; }}
+          onBlur={(e)  => { e.currentTarget.style.borderColor = isDirty ? T.accentBorder : T.border; e.currentTarget.style.boxShadow = "none"; }}
         />
       </div>
 
@@ -453,7 +454,7 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
           title="Clear circuit and load this JSON (Ctrl+Enter)"
           style={{
             flex: 1,
-            borderRadius: 9,
+            borderRadius: 10,
             padding: "8px 0",
             fontFamily: T.head,
             fontWeight: 700,
@@ -461,7 +462,7 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
             letterSpacing: "0.04em",
             cursor: "pointer",
             border: `1px solid ${isDirty ? T.accentBorder : T.border}`,
-            background: isDirty ? T.accentLight : T.bgSurface,
+            background: isDirty ? "linear-gradient(135deg, rgba(34,211,238,0.18), rgba(139,92,246,0.16))" : "rgba(15,23,42,0.72)",
             color: isDirty ? T.accent : T.muted,
             transition: "all 0.15s",
           }}
@@ -483,9 +484,9 @@ export const CircuitJsonEditor = memo(function CircuitJsonEditor({ circuitKey }:
             fontSize: 11,
             letterSpacing: "0.04em",
             cursor: "pointer",
-            border: `1px solid ${isDirty ? "#C4B5FD" : T.border}`,
-            background: isDirty ? "#F5F3FF" : T.bgSurface,
-            color: isDirty ? "#7C3AED" : T.muted,
+            border: `1px solid ${isDirty ? "rgba(167,139,250,0.36)" : T.border}`,
+            background: isDirty ? "rgba(139,92,246,0.14)" : "rgba(15,23,42,0.72)",
+            color: isDirty ? "#C4B5FD" : T.muted,
             transition: "all 0.15s",
           }}
         >

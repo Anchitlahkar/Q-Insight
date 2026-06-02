@@ -12,26 +12,26 @@ import { useCircuitStore } from "@/store/useCircuitStore";
 
 // ─── Design tokens (light vibrant) ────────────────────────────────────────────
 const T = {
-  bg:          "#f0f4ff",
-  surface:     "#ffffff",
-  panel:       "#fafbff",
-  border:      "#dde3f5",
-  borderMid:   "#c7d2fe",
-  text:        "#1e293b",
-  textMid:     "#475569",
-  textMuted:   "#94a3b8",
-  indigo:      "#4f46e5",
-  indigoBg:    "#eef2ff",
-  violet:      "#7c3aed",
-  violetBg:    "#f5f3ff",
-  emerald:     "#059669",
-  emeraldBg:   "#ecfdf5",
-  amber:       "#d97706",
-  amberBg:     "#fffbeb",
-  rose:        "#e11d48",
-  roseBg:      "#fff1f2",
-  sky:         "#0284c7",
-  skyBg:       "#e0f2fe",
+  bg:          "#050816",
+  surface:     "rgba(15,23,42,0.78)",
+  panel:       "rgba(2,6,23,0.52)",
+  border:      "rgba(148,163,184,0.16)",
+  borderMid:   "rgba(34,211,238,0.30)",
+  text:        "#e5e7eb",
+  textMid:     "#cbd5e1",
+  textMuted:   "#9ca3af",
+  indigo:      "#22d3ee",
+  indigoBg:    "rgba(34,211,238,0.12)",
+  violet:      "#a78bfa",
+  violetBg:    "rgba(139,92,246,0.14)",
+  emerald:     "#34d399",
+  emeraldBg:   "rgba(52,211,153,0.12)",
+  amber:       "#f59e0b",
+  amberBg:     "rgba(245,158,11,0.12)",
+  rose:        "#f87171",
+  roseBg:      "rgba(248,113,113,0.12)",
+  sky:         "#38bdf8",
+  skyBg:       "rgba(56,189,248,0.12)",
   fontMono:    "JetBrains Mono, ui-monospace, monospace",
   fontDisplay: "Syne, ui-sans-serif, sans-serif",
 };
@@ -49,7 +49,7 @@ interface CircuitExplainerProps {
 function EmptyState({ message }: { message: string }) {
   return (
     <div style={{
-      border: `1.5px dashed ${T.border}`, borderRadius: 10, background: T.panel,
+      border: `1px dashed ${T.borderMid}`, borderRadius: 12, background: T.panel,
       padding: "16px 14px", fontFamily: T.fontMono, fontSize: 11,
       color: T.textMuted, lineHeight: 1.7,
     }}>
@@ -72,8 +72,9 @@ function SectionLabel({ children, color = T.textMuted }: { children: React.React
 function InfoCard({ title, body, accent = T.indigo }: { title: string; body: string; accent?: string }) {
   return (
     <article style={{
-      borderRadius: 10, border: `1.5px solid ${T.border}`, background: T.surface,
+      borderRadius: 12, border: `1px solid ${T.border}`, background: T.surface,
       padding: "12px 14px", borderLeft: `3px solid ${accent}`,
+      boxShadow: `0 14px 34px rgba(0,0,0,0.20), 0 0 20px ${accent}12`,
     }}>
       <SectionLabel color={accent}>{title}</SectionLabel>
       <p style={{ fontFamily: T.fontDisplay, fontSize: 13, lineHeight: 1.75, color: T.text, margin: 0 }}>{body}</p>
@@ -110,10 +111,10 @@ function GateExplanationItem({
   return (
     <article style={{
       overflow: "hidden", borderRadius: 10,
-      border: `1.5px solid ${highlighted ? T.indigo : T.border}`,
+      border: `1px solid ${highlighted ? T.indigo : T.border}`,
       background: highlighted ? T.indigoBg : T.surface,
       transition: "border-color 0.2s, background 0.2s",
-      boxShadow: highlighted ? "0 0 0 3px rgba(79,70,229,0.12)" : "none",
+      boxShadow: highlighted ? "0 0 0 3px rgba(34,211,238,0.12), 0 0 26px rgba(34,211,238,0.16)" : "none",
     }}>
       <button type="button" onClick={handleToggle} style={{
         display: "flex", width: "100%", alignItems: "center",
@@ -126,7 +127,7 @@ function GateExplanationItem({
           <div style={{ fontFamily: T.fontDisplay, fontSize: 11, color: T.textMid, marginTop: 2 }}>{gate.effect}</div>
         </div>
         <span style={{
-          flexShrink: 0, borderRadius: 6, border: `1.5px solid ${open ? T.indigo : T.border}`,
+          flexShrink: 0, borderRadius: 8, border: `1px solid ${open ? T.indigo : T.border}`,
           background: open ? T.indigoBg : T.panel, padding: "3px 10px",
           fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
           color: open ? T.indigo : T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.1em",
@@ -137,14 +138,14 @@ function GateExplanationItem({
 
       <div style={{ display: "grid", gridTemplateRows: open ? "1fr" : "0fr", transition: "grid-template-rows 0.22s ease" }}>
         <div style={{ overflow: "hidden" }}>
-          <div style={{ display: "grid", gap: 8, borderTop: `1.5px solid ${T.border}`, background: T.panel, padding: "12px 14px" }}>
+          <div style={{ display: "grid", gap: 8, borderTop: `1px solid ${T.border}`, background: T.panel, padding: "12px 14px" }}>
             {([
               { label: "Before",    content: gate.before_state, mono: true,  color: T.indigo  },
               { label: "After",     content: gate.after_state,  mono: true,  color: T.emerald },
               { label: "Technical", content: gate.technical,    mono: false, color: T.violet  },
               { label: "Intuitive", content: gate.intuitive,    mono: false, color: T.sky     },
             ] as const).map(({ label, content, mono, color }) => (
-              <div key={label} style={{ borderRadius: 8, border: `1.5px solid ${T.border}`, background: T.surface, padding: "10px 12px" }}>
+              <div key={label} style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, padding: "10px 12px" }}>
                 <SectionLabel color={color}>{label}</SectionLabel>
                 <div style={{
                   fontFamily: mono ? T.fontMono : T.fontDisplay,
@@ -183,7 +184,7 @@ function OptimizationTab({ suggestions }: { suggestions: OptimizationSuggestion[
     <div style={{ display: "grid", gap: 8 }}>
       {suggestions.map((s, index) => (
         <article key={`${s.issue}-${index}`} style={{
-          borderRadius: 10, border: `1.5px solid ${T.border}`,
+          borderRadius: 12, border: `1px solid ${T.border}`,
           background: T.amberBg, padding: "12px 14px", borderLeft: `3px solid ${T.amber}`,
         }}>
           <div style={{ fontFamily: T.fontMono, fontSize: 11, fontWeight: 700, color: T.amber, marginBottom: 4 }}>{s.issue}</div>
@@ -202,26 +203,26 @@ function formatVariationalTheta(theta: number) {
 function VariationalSummary({ variational }: { variational: VariationalRunResponse }) {
   return (
     <article style={{
-      borderRadius: 10, border: `1.5px solid ${T.border}`,
+      borderRadius: 12, border: `1px solid ${T.border}`,
       background: T.surface, padding: "12px 14px", borderLeft: `3px solid ${T.emerald}`,
     }}>
       <SectionLabel color={T.emerald}>Variational Sweep</SectionLabel>
       <div style={{ display: "grid", gap: 8 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
-          <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
+          <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
             <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Theta</div>
             <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.emerald, marginTop: 4 }}>{formatVariationalTheta(variational.best.theta)}</div>
           </div>
-          <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
+          <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
             <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Best Cost</div>
             <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.indigo, marginTop: 4 }}>{variational.best.cost.toFixed(4)}</div>
           </div>
-          <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
+          <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "8px 10px" }}>
             <div style={{ fontFamily: T.fontMono, fontSize: 9, color: T.textMuted, textTransform: "uppercase" as const, letterSpacing: "0.12em" }}>Iterations</div>
             <div style={{ fontFamily: T.fontMono, fontSize: 14, fontWeight: 700, color: T.violet, marginTop: 4 }}>{variational.history.length}</div>
           </div>
         </div>
-        <div style={{ borderRadius: 8, border: `1px solid ${T.border}`, background: T.panel, padding: "10px 12px" }}>
+        <div style={{ borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, padding: "10px 12px" }}>
           <SectionLabel color={T.sky}>Sweep History</SectionLabel>
           <div style={{ display: "grid", gap: 6 }}>
             {variational.history.map((entry, index) => {
@@ -235,7 +236,7 @@ function VariationalSummary({ variational }: { variational: VariationalRunRespon
                   borderRadius: 7,
                   padding: "6px 8px",
                   background: active ? T.emeraldBg : T.surface,
-                  border: `1px solid ${active ? "#a7f3d0" : T.border}`,
+                  border: `1px solid ${active ? "rgba(52,211,153,0.34)" : T.border}`,
                 }}>
                   <span style={{ fontFamily: T.fontMono, fontSize: 10, color: active ? T.emerald : T.textMuted }}>#{index + 1}</span>
                   <span style={{ fontFamily: T.fontMono, fontSize: 11, color: T.text }}>theta={formatVariationalTheta(entry.theta)}</span>
@@ -255,7 +256,7 @@ function MetricRow({ label, value, accent }: { label: string; value: string; acc
   return (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      borderRadius: 8, border: `1.5px solid ${T.border}`, background: T.surface, padding: "7px 12px",
+      borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, padding: "7px 12px",
     }}>
       <span style={{ fontFamily: T.fontDisplay, fontSize: 12, color: T.textMid }}>{label}</span>
       <span style={{ fontFamily: T.fontMono, fontSize: 12, fontWeight: 700, color: accent ? T.indigo : T.text }}>{value}</span>
@@ -319,12 +320,12 @@ export function CircuitExplainer({
   };
 
   return (
-    <aside style={{ borderRadius: 12, border: `1.5px solid ${T.border}`, background: T.surface, overflow: "hidden" }}>
+    <aside style={{ borderRadius: 16, border: `1px solid ${T.border}`, background: "linear-gradient(180deg, rgba(15,23,42,0.78), rgba(8,13,27,0.78))", overflow: "hidden", boxShadow: "0 18px 48px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
       {/* Header */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        gap: 12, borderBottom: `1.5px solid ${T.border}`, padding: "12px 16px",
-        background: T.indigoBg,
+        gap: 12, borderBottom: `1px solid ${T.border}`, padding: "12px 16px",
+        background: "linear-gradient(90deg, rgba(34,211,238,0.12), rgba(139,92,246,0.10))",
       }}>
         <div>
           <div style={{ fontFamily: T.fontMono, fontSize: 9, fontWeight: 700, color: T.indigo, textTransform: "uppercase" as const, letterSpacing: "0.18em" }}>
@@ -335,7 +336,7 @@ export function CircuitExplainer({
           </div>
         </div>
         <button type="button" onClick={onToggleCollapsed} style={{
-          borderRadius: 6, border: `1.5px solid ${T.borderMid}`, background: T.surface,
+          borderRadius: 8, border: `1px solid ${T.borderMid}`, background: "rgba(15,23,42,0.76)",
           color: T.indigo, padding: "4px 12px", fontFamily: T.fontMono,
           fontSize: 9, fontWeight: 700, cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase" as const,
         }}>
@@ -352,8 +353,8 @@ export function CircuitExplainer({
               const active = resolvedTab === tab;
               return (
                 <button key={tab} type="button" onClick={() => setActiveTab(tab)} style={{
-                  borderRadius: 7, border: `1.5px solid ${active ? cfg.color : T.border}`,
-                  background: active ? cfg.bg : T.panel,
+                  borderRadius: 9, border: `1px solid ${active ? cfg.color : T.border}`,
+                  background: active ? `linear-gradient(135deg, ${cfg.bg}, rgba(15,23,42,0.70))` : T.panel,
                   color: active ? cfg.color : T.textMid,
                   padding: "5px 13px", fontFamily: T.fontMono, fontSize: 9, fontWeight: 700,
                   cursor: "pointer", letterSpacing: "0.1em", textTransform: "uppercase" as const,

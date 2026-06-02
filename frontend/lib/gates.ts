@@ -53,11 +53,11 @@ export const CATEGORY_ORDER: GateCategory[] = [
 
 // ── Category accent colors (used for section headers) ─────────────────────────
 export const CATEGORY_COLOR: Record<GateCategory, string> = {
-  Basic:    "#3B82F6",
-  Phase:    "#3B82F6",
-  Rotation: "#8B5CF6",
+  Basic:    "#22D3EE",
+  Phase:    "#38BDF8",
+  Rotation: "#A78BFA",
   Multi:    "#F59E0B",
-  Utility:  "#6B7280",
+  Utility:  "#34D399",
 };
 
 // ── Master gate list ──────────────────────────────────────────────────────────
@@ -68,28 +68,28 @@ export const GATES: GateDefinition[] = [
     label: "H",
     description: "Hadamard",
     category: "Basic",
-    color: "#3B82F6",
+    color: "#22D3EE",
   },
   {
     type: "X",
     label: "X",
     description: "Pauli-X",
     category: "Basic",
-    color: "#3B82F6",
+    color: "#22D3EE",
   },
   {
     type: "Y",
     label: "Y",
     description: "Pauli-Y",
     category: "Basic",
-    color: "#3B82F6",
+    color: "#22D3EE",
   },
   {
     type: "Z",
     label: "Z",
     description: "Pauli-Z",
     category: "Basic",
-    color: "#3B82F6",
+    color: "#22D3EE",
   },
 
   // ── Phase ─────────────────────────────────────────────────────────────────
@@ -98,28 +98,28 @@ export const GATES: GateDefinition[] = [
     label: "S",
     description: "S gate (√Z)",
     category: "Phase",
-    color: "#3B82F6",
+    color: "#38BDF8",
   },
   {
     type: "SDG",
     label: "S†",
     description: "S-dagger",
     category: "Phase",
-    color: "#3B82F6",
+    color: "#38BDF8",
   },
   {
     type: "T",
     label: "T",
     description: "T gate (π/8)",
     category: "Phase",
-    color: "#3B82F6",
+    color: "#38BDF8",
   },
   {
     type: "TDG",
     label: "T†",
     description: "T-dagger",
     category: "Phase",
-    color: "#3B82F6",
+    color: "#38BDF8",
   },
 
   // ── Rotation ──────────────────────────────────────────────────────────────
@@ -128,7 +128,7 @@ export const GATES: GateDefinition[] = [
     label: "Rx",
     description: "X-rotation",
     category: "Rotation",
-    color: "#8B5CF6",
+    color: "#A78BFA",
     hasParameter: true,
     defaultTheta: Math.PI / 2,
   },
@@ -137,7 +137,7 @@ export const GATES: GateDefinition[] = [
     label: "Ry",
     description: "Y-rotation",
     category: "Rotation",
-    color: "#8B5CF6",
+    color: "#A78BFA",
     hasParameter: true,
     defaultTheta: Math.PI / 2,
   },
@@ -146,7 +146,7 @@ export const GATES: GateDefinition[] = [
     label: "Rz",
     description: "Z-rotation",
     category: "Rotation",
-    color: "#8B5CF6",
+    color: "#A78BFA",
     hasParameter: true,
     defaultTheta: Math.PI / 2,
   },
@@ -213,14 +213,14 @@ export const GATES: GateDefinition[] = [
     label: "M",
     description: "Measure",
     category: "Utility",
-    color: "#16A34A",
+    color: "#34D399",
   },
   {
     type: "I",
     label: "I",
     description: "Identity",
     category: "Utility",
-    color: "#6B7280",
+    color: "#94A3B8",
   },
 ];
 
@@ -235,7 +235,7 @@ export const GATE_MAP: Map<GateType, GateDefinition> = new Map(
 export const GATE_COLOR: Record<GateType, string> = Object.fromEntries(
   GATES.map((g) => [g.type, g.color])
 ) as Record<GateType, string>;
-GATE_COLOR.COMPONENT = "#3B82F6";
+GATE_COLOR.COMPONENT = "#22D3EE";
 
 /** Gates grouped by category, in CATEGORY_ORDER sequence */
 export const GATES_BY_CATEGORY: Record<GateCategory, GateDefinition[]> = (() => {

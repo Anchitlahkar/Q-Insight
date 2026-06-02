@@ -13,6 +13,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "@xyflow/react": "latest",
     "clsx": "latest",
+    "framer-motion": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",

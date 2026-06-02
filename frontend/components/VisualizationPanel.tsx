@@ -64,7 +64,7 @@ function MiniCircuitSVG({
   const svgW       = LEFT_PAD + numCols * COL_W + 18;
   const svgH       = TOP_PAD + qubits * LANE_H + BOT_PAD;
   const activeGate = activeGateIndex >= 0 ? sorted[activeGateIndex] : null;
-  const activeColor = activeGate ? (GATE_COLOR[activeGate.type] ?? "#3B82F6") : "#3B82F6";
+  const activeColor = activeGate ? (GATE_COLOR[activeGate.type] ?? "#22D3EE") : "#22D3EE";
 
   return (
     <div style={{ overflowX: "auto", overflowY: "hidden", minHeight: svgH }}>
@@ -147,12 +147,12 @@ function MiniCircuitSVG({
           return (
             <g key={`w${q}`}>
               <line x1={LEFT_PAD - 4} y1={y} x2={svgW - 8} y2={y}
-                stroke="#3B82F6" strokeWidth="3" opacity="0.07" />
+                stroke="#22D3EE" strokeWidth="3" opacity="0.08" />
               <line x1={LEFT_PAD - 4} y1={y} x2={svgW - 8} y2={y}
-                stroke="#3B82F6" strokeWidth="1.2" opacity="0.22" />
+                stroke="#22D3EE" strokeWidth="1.2" opacity="0.35" />
               <text x={LEFT_PAD - 10} y={y + 1}
                 textAnchor="end" dominantBaseline="middle"
-                fontFamily="JetBrains Mono, monospace" fontSize="11" fill="#6B7280"
+                fontFamily="JetBrains Mono, monospace" fontSize="11" fill="#9CA3AF"
                 style={{ userSelect: "none" }}>
                 q[{q}]
               </text>
@@ -163,7 +163,7 @@ function MiniCircuitSVG({
         {/* ── Gates ── */}
         {sorted.map((gate, idx) => {
           const lit         = idx === activeGateIndex;
-          const color       = GATE_COLOR[gate.type] ?? "#3B82F6";
+          const color       = GATE_COLOR[gate.type] ?? "#22D3EE";
           const x           = colX(gateCol(gate));
           const ty          = wireY(gate.target);
           const fillOpacity = lit ? 0.30 : 0.11;
@@ -369,7 +369,7 @@ function LiveHistogram({
         height: 200,
         display: "flex", alignItems: "center", justifyContent: "center",
         fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
-        border: "1px dashed #DBEAFE", borderRadius: 12, background: "#F8FBFF",
+        border: "1px dashed rgba(34,211,238,0.24)", borderRadius: 14, background: "rgba(15,23,42,0.62)",
       }}>
         Statevector updates as each gate is applied — press Play or scrub the slider
       </div>
@@ -389,13 +389,13 @@ function LiveHistogram({
       <div style={{
         display: "flex", alignItems: "center", gap: 8, marginBottom: 10,
         fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-        color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em",
+        color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.08em",
       }}>
         Basis-state probabilities · live
         {isPlaying && (
           <span style={{
             width: 7, height: 7, borderRadius: "50%",
-            background: "#3B82F6", display: "inline-block",
+            background: "#22D3EE", display: "inline-block",
             animation: "live-dot 1s ease-in-out infinite",
           }} />
         )}
@@ -408,22 +408,22 @@ function LiveHistogram({
             <defs>
               {/* Dominant state gradient */}
               <linearGradient id="lh-dominant" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#2563EB" stopOpacity={1}    />
-                <stop offset="100%" stopColor="#60A5FA" stopOpacity={0.45} />
+                <stop offset="0%"   stopColor="#22D3EE" stopOpacity={1}    />
+                <stop offset="100%" stopColor="#A78BFA" stopOpacity={0.45} />
               </linearGradient>
               {/* Normal state gradient */}
               <linearGradient id="lh-normal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="#93C5FD" stopOpacity={0.7} />
-                <stop offset="100%" stopColor="#DBEAFE" stopOpacity={0.25} />
+                <stop offset="0%"   stopColor="#67E8F9" stopOpacity={0.74} />
+                <stop offset="100%" stopColor="#164E63" stopOpacity={0.32} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid stroke="#F1F5F9" horizontal vertical={false} />
+            <CartesianGrid stroke="rgba(148,163,184,0.10)" horizontal vertical={false} />
 
             <XAxis
               dataKey="state"
-              stroke="#D1D5DB" tickLine={false} axisLine={false}
-              tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#6B7280" }}
+              stroke="rgba(148,163,184,0.22)" tickLine={false} axisLine={false}
+              tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#9CA3AF" }}
               tickFormatter={(v: string) => `|${v}⟩`}
               interval={0}
               angle={data.length > 8 ? -30 : 0}
@@ -432,33 +432,34 @@ function LiveHistogram({
             />
 
             <YAxis
-              stroke="#D1D5DB" tickLine={false} axisLine={false}
+              stroke="rgba(148,163,184,0.22)" tickLine={false} axisLine={false}
               domain={[0, 1]}
               tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#9CA3AF" }}
               tickFormatter={(v: number) => `${Math.round(v * 100)}%`}
             />
 
             <Tooltip
-              cursor={{ fill: "rgba(59,130,246,0.04)" }}
+              cursor={{ fill: "rgba(34,211,238,0.06)" }}
               animationDuration={120}
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null;
                 const prob = (payload[0]?.value as number) ?? 0;
                 return (
                   <div style={{
-                    background: "#FFFFFF",
-                    border: "1px solid #BFDBFE",
+                    background: "rgba(11,17,32,0.94)",
+                    border: "1px solid rgba(34,211,238,0.28)",
                     borderRadius: 10,
                     padding: "8px 14px",
-                    boxShadow: "0 4px 16px rgba(59,130,246,0.12)",
+                    boxShadow: "0 18px 42px rgba(0,0,0,0.34), 0 0 22px rgba(34,211,238,0.12)",
+                    backdropFilter: "blur(14px)",
                   }}>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#3B82F6", marginBottom: 3 }}>
+                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#67E8F9", marginBottom: 3 }}>
                       |{label}⟩
                     </div>
-                    <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 20, color: "#1F2937" }}>
+                    <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 20, color: "#E5E7EB" }}>
                       {(prob * 100).toFixed(2)}%
                     </div>
-                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#6B7280", marginTop: 2 }}>
+                    <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", marginTop: 2 }}>
                       amplitude² = {prob.toFixed(4)}
                     </div>
                   </div>
@@ -483,7 +484,7 @@ function LiveHistogram({
                   }
                   stroke={
                     entry.probability >= maxProb * 0.95
-                      ? "#2563EB"
+                      ? "#22D3EE"
                       : "transparent"
                   }
                   strokeWidth={entry.probability >= maxProb * 0.95 ? 1.5 : 0}
@@ -499,13 +500,13 @@ function LiveHistogram({
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
           {topStates.map((d) => (
             <div key={d.state} style={{
-              background: d.probability >= maxProb * 0.95 ? "#EFF6FF" : "#F9FAFB",
-              border: `1px solid ${d.probability >= maxProb * 0.95 ? "#BFDBFE" : "#E5E7EB"}`,
+              background: d.probability >= maxProb * 0.95 ? "rgba(34,211,238,0.12)" : "rgba(15,23,42,0.62)",
+              border: `1px solid ${d.probability >= maxProb * 0.95 ? "rgba(34,211,238,0.28)" : "rgba(148,163,184,0.16)"}`,
               borderRadius: 999,
               padding: "3px 10px",
               fontFamily: "JetBrains Mono, monospace",
               fontSize: 9,
-              color: d.probability >= maxProb * 0.95 ? "#1D4ED8" : "#6B7280",
+              color: d.probability >= maxProb * 0.95 ? "#67E8F9" : "#9CA3AF",
             }}>
               |{d.state}⟩ {(d.probability * 100).toFixed(1)}%
             </div>
@@ -553,7 +554,7 @@ function VisualizationModal({
 
   const sorted      = [...circuit.gates].sort((a, b) => a.position.x - b.position.x);
   const activeGate  = currentStep >= 0 ? sorted[currentStep] : null;
-  const gateColor   = activeGate ? (GATE_COLOR[activeGate.type] ?? "#3B82F6") : "#3B82F6";
+  const gateColor   = activeGate ? (GATE_COLOR[activeGate.type] ?? "#22D3EE") : "#22D3EE";
   const gateLabel   = activeGate
     ? `${activeGate.type}${activeGate.theta !== undefined ? ` (${formatTheta(activeGate.theta)})` : ""} → q[${activeGate.target}]${activeGate.control !== undefined ? ` ctrl q[${activeGate.control}]` : ""}`
     : null;
@@ -574,8 +575,8 @@ function VisualizationModal({
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
         display: "flex", alignItems: "center", justifyContent: "center",
-        background: "rgba(15,23,42,0.72)",
-        backdropFilter: "blur(12px)",
+        background: "rgba(2,6,23,0.76)",
+        backdropFilter: "blur(18px)",
         animation: "vizIn 0.18s ease",
       }}
     >
@@ -588,10 +589,10 @@ function VisualizationModal({
       <div style={{
         width: "min(96vw, 1340px)",
         height: "min(94vh, 920px)",
-        background: "#FFFFFF",
-        border: "1px solid #E5E7EB",
-        borderRadius: 20,
-        boxShadow: "0 32px 80px rgba(15,23,42,0.22)",
+        background: "linear-gradient(180deg, rgba(11,17,32,0.96), rgba(5,8,22,0.96))",
+        border: "1px solid rgba(148,163,184,0.18)",
+        borderRadius: 22,
+        boxShadow: "0 44px 120px rgba(0,0,0,0.62), 0 0 60px rgba(34,211,238,0.10), inset 0 1px 0 rgba(255,255,255,0.05)",
         display: "flex", flexDirection: "column",
         overflow: "hidden",
       }}>
@@ -601,26 +602,27 @@ function VisualizationModal({
           flexShrink: 0, display: "flex", alignItems: "center",
           justifyContent: "space-between",
           padding: "12px 18px",
-          borderBottom: "1px solid #E5E7EB",
-          background: "#F9FAFB",
+          borderBottom: "1px solid rgba(148,163,184,0.16)",
+          background: "rgba(11,17,32,0.84)",
+          backdropFilter: "blur(16px)",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             {/* Live indicator dot */}
             <span style={{
               width: 9, height: 9, borderRadius: "50%", flexShrink: 0,
-              background: isPlaying ? "#3B82F6" : "#D1D5DB",
+              background: isPlaying ? "#22D3EE" : "rgba(148,163,184,0.42)",
               display: "inline-block",
               boxShadow: isPlaying ? "0 0 0 3px rgba(59,130,246,0.2)" : "none",
               animation: isPlaying ? "live-dot 1.1s ease-in-out infinite" : "none",
               transition: "all 0.3s",
             }} />
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#1F2937" }}>
+            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#E5E7EB" }}>
               Circuit Visualization
             </span>
             <span style={{
               fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-              color: "#6B7280", padding: "2px 8px",
-              borderRadius: 6, border: "1px solid #E5E7EB",
+              color: "#9CA3AF", padding: "2px 8px",
+              borderRadius: 6, border: "1px solid rgba(148,163,184,0.16)",
             }}>
               {circuit.qubits}q · {circuit.gates.length} gates
             </span>
@@ -647,20 +649,20 @@ function VisualizationModal({
               type="button" onClick={onClose}
               style={{
                 width: 30, height: 30, borderRadius: 7,
-                border: "1px solid #E5E7EB",
-                background: "#FFFFFF", color: "#6B7280",
+                border: "1px solid rgba(148,163,184,0.16)",
+                background: "rgba(15,23,42,0.72)", color: "#9CA3AF",
                 cursor: "pointer", fontSize: 15,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 transition: "all 0.12s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "#FEF2F2"; e.currentTarget.style.color = "#EF4444"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "#FFFFFF"; e.currentTarget.style.color = "#6B7280"; }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(248,113,113,0.12)"; e.currentTarget.style.color = "#F87171"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15,23,42,0.72)"; e.currentTarget.style.color = "#9CA3AF"; }}
             >✕</button>
           </div>
         </div>
 
         {/* ── Progress bar ── */}
-        <div style={{ flexShrink: 0, height: 3, background: "#F1F5F9" }}>
+        <div style={{ flexShrink: 0, height: 3, background: "rgba(148,163,184,0.10)" }}>
           <div style={{
             height: "100%",
             width: `${progress}%`,
@@ -673,8 +675,8 @@ function VisualizationModal({
         {/* ── Playback controls ── */}
         <div style={{
           flexShrink: 0, display: "flex", alignItems: "center", gap: 10,
-          padding: "9px 18px", borderBottom: "1px solid #E5E7EB",
-          background: "#F9FAFB", flexWrap: "wrap",
+          padding: "9px 18px", borderBottom: "1px solid rgba(148,163,184,0.16)",
+          background: "rgba(8,13,27,0.78)", flexWrap: "wrap",
         }}>
           <button
             type="button"
@@ -684,9 +686,9 @@ function VisualizationModal({
               borderRadius: 8, padding: "6px 16px",
               fontFamily: "JetBrains Mono, monospace", fontSize: 11, fontWeight: 600,
               cursor: steps.length === 0 ? "not-allowed" : "pointer",
-              border: isPlaying ? "1px solid #FDE68A" : "1px solid #BFDBFE",
-              color: isPlaying ? "#92400E" : "#1D4ED8",
-              background: isPlaying ? "#FFFBEB" : "#EFF6FF",
+              border: isPlaying ? "1px solid rgba(245,158,11,0.36)" : "1px solid rgba(34,211,238,0.32)",
+              color: isPlaying ? "#FCD34D" : "#67E8F9",
+              background: isPlaying ? "rgba(245,158,11,0.12)" : "rgba(34,211,238,0.12)",
               opacity: steps.length === 0 ? 0.5 : 1, transition: "all 0.15s",
             }}
           >
@@ -699,19 +701,19 @@ function VisualizationModal({
             value={Math.max(0, currentStep)}
             onChange={(e) => { onPause(); onStepChange(Number(e.target.value)); }}
             disabled={steps.length === 0}
-            style={{ flex: 1, accentColor: "#3B82F6", cursor: "pointer" }}
+            style={{ flex: 1, accentColor: "#22D3EE", cursor: "pointer" }}
           />
 
           {/* Speed */}
           <label style={{
             display: "flex", alignItems: "center", gap: 7,
-            fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#6B7280",
+            fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
           }}>
             Speed
             <input
               type="range" min="100" max="1500" step="100" value={speedMs}
               onChange={(e) => onSpeedChange(Number(e.target.value))}
-              style={{ width: 72, accentColor: "#3B82F6" }}
+              style={{ width: 72, accentColor: "#22D3EE" }}
             />
             <span style={{ minWidth: 42, color: "#374151" }}>{speedMs}ms</span>
           </label>
@@ -723,8 +725,8 @@ function VisualizationModal({
           {/* Circuit strip */}
           <div style={{
             flexShrink: 0,
-            borderBottom: "1px solid #E5E7EB",
-            background: "#FAFAFA",
+            borderBottom: "1px solid rgba(148,163,184,0.16)",
+            background: "rgba(2,6,23,0.42)",
             overflow: "auto",
             padding: "10px 16px",
             maxHeight: "44%",
@@ -749,7 +751,7 @@ function VisualizationModal({
             {/* ── Tab strip ── */}
             <div style={{
               display: "flex", gap: 4, marginBottom: 14,
-              borderBottom: "1px solid #E5E7EB", paddingBottom: 10,
+              borderBottom: "1px solid rgba(148,163,184,0.16)", paddingBottom: 10,
               alignItems: "center", justifyContent: "space-between",
             }}>
               <div style={{ display: "flex", gap: 4 }}>
@@ -762,9 +764,9 @@ function VisualizationModal({
                       onClick={() => setVizTab(tab)}
                       style={{
                         borderRadius: 8,
-                        border: `1px solid ${active ? "#BFDBFE" : "#E5E7EB"}`,
-                        background: active ? "#EFF6FF" : "#FFFFFF",
-                        color: active ? "#1D4ED8" : "#6B7280",
+                        border: `1px solid ${active ? "rgba(34,211,238,0.32)" : "rgba(148,163,184,0.16)"}`,
+                        background: active ? "rgba(34,211,238,0.12)" : "rgba(15,23,42,0.72)",
+                        color: active ? "#67E8F9" : "#9CA3AF",
                         padding: "5px 16px",
                         fontFamily: "JetBrains Mono, monospace",
                         fontSize: 10, fontWeight: active ? 600 : 400,
@@ -782,7 +784,7 @@ function VisualizationModal({
               {activeGate && (
                 <div style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#6B7280",
+                  fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF",
                 }}>
                   <span style={{
                     width: 7, height: 7, borderRadius: "50%",
@@ -805,7 +807,7 @@ function VisualizationModal({
                 <div style={{
                   height: 160, display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#9CA3AF",
-                  border: "1px dashed #E5E7EB", borderRadius: 12,
+                  border: "1px dashed rgba(148,163,184,0.18)", borderRadius: 12,
                 }}>
                   Run "Visualize" to see live qubit states
                 </div>
@@ -819,7 +821,7 @@ function VisualizationModal({
                     <div key={i}>
                       <div style={{
                         fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-                        color: "#6B7280", textAlign: "center",
+                        color: "#9CA3AF", textAlign: "center",
                         marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.04em",
                       }}>
                         q[{i}]
@@ -935,23 +937,24 @@ export default function VisualizationPanel() {
 
       {/* ── Inline panel (compact) ── */}
       <div style={{
-        background: "#FFFFFF",
-        border: "1px solid #E5E7EB",
-        borderRadius: 12,
+        background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
+        border: "1px solid rgba(148,163,184,0.16)",
+        borderRadius: 18,
         overflow: "hidden",
-        boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+        boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
+        backdropFilter: "blur(18px)",
       }}>
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "14px 18px",
-          borderBottom: collapsed ? "none" : "1px solid #E5E7EB",
-          background: "#F9FAFB",
+          borderBottom: collapsed ? "none" : "1px solid rgba(148,163,184,0.16)",
+          background: "rgba(11,17,32,0.78)",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#1F2937" }}>
+            <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#E5E7EB" }}>
               Visualization
             </span>
-            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: isVisualizing ? "#3B82F6" : "#9CA3AF" }}>
+            <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: isVisualizing ? "#67E8F9" : "#9CA3AF" }}>
               {isVisualizing ? `step ${Math.max(currentStep + 1, 0)}/${steps.length}` : "idle"}
             </span>
           </div>
@@ -962,8 +965,8 @@ export default function VisualizationPanel() {
               style={{
                 borderRadius: 8, padding: "6px 14px",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10, fontWeight: 600,
-                cursor: "pointer", border: "1px solid #BFDBFE",
-                background: "#EFF6FF", color: "#1D4ED8",
+                cursor: "pointer", border: "1px solid rgba(34,211,238,0.32)",
+                background: "rgba(34,211,238,0.12)", color: "#67E8F9",
               }}
             >
               ▶ Visualize
@@ -974,8 +977,8 @@ export default function VisualizationPanel() {
               style={{
                 borderRadius: 8, padding: "6px 12px",
                 fontFamily: "JetBrains Mono, monospace", fontSize: 10,
-                cursor: "pointer", border: "1px solid #E5E7EB",
-                color: "#6B7280", background: "#FFFFFF",
+                cursor: "pointer", border: "1px solid rgba(148,163,184,0.16)",
+                color: "#9CA3AF", background: "rgba(15,23,42,0.72)",
               }}
             >
               {collapsed ? "Expand ▾" : "Collapse ▴"}
@@ -998,7 +1001,7 @@ export default function VisualizationPanel() {
                   <div key={i} style={{ minWidth: 200, flexShrink: 0 }}>
                     <div style={{
                       fontFamily: "JetBrains Mono, monospace", fontSize: 9,
-                      color: "#6B7280", textAlign: "center",
+                      color: "#9CA3AF", textAlign: "center",
                       marginBottom: 4, textTransform: "uppercase",
                     }}>
                       q[{i}]

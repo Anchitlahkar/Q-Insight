@@ -11,17 +11,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        panel: "var(--panel)",
-        primary: "var(--primary)",
-        secondary: "var(--secondary)",
-        success: "var(--success)",
-        danger: "var(--danger)",
-        text: "var(--text)",
-        muted: "var(--muted)"
+        background: "var(--color-background)",
+        panel: "var(--color-panel)",
+        surface: "var(--color-surface)",
+        primary: "var(--color-primary)",
+        secondary: "var(--color-secondary)",
+        success: "var(--color-success)",
+        danger: "var(--color-danger)",
+        text: "var(--color-text)",
+        muted: "var(--color-muted)"
       },
       boxShadow: {
-        panel: "0 20px 45px rgba(0, 0, 0, 0.28)"
+        panel: "var(--shadow-panel)",
+        glow: "var(--glow-cyan)"
       }
     }
   },

@@ -22,19 +22,19 @@ const ACCENT: Record<CircuitKey, {
   dominant: string;  // dominant-state bar
 }> = {
   A: {
-    primary:      "#2563EB",
-    secondary:    "#93C5FD",
-    dot:          "#2563EB",
-    badge:        "#EFF6FF",
-    badgeBorder:  "#BFDBFE",
+    primary:      "#22D3EE",
+    secondary:    "#0E7490",
+    dot:          "#22D3EE",
+    badge:        "rgba(34,211,238,0.10)",
+    badgeBorder:  "rgba(34,211,238,0.28)",
     dominant:     "#F59E0B",
   },
   B: {
-    primary:      "#6D28D9",
-    secondary:    "#C4B5FD",
-    dot:          "#6D28D9",
-    badge:        "#F5F3FF",
-    badgeBorder:  "#C4B5FD",
+    primary:      "#A78BFA",
+    secondary:    "#6D28D9",
+    dot:          "#A78BFA",
+    badge:        "rgba(139,92,246,0.12)",
+    badgeBorder:  "rgba(167,139,250,0.30)",
     dominant:     "#F59E0B",
   },
 };
@@ -53,7 +53,7 @@ function HistogramSkeleton({ accent }: { accent: typeof ACCENT[CircuitKey] }) {
             flex: 1,
             height: `${30 + (i % 4) * 14}%`,
             borderRadius: "8px 8px 0 0",
-            background: `${accent.primary}18`,
+            background: `linear-gradient(180deg, ${accent.primary}24, rgba(15,23,42,0.72))`,
             border: `1px solid ${accent.badgeBorder}`,
             animation: `fadeIn ${0.2 + i * 0.06}s ease forwards`,
           }}
@@ -70,7 +70,7 @@ function EmptyState({ accent }: { accent: typeof ACCENT[CircuitKey] }) {
       height: 240,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12,
       border: `1px dashed ${accent.badgeBorder}`,
-      borderRadius: 12,
+      borderRadius: 14,
       background: accent.badge,
     }}>
       <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -83,7 +83,7 @@ function EmptyState({ accent }: { accent: typeof ACCENT[CircuitKey] }) {
       <div style={{
         fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: accent.primary,
         textAlign: "center", lineHeight: 1.6,
-        opacity: 0.7,
+        opacity: 0.86,
       }}>
         Run a simulation to reveal<br />basis-state outcomes
       </div>
@@ -105,19 +105,20 @@ function CustomTooltip({
   const entry = payload[0].payload;
   return (
     <div style={{
-      background: "#FFFFFF",
+      background: "rgba(11,17,32,0.94)",
       border: `1px solid ${accent.badgeBorder}`,
       borderRadius: 10,
       padding: "8px 14px",
-      boxShadow: "0 4px 16px rgba(15,23,42,0.1)",
+      boxShadow: "0 18px 42px rgba(0,0,0,0.34)",
+      backdropFilter: "blur(14px)",
     }}>
       <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: accent.primary, marginBottom: 4 }}>
         |{label}⟩
       </div>
-      <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 18, color: "#1F2937" }}>
+      <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 18, color: "#E5E7EB" }}>
         {mode === "counts" ? `${entry.count} counts` : `${(entry.probability * 100).toFixed(2)}%`}
       </div>
-      <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#6B7280", marginTop: 3 }}>
+      <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", marginTop: 3 }}>
         {(entry.probability * 100).toFixed(2)}% · {entry.count} raw counts
       </div>
     </div>
@@ -159,11 +160,12 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
 
   return (
     <section style={{
-      background: "#FFFFFF",
-      border: "1px solid #E5E7EB",
-      borderRadius: 16,
+      background: "linear-gradient(180deg, rgba(17,24,39,0.78), rgba(8,13,27,0.78))",
+      border: "1px solid rgba(148,163,184,0.16)",
+      borderRadius: 18,
       padding: 18,
-      boxShadow: "0 4px 24px rgba(15,23,42,0.06)",
+      boxShadow: "0 24px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04)",
+      backdropFilter: "blur(18px)",
     }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16, gap: 12, flexWrap: "wrap" }}>
@@ -171,7 +173,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
             {/* Circuit colour dot */}
             <span style={{ width: 10, height: 10, borderRadius: "50%", background: accent.dot, flexShrink: 0 }} />
-            <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#1F2937", margin: 0 }}>
+            <h2 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 15, color: "#E5E7EB", margin: 0 }}>
               {title}
             </h2>
             {/* Circuit key badge */}
@@ -184,7 +186,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
               {circuitKey}
             </span>
           </div>
-          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#6B7280", margin: 0 }}>
+          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#9CA3AF", margin: 0 }}>
             {qubits}q full basis · dominant |{dominantState.state}⟩
           </p>
         </div>
@@ -193,7 +195,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
           {/* Mode toggle */}
           <div style={{
             display: "inline-flex", padding: 3,
-            borderRadius: 999, background: "#F9FAFB", border: "1px solid #E5E7EB",
+            borderRadius: 999, background: "rgba(15,23,42,0.72)", border: "1px solid rgba(148,163,184,0.16)",
           }}>
             {(["probability", "counts"] as const).map((item) => (
               <button
@@ -203,7 +205,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
                 style={{
                   borderRadius: 999, border: "none",
                   background: mode === item ? accent.badge : "transparent",
-                  color: mode === item ? accent.primary : "#6B7280",
+                  color: mode === item ? accent.primary : "#9CA3AF",
                   padding: "4px 10px", cursor: "pointer",
                   fontFamily: "JetBrains Mono, monospace", fontSize: 9,
                   letterSpacing: "0.06em", textTransform: "uppercase",
@@ -220,8 +222,8 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
           <div style={{
             fontFamily: "JetBrains Mono, monospace", fontSize: 9,
             color: hasData ? accent.primary : "#9CA3AF",
-            background: hasData ? accent.badge : "#F9FAFB",
-            border: `1px solid ${hasData ? accent.badgeBorder : "#E5E7EB"}`,
+            background: hasData ? accent.badge : "rgba(15,23,42,0.72)",
+            border: `1px solid ${hasData ? accent.badgeBorder : "rgba(148,163,184,0.16)"}`,
             borderRadius: 999, padding: "4px 11px", letterSpacing: "0.06em",
           }}>
             {hasData ? `${data.length} states` : "no data"}
@@ -230,7 +232,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, marginBottom: 14, background: "#F3F4F6" }} />
+      <div style={{ height: 1, marginBottom: 14, background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.28), transparent)" }} />
 
       {/* Chart area */}
       {isRunning && !hasData ? (
@@ -250,14 +252,14 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
                 </linearGradient>
               </defs>
 
-              <CartesianGrid stroke="#F3F4F6" horizontal vertical={false} />
+              <CartesianGrid stroke="rgba(148,163,184,0.10)" horizontal vertical={false} />
 
               <XAxis
                 dataKey="state"
-                stroke="#D1D5DB"
+                stroke="rgba(148,163,184,0.22)"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#6B7280" }}
+                tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#9CA3AF" }}
                 tickFormatter={(v) => `|${v}⟩`}
                 interval={0}
                 angle={data.length > 8 ? -28 : 0}
@@ -266,7 +268,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
               />
 
               <YAxis
-                stroke="#D1D5DB"
+                stroke="rgba(148,163,184,0.22)"
                 tickLine={false}
                 axisLine={false}
                 tick={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, fill: "#9CA3AF" }}
@@ -285,7 +287,7 @@ function HistogramComponent({ circuitKey, title }: HistogramProps) {
                     mode={mode}
                   />
                 )}
-                cursor={{ fill: "rgba(0,0,0,0.03)" }}
+                cursor={{ fill: "rgba(34,211,238,0.06)" }}
               />
 
               <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={48} animationDuration={380} animationEasing="ease-out">

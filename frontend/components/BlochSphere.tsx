@@ -83,11 +83,11 @@ export const BlochSphere = memo(function BlochSphere({
   return (
     <div
       style={{
-        background: active ? "linear-gradient(160deg, rgba(59,130,246,0.08) 0%, #ffffff 100%)" : "#ffffff",
-        border: `1px solid ${active ? "rgba(59,130,246,0.28)" : "#E5E7EB"}`,
-        borderRadius: 12,
+        background: active ? "linear-gradient(160deg, rgba(34,211,238,0.14) 0%, rgba(15,23,42,0.92) 100%)" : "rgba(15,23,42,0.78)",
+        border: `1px solid ${active ? "rgba(34,211,238,0.36)" : "rgba(148,163,184,0.16)"}`,
+        borderRadius: 14,
         padding: "10px 12px 10px",
-        boxShadow: active ? "0 10px 24px rgba(59,130,246,0.12)" : "0 8px 20px rgba(15,23,42,0.05)",
+        boxShadow: active ? "0 18px 42px rgba(0,0,0,0.32), 0 0 28px rgba(34,211,238,0.18)" : "0 12px 28px rgba(0,0,0,0.22)",
         transition: "all 180ms ease",
         display: "flex",
         flexDirection: "column",
@@ -107,7 +107,7 @@ export const BlochSphere = memo(function BlochSphere({
             fontFamily: "JetBrains Mono, monospace",
             fontSize: 11,
             fontWeight: 500,
-            color: "#3B82F6",
+            color: "#67E8F9",
             letterSpacing: "0.04em",
           }}
         >
@@ -141,9 +141,9 @@ export const BlochSphere = memo(function BlochSphere({
         >
           <defs>
             <radialGradient id={gradId} cx="42%" cy="38%" r="62%">
-              <stop offset="0%" stopColor="rgba(59,130,246,0.14)" />
-              <stop offset="60%" stopColor="rgba(147,197,253,0.12)" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
+              <stop offset="0%" stopColor="rgba(34,211,238,0.22)" />
+              <stop offset="60%" stopColor="rgba(139,92,246,0.14)" />
+              <stop offset="100%" stopColor="rgba(15,23,42,0.04)" />
             </radialGradient>
 
             <filter id={`glow-${gradId}`} x="-40%" y="-40%" width="180%" height="180%">
@@ -161,7 +161,7 @@ export const BlochSphere = memo(function BlochSphere({
             rx={RADIUS * 0.82}
             ry={RADIUS * 0.32}
             fill="none"
-            stroke="rgba(148,163,184,0.25)"
+            stroke="rgba(148,163,184,0.32)"
             strokeDasharray="3 4"
           />
 
@@ -170,7 +170,7 @@ export const BlochSphere = memo(function BlochSphere({
             cy={CENTER}
             r={RADIUS}
             fill={`url(#${gradId})`}
-            stroke="rgba(148,163,184,0.24)"
+            stroke="rgba(148,163,184,0.30)"
             strokeWidth="1.2"
           />
 
@@ -193,7 +193,7 @@ export const BlochSphere = memo(function BlochSphere({
             y1={CENTER}
             x2={tip.x}
             y2={tip.y}
-            stroke="rgba(59,130,246,0.18)"
+            stroke="rgba(34,211,238,0.18)"
             strokeWidth="5"
             strokeLinecap="round"
           />
@@ -203,14 +203,14 @@ export const BlochSphere = memo(function BlochSphere({
             y1={CENTER}
             x2={tip.x}
             y2={tip.y}
-            stroke="#3B82F6"
+            stroke="#22D3EE"
             strokeWidth="2.5"
             strokeLinecap="round"
             filter={`url(#glow-${gradId})`}
           />
 
-          <circle cx={tip.x} cy={tip.y} r="5" fill="#3B82F6" filter={`url(#glow-${gradId})`} />
-          <circle cx={CENTER} cy={CENTER} r="2.5" fill="rgba(31,41,55,0.72)" />
+          <circle cx={tip.x} cy={tip.y} r="5" fill="#22D3EE" filter={`url(#glow-${gradId})`} />
+          <circle cx={CENTER} cy={CENTER} r="2.5" fill="rgba(229,231,235,0.72)" />
         </svg>
       </div>
 
@@ -219,8 +219,8 @@ export const BlochSphere = memo(function BlochSphere({
           marginTop: 8,
           padding: "9px 10px",
           borderRadius: 8,
-          background: "#F9FAFB",
-          border: "1px solid #E5E7EB",
+          background: "rgba(2,6,23,0.52)",
+          border: "1px solid rgba(148,163,184,0.16)",
         }}
       >
         <div
@@ -229,7 +229,7 @@ export const BlochSphere = memo(function BlochSphere({
             fontSize: 9,
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            color: "#6B7280",
+            color: "#9CA3AF",
             marginBottom: 6,
           }}
         >
@@ -252,8 +252,8 @@ export const BlochSphere = memo(function BlochSphere({
               fontFamily: "JetBrains Mono, monospace",
             }}
           >
-            <span style={{ fontSize: 11, color: "#6B7280" }}>{key}</span>
-            <span style={{ fontSize: 11, color: "#1F2937", fontWeight: 500 }}>{`${fmt(value)}\u00B0`}</span>
+            <span style={{ fontSize: 11, color: "#9CA3AF" }}>{key}</span>
+            <span style={{ fontSize: 11, color: "#E5E7EB", fontWeight: 500 }}>{`${fmt(value)}\u00B0`}</span>
           </div>
         ))}
       </div>

@@ -12,38 +12,38 @@ const STATUS_STYLE: Record<
 > = {
   connecting: {
     label:      "Connecting",
-    dot:        "#F59E0B",   // amber-400
-    text:       "#92400E",   // amber-800
-    border:     "#FDE68A",   // amber-200
-    background: "#FFFBEB",   // amber-50
+    dot:        "#F59E0B",
+    text:       "#FCD34D",
+    border:     "rgba(245,158,11,0.34)",
+    background: "rgba(245,158,11,0.10)",
   },
   connected: {
     label:      "Connected",
-    dot:        "#10B981",   // emerald-500
-    text:       "#065F46",   // emerald-800
-    border:     "#A7F3D0",   // emerald-200
-    background: "#ECFDF5",   // emerald-50
+    dot:        "#34D399",
+    text:       "#A7F3D0",
+    border:     "rgba(52,211,153,0.34)",
+    background: "rgba(52,211,153,0.10)",
   },
   running: {
     label:      "Running",
-    dot:        "#3B82F6",   // blue-500
-    text:       "#1E3A8A",   // blue-900
-    border:     "#BFDBFE",   // blue-200
-    background: "#EFF6FF",   // blue-50
+    dot:        "#22D3EE",
+    text:       "#BAE6FD",
+    border:     "rgba(34,211,238,0.34)",
+    background: "rgba(34,211,238,0.10)",
   },
   disconnected: {
     label:      "Disconnected",
-    dot:        "#9CA3AF",   // gray-400
-    text:       "#374151",   // gray-700
-    border:     "#E5E7EB",   // gray-200
-    background: "#F9FAFB",   // gray-50
+    dot:        "#F87171",
+    text:       "#FCA5A5",
+    border:     "rgba(248,113,113,0.32)",
+    background: "rgba(248,113,113,0.10)",
   },
   error: {
     label:      "Error",
-    dot:        "#EF4444",   // red-500
-    text:       "#7F1D1D",   // red-900
-    border:     "#FECACA",   // red-200
-    background: "#FEF2F2",   // red-50
+    dot:        "#F87171",
+    text:       "#FCA5A5",
+    border:     "rgba(248,113,113,0.34)",
+    background: "rgba(248,113,113,0.12)",
   },
 };
 
@@ -70,6 +70,8 @@ export const WebSocketStatusBadge = memo(function WebSocketStatusBadge({
         borderRadius: 999,
         border: `1px solid ${s.border}`,
         background: s.background,
+        boxShadow: status === "connected" ? "0 0 18px rgba(52,211,153,0.16)" : status === "running" ? "0 0 18px rgba(34,211,238,0.18)" : "none",
+        backdropFilter: "blur(10px)",
       }}
     >
       {/* Animated dot for running, static for others */}
@@ -80,7 +82,8 @@ export const WebSocketStatusBadge = memo(function WebSocketStatusBadge({
           borderRadius: "50%",
           background: s.dot,
           flexShrink: 0,
-          animation: status === "running"
+          boxShadow: `0 0 12px ${s.dot}`,
+          animation: status === "running" || status === "connected"
             ? "ws-pulse 1.1s ease-in-out infinite"
             : "none",
         }}

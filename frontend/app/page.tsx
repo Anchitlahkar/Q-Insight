@@ -7,17 +7,17 @@ import Image from "next/image";
 
 export default function HomePage() {
   return (
-    <main style={{ minHeight: "100vh", padding: "24px", background: "#F6F8FB" }}>
-      <div style={{ margin: "0 auto", width: "100%", maxWidth: 1440, display: "grid", gap: 16 }}>
-        <header style={{ borderRadius: 12, border: "1px solid #E5E7EB", background: "#FFFFFF", padding: 20, boxShadow: "0 18px 36px rgba(15,23,42,0.04)" }}>
+    <main className="qhack-app-shell">
+      <div className="qhack-shell-inner">
+        <header className="qhack-header">
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 12, background: "#EFF6FF", border: "1px solid #DBEAFE", display: "flex", alignItems: "center", justifyContent: "center", padding: 8 }}>
+            <div className="qhack-header-logo">
               <Image src="/logo.png" alt="Quantum Lab logo" width={40} height={40} priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.65rem", color: "#1F2937", letterSpacing: "-0.02em" }}>Quantum Lab</h1>
-              <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "#6B7280", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Compact Quantum Composer UI
+              <h1 className="qhack-title-gradient" style={{ margin: 0, fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.65rem", letterSpacing: 0 }}>Quantum Lab</h1>
+              <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                Cinematic Quantum Composer OS
               </p>
             </div>
           </div>
