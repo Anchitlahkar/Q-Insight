@@ -14,10 +14,10 @@ export default function HomePage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <div className="qhack-header-logo">
-                <Image src="/logo.png" alt="Quantum Lab logo" width={40} height={40} priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                <Image src="/logo.png" alt="Q-Insight logo" width={40} height={40} priority style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
               <div>
-                <h1 className="qhack-title-gradient" style={{ margin: 0, fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.65rem", letterSpacing: 0 }}>Quantum Lab</h1>
+                <h1 className="qhack-title-gradient" style={{ margin: 0, fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: "1.65rem", letterSpacing: 0 }}>Q-Insight</h1>
                 <p style={{ margin: "4px 0 0", fontFamily: "JetBrains Mono, monospace", fontSize: "0.72rem", color: "var(--muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                   Cinematic Quantum Composer OS
                 </p>

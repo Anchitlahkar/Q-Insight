@@ -1,5 +1,6 @@
 {
-  "name": "quantum-circuit-simulator-frontend",
+  "name": "q-insight-frontend",
+  "description": "Q-Insight: a browser-based workbench for building, simulating, and visualizing quantum circuits.",
   "version": "0.1.0",
   "private": true,
   "scripts": {

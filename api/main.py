@@ -19,7 +19,7 @@ except ModuleNotFoundError:
     from compiler import compile_circuit
     from hybrid import optimize_variational
 
-app = FastAPI()
+app = FastAPI(title="Q-Insight API")
 
 app.add_middleware(
     CORSMiddleware,

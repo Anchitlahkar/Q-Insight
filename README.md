@@ -1,137 +1,90 @@
-# QHack Quantum Lab
+# Q-Insight
 
-QHack Quantum Lab is a full-stack quantum circuit workbench for composing, simulating, comparing, and explaining quantum circuits in a browser. It pairs a Next.js frontend with a FastAPI + Qiskit backend and uses a persistent WebSocket channel for low-latency simulation requests.
+Q-Insight is a source-available, browser-based workbench for building, simulating, and visualizing quantum circuits.
 
-The product is built around two editable workspaces, `Circuit A` and `Circuit B`. Users can construct circuits manually, import JSON, load algorithm presets, inspect live complexity metrics, run simulations, compare alternatives, and replay intermediate quantum states step by step.
+> **The hosted demo is currently offline. Run it locally in under 5 minutes using the steps below.**
 
----
+<!-- TODO: add demo GIF here -->
 
-## What The Program Does
+## Features
 
-At a high level, the system supports five major activities:
+- Drag-and-drop circuit canvas (or click-to-place) with two workspaces, Circuit A and Circuit B
+- 19 gates plus composite algorithm blocks: H, X, Y, Z, S, S†, T, T†, RX, RY, RZ, CNOT, CZ, SWAP, CRX, CRY, CRZ, measurement, identity
+- Step-by-step state evolution with a live Bloch sphere and per-step histograms
+- Side-by-side circuit comparison of depth, gate counts, and output distributions
+- Preset algorithm library: Bell, GHZ, W, Grover, Deutsch, Deutsch-Jozsa, QFT, QPE, VQE, HHL, teleportation, superdense coding, and more
+- Complexity metrics and rule-based optimization suggestions
+- JSON import and export of circuits
 
-1. **Circuit Authoring**: Drag-and-drop or click-to-place gates onto a multi-wire SVG canvas. Users can edit parameters, add controls, and place measurement readouts.
-2. **Circuit Execution**: Simulates the circuit using the Qiskit Aer backend. The system calculates exact statevectors (when measurements are absent) or performs shot-based sampling ($1024$ shots).
-3. **Side-by-Side Comparison**: Computes complexity metrics (depth, gate counts, efficiency scores) and overlaps output distributions using a Bhattacharyya coefficient to evaluate which circuit is more optimized.
-4. **Step-by-Step Visualization**: Replays state evolution gate-by-gate, rendering active gate indicators, live Bloch spheres, and intermediate histograms.
-5. **Deterministic Explanation and Optimization Analysis**: Evolves the state vector step-by-step to explain physical state changes. It also applies rule-based patterns to suggest circuit optimizations (such as cancelling self-inverses or merging consecutive rotations).
+## Tech stack
 
----
+- **Frontend:** Next.js, React, TypeScript, Tailwind CSS, Zustand
+- **Backend:** FastAPI, Qiskit, Qiskit Aer, NumPy
+- **Transport:** WebSocket (`/ws`) for simulation requests
 
-## User-Facing Feature Set
+## Quick start
 
-### Builder and Canvas Editor
-* **Dual Workspace Model**: Toggle between `Circuit A` and `Circuit B` to compare designs side by side.
-* **Interactive Canvas**: Renders wires as SVG lines with column alignments.
-* **Flexible Input Methods**: Supports click-to-place gate entry, dragging gates from the sidebar palette, or importing circuits from JSON.
-* **Component Blocks**: Allows loading algorithms as composite blocks (`COMPONENT`) that sit alongside other gates in the workspace.
-* **Probability Meter**: Provides a real-time bar chart showing marginal measurement probabilities for each classical bit.
+You need **Python 3.10+**, **Node.js 20.9+** (required by the bundled Next.js 16), and npm.
 
-### Supported Quantum Operations
-* **Basic Single-Qubit Gates**: Hadamard (`H`), Pauli-X (`X`), Pauli-Y (`Y`), Pauli-Z (`Z`).
-* **Phase Gates**: Phase (`S`), S-Dagger (`SDG`), T-gate (`T`), T-Dagger (`TDG`).
-* **Parametric Rotations**: X-Rotation (`RX`), Y-Rotation (`RY`), Z-Rotation (`RZ`).
-* **Controlled & Multi-Qubit Gates**: Controlled-X (`CNOT`), Controlled-Z (`CZ`), Swap (`SWAP`), Controlled RX (`CRX`), Controlled RY (`CRY`), Controlled RZ (`CRZ`).
-* **Utility Gates**: Measurement (`M`), Identity (`I`).
-* **Composite Gates**: Component (`COMPONENT`).
+Clone the repo:
 
-### Preset Algorithm Library
-Static algorithm presets are categorized in the selector panel:
-* **Quantum Foundations**: Bell State, GHZ State, W State.
-* **Search Algorithms**: Grover's Search (2-qubit iteration), Deutsch Algorithm, Deutsch-Jozsa.
-* **Fourier Algorithms**: Quantum Fourier Transform (3-qubit), Quantum Phase Estimation.
-* **Variational Algorithms**: VQE Ansatz, Layered VQE Ansatz.
-* **Linear Algebra**: HHL Concept Demo.
-* **Quantum Communication**: Quantum Teleportation, Superdense Coding.
-* **Post-Quantum Cryptography**: Kyber Concept Demo, Dilithium Concept Demo.
-
----
-
-## Directory Map and Codebase Inventory
-
-### Frontend Modules
-* [page.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/app/page.tsx): Main entry point mapping the layout grid.
-* [CircuitBuilder.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/CircuitBuilder.tsx): Canvas editor, grid renderer, and simulation execution controls.
-* [AlgorithmSelector.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/AlgorithmSelector.tsx): Preset selection UI.
-* [VisualizationPanel.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/VisualizationPanel.tsx): Playback modal and controls for step-by-step simulation.
-* [BlochSphere.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/BlochSphere.tsx): SVG-based single-qubit Bloch vector visualizer.
-* [CircuitExplainer.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/CircuitExplainer.tsx): Displays explanations, optimizations, and comparisons.
-* [ComparisonTable.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/ComparisonTable.tsx): Frontend metric dashboard.
-* [Histogram.tsx](file:///C:/Extra_s/Code/python/QHack/frontend/components/Histogram.tsx): Renders final counts and state probability distributions.
-* [useWebSocket.ts](file:///C:/Extra_s/Code/python/QHack/frontend/hooks/useWebSocket.ts): Shared WebSocket transport hook.
-* [useCircuitStore.ts](file:///C:/Extra_s/Code/python/QHack/frontend/store/useCircuitStore.ts): State store for circuits and results.
-* [useVisualizationStore.ts](file:///C:/Extra_s/Code/python/QHack/frontend/store/useVisualizationStore.ts): State store for visualization playback.
-* [circuit.ts](file:///C:/Extra_s/Code/python/QHack/frontend/lib/circuit.ts): Serialization and local metric calculations.
-* [gates.ts](file:///C:/Extra_s/Code/python/QHack/frontend/lib/gates.ts): Master gate definitions, properties, and angle parser.
-* [quantum.ts](file:///C:/Extra_s/Code/python/QHack/frontend/lib/quantum.ts): Density matrix partial trace and Bloch calculations.
-
-### Backend Modules
-* [main.py](file:///C:/Extra_s/Code/python/QHack/api/main.py): FastAPI app hosting WebSocket (`/ws`) and REST (`/variational/run`) endpoints.
-* [explainer.py](file:///C:/Extra_s/Code/python/QHack/api/analysis/explainer.py): Context parser, state evolutionary tracker, and scorer.
-* [gate_compiler.py](file:///C:/Extra_s/Code/python/QHack/api/compiler/gate_compiler.py): Compiler transpilation (SWAP decomposition).
-* [variational.py](file:///C:/Extra_s/Code/python/QHack/api/hybrid/variational.py): Variational parameters sweep.
-* [registry.py](file:///C:/Extra_s/Code/python/QHack/api/algorithms/registry.py): Server-side algorithm generator index.
-
----
-
-## Execution Paths
-
-### 1. Standard Simulation Run
-1. The frontend serializes the circuit from `useCircuitStore`.
-2. It expands any `COMPONENT` blocks into their primitive gates.
-3. The serialized circuit is sent to the backend WebSocket endpoint (`/ws`).
-4. The backend compiles the circuit (decomposing `SWAP` gates into CNOTs).
-5. The Qiskit Aer simulator runs the circuit.
-6. The backend generates explanations, optimization suggestions, and comparisons.
-7. The enriched result is returned to the frontend and saved to the store.
-
-### 2. Step-by-Step State Visualization
-1. The user clicks "Visualize" on the control panel.
-2. The circuit is serialized and sent to the backend with `"mode": "step_simulation"`.
-3. The backend runs simulations for each circuit prefix to capture the statevector at every step.
-4. The backend returns a list of step states to the frontend.
-5. The visualization panel launches a playback modal to step through the state vectors.
-
----
-
-## Getting Started: Local Installation and Execution
-
-### Prerequisites
-* Python 3.10
-* Node.js (v18+)
-* npm
-
-### Running the Backend
-```powershell
-# Navigate to the workspace root
-cd C:\Extra_s\Code\python\QHack
-
-# Set up and activate virtual environment
-python -m venv api\.venv
-api\.venv\Scripts\Activate.ps1
-
-# Install requirements
-pip install -r api\requirements.txt
-
-# Run the API server
-uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```bash
+git clone https://github.com/Anchitlahkar/Q-Insight.git
+cd Q-Insight
 ```
-The backend server runs on [http://localhost:8000](http://localhost:8000).
 
-### Running the Frontend
-```powershell
-# Navigate to the frontend directory
-cd C:\Extra_s\Code\python\QHack\frontend
+**1. Backend** (terminal 1, serves on http://localhost:8000):
 
-# Install dependencies
+```bash
+cd api
+python -m venv .venv
+source .venv/bin/activate        # Windows PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+**2. Frontend** (terminal 2, serves on http://localhost:3000):
+
+```bash
+cd frontend
 npm install
-
-# Start the Next.js development server
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
+Open http://localhost:3000. The frontend connects to `ws://localhost:8000/ws` by default. To use a different backend, set `NEXT_PUBLIC_WEBSOCKET_URL` (for example in `frontend/.env.local`).
 
-## Deep Technical Architecture
-For detailed information on the mathematical formulations (such as density matrix calculations, Bloch sphere projection equations, and von Neumann entropy calculations), as well as API schemas and state machine structures, see the [working.md](file:///C:/Extra_s/Code/python/QHack/working.md) documentation.
+Run `uvicorn` from inside `api/`; the entry point is `main:app`.
+
+## Try this first: a Bell state
+
+1. Open Q-Insight. Circuit A starts with 3 qubits; the third stays in `|0⟩` and can be ignored.
+2. Add an **H** gate on qubit 0.
+3. Add a **CNOT** with qubit 0 as control and qubit 1 as target.
+4. Click **▶ Visualize** and step through the circuit.
+5. After H, qubit 0 is in superposition. After CNOT, the two qubits are entangled: the outcomes are `00` or `11`, each with probability 50%, and the individual Bloch vectors shrink toward the center because neither qubit has a pure state on its own.
+
+You can also load **Bell State** from the preset algorithm library.
+
+## Project structure
+
+```
+Q-Insight/
+├── api/         FastAPI + Qiskit backend (WebSocket /ws, REST /variational/run)
+│   ├── algorithms/   Server-side algorithm generators (Grover, QFT, oracle)
+│   ├── analysis/     Explanations, optimization suggestions, comparison
+│   ├── compiler/     Gate compilation (e.g. SWAP decomposition)
+│   └── hybrid/       Variational parameter sweeps
+├── frontend/    Next.js app (components, stores, hooks, lib)
+├── working.md   Deep technical notes: math, API schemas, state machines
+└── LICENSE.md   Apex Source License (ASL) v1.0
+```
+
+For the math (density matrices, Bloch projection, entropy) and API schemas, see [working.md](./working.md).
+
+## Contributing
+
+Contributions are welcome, whether that is a bug report, a new preset algorithm, a docs fix, or a UI improvement. Open an issue to discuss an idea, or send a pull request. Keep changes focused and small.
+
+## License
+
+Q-Insight is released under the [Apex Source License (ASL) v1.0](./LICENSE.md). It is source-available: you may view, study, and use it for education, research, and non-commercial purposes with attribution. Commercial use is restricted. Read the license for the full terms.

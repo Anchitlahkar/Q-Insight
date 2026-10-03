@@ -6,7 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Q-Insight",
-  description: "Real-time quantum circuit simulation frontend with circuit comparison.",
+  description: "Browser-based workbench for building, simulating, and visualizing quantum circuits.",
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
