@@ -41,3 +41,8 @@ frontend/.next/
 frontend/*.tsbuildinfo
 
 .vercel
+
+# Environment files
+.env
+.env.*
+!.env.example
